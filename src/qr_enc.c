@@ -1,4 +1,5 @@
-#include "qr_encoding.h"
+#include "qr_enc.h"
+#include "qr_types.h"
 #include <string.h>
 
 static const size_t qr_capacity_bytes[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT] = {

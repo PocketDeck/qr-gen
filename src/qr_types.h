@@ -12,7 +12,7 @@ typedef enum {
     QR_EC_LEVEL_COUNT
 } qr_ec_level;
 
-unsigned QR_VERSION_COUNT = 40;
+#define QR_VERSION_COUNT 40
 
 // Data encoding modes
 typedef enum {
