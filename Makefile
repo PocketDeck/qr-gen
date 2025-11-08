@@ -5,6 +5,8 @@ BUILD_DIR := build
 SRCS := $(wildcard src/*.c)
 OBJS := $(patsubst src/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 
+TESTFLAGS := -I.
+
 $(BUILD_DIR)/$(BIN): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
@@ -20,4 +22,4 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 run: $(BUILD_DIR)/$(BIN)
-	./$(BUILD_DIR)/$(BIN) "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." "M"
+	./$(BUILD_DIR)/$(BIN) $(ARGS)
