@@ -52,97 +52,48 @@ qr_module_is_reserved(const qr_code *qr, size_t i, size_t j)
     return in_finder || in_timing || in_alignment || in_version || in_format;
 }
 
-// Place a single bit in the matrix, skipping reserved areas
-static void place_bit(qr_matrix *matrix, size_t *x, size_t *y, int *up, uint8_t bit)
+static void
+place_bit(qr_code *qr, size_t *i, size_t *j, int *left, int *up, qr_module_state value)
 {
-    size_t size = matrix->size;
+    int exit = 0;
 
-    while (1)
+    while (!exit)
     {
-        // Skip if this is a reserved module
-        if (!is_reserved_module(matrix, *x, *y))
-        {
-            set_module(matrix, *x, *y, bit);
+        if (*i == 6) --*i;
 
-            // Move to the next position after placing the bit
-            if (*up)
-            {
-                if (*x == 0 || *y == size - 1)
-                {
-                    (*y)--;
-                    *up = 0;
-                    if (*y == 6) (*y)--;  // Skip timing pattern
-                } else {
-                    (*x)--;
-                    (*y)++;
-                }
-            } else {
-                if (*x == size - 1 || *y == 0)
-                {
-                    (*y)--;
-                    *up = 1;
-                    if (*y == 6) (*y)--;  // Skip timing pattern
-                } else {
-                    (*x)++;
-                    (*y)--;
-                }
-            }
-            break;
+        if (!qr_module_is_reserved(qr, *i, *j))
+        {
+            qr_module_set(qr, *i, *j, value);
+            exit = 1;
         }
 
-        // Move to the next position if current is reserved
-        if (*up)
+        if (*left)
         {
-            if (*x == 0 || *y == size - 1)
+            if ((*up && *i == 0) || (!*up && *i == qr->side_length - 1))
             {
-                (*y)--;
-                *up = 0;
-                if (*y == 6) (*y)--;  // Skip timing pattern
-            } else {
-                (*x)--;
-                (*y)++;
-            }
-        } else {
-            if (*x == size - 1 || *y == 0)
-            {
-                (*y)--;
-                *up = 1;
-                if (*y == 6) (*y)--;  // Skip timing pattern
-            } else {
-                (*x)++;
-                (*y)--;
+                *up ^= 1;
+                *j -= 2;
             }
         }
+        else
+        {
+          --*j;
+        }
+
+        *left ^= 1;
     }
 }
 
-// Place codewords in the QR code matrix
-void qr_place_codewords(qr_matrix *matrix, const uint8_t *data, size_t data_len, const uint8_t *ecc, size_t ecc_len)
+void
+qr_place_codewords(qr_code *qr, const uint8_t *codewords, size_t n)
 {
-    if (!matrix || !data || !ecc) return;
+    size_t word, bit;
 
-    size_t x = matrix->size - 1;
-    size_t y = matrix->size - 1;
-    int up = 1;  // Direction: 1 = up-right, 0 = down-left
+    size_t i, j;
+    int left = 1, up = 1;
+    i = j = qr->side_length - 1;
 
-    // Place data codewords
-    for (size_t i = 0; i < data_len; i++)
-    {
-        uint8_t byte = data[i];
-        for (int j = 7; j >= 0; j--)
-        {
-            place_bit(matrix, &x, &y, &up, (byte >> j) & 1);
-        }
-    }
-
-    // Place ECC codewords
-    for (size_t i = 0; i < ecc_len; i++)
-    {
-        uint8_t byte = ecc[i];
-        for (int j = 7; j >= 0; j--)
-        {
-            place_bit(matrix, &x, &y, &up, (byte >> j) & 1);
-        }
-    }
+    for (word = 0; word < n; ++word)
+        for (bit = 7; bit < 8; --bit)
+            place_bit(qr, &i, &j, &left, &up, (codewords[word] >> bit) & 1);
 }
-
