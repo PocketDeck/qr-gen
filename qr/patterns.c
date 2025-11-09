@@ -28,7 +28,7 @@ qr_finder_patterns_apply(qr_code *qr)
 }
 
 void
-qr_separator_apply(qr_code *qr)
+qr_separators_apply(qr_code *qr)
 {
     size_t i;
 

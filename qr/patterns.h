@@ -4,7 +4,7 @@
 #include <qr/types.h>
 
 void qr_finder_patterns_apply(qr_code *qr);
-void qr_separator_apply(qr_code *qr);
+void qr_separators_apply(qr_code *qr);
 void qr_timing_patterns_apply(qr_code *qr);
 void qr_alignment_patterns_apply(qr_code *qr);
 
