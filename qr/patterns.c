@@ -78,7 +78,7 @@ add_alignment_pattern_at(qr_code *qr, size_t i, size_t j)
 
 #define MAX_ALIGNMENT_ENTRIES 7
 #define E 2
-static size_t ALIGNMENT_CENTER_ROW_COLUMN[QR_VERSION_COUNT][MAX_ALIGNMENT_ENTRIES] =
+static size_t ALIGNMENT_CENTER_MODULE[QR_VERSION_COUNT][MAX_ALIGNMENT_ENTRIES] =
 {
     {   E,   E,   E,   E,   E,   E,   E },
     {   6,  18,   E,   E,   E,   E,   E },
@@ -132,8 +132,8 @@ qr_alignment_patterns_apply(qr_code *qr)
     {
         for (entry_b = 0; entry_b < MAX_ALIGNMENT_ENTRIES; ++entry_b)
         {
-            i = ALIGNMENT_CENTER_ROW_COLUMN[qr->version][entry_a] - 2;
-            j = ALIGNMENT_CENTER_ROW_COLUMN[qr->version][entry_b] - 2;
+            i = ALIGNMENT_CENTER_MODULE[qr->version][entry_a] - 2;
+            j = ALIGNMENT_CENTER_MODULE[qr->version][entry_b] - 2;
 
             in_finder_upper_left = i < 8 && j < 8;
             in_finder_upper_right = i < 8 && j >= qr->side_length - 12;
@@ -156,8 +156,8 @@ qr_is_in_alignment_patterns(size_t version, size_t i_, size_t j_)
     {
         for (entry_b = 0; entry_b < MAX_ALIGNMENT_ENTRIES; ++entry_b)
         {
-            i = ALIGNMENT_CENTER_ROW_COLUMN[version][entry_a] - 2;
-            j = ALIGNMENT_CENTER_ROW_COLUMN[version][entry_b] - 2;
+            i = ALIGNMENT_CENTER_MODULE[version][entry_a] - 2;
+            j = ALIGNMENT_CENTER_MODULE[version][entry_b] - 2;
 
             if (!i || !j) continue;
             if (i_ >= i && i_ <= i + 4 && j_ >= j && j_ <= j + 4)

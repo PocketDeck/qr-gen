@@ -2,7 +2,7 @@
 #include <qr/mask.h>
 #include <qr/matrix.h>
 
-static const unsigned ECL_MAP[QR_EC_LEVEL_COUNT] =
+static const unsigned ECL_INDICATOR_MAP[QR_EC_LEVEL_COUNT] =
 {
     [QR_EC_LEVEL_L]=8,
     [QR_EC_LEVEL_M]=0,
@@ -21,7 +21,7 @@ static const unsigned FORMAT_INFO_MAP[QR_EC_LEVEL_COUNT * QR_MASK_PATTERN_COUNT]
 void
 qr_format_info_apply(qr_code *qr)
 {
-    unsigned format_info = FORMAT_INFO_MAP[ECL_MAP[qr->ec_level] + qr->mask];
+    unsigned format_info = FORMAT_INFO_MAP[ECL_INDICATOR_MAP[qr->ec_level] + qr->mask];
 
     // upper left
     qr_module_set(qr, 0, 8, (format_info >> 0) & 1);
@@ -61,7 +61,8 @@ qr_format_info_apply(qr_code *qr)
     qr_module_set(qr, qr->side_length - 1, 8, (format_info >> 14) & 1);
 }
 
-static const unsigned VERSION_INFO_MAP[QR_VERSION_COUNT] = {
+static const unsigned VERSION_INFO_MAP[QR_VERSION_COUNT] =
+{
     0x00000, 0x00000, 0x00000, 0x00000, 0x00000, 0x00000, 0x07C94, 0x085BC, 0x09A99, 0x0A4D3,
     0x0BBF6, 0x0C762, 0x0D847, 0x0E60D, 0x0F928, 0x10B78, 0x1145D, 0x12A17, 0x13532, 0x149A6,
     0x15683, 0x168C9, 0x177EC, 0x18EC4, 0x191E1, 0x1AFAB, 0x1B08E, 0x1CC1A, 0x1D33F, 0x1ED75,
