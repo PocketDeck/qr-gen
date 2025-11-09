@@ -1,8 +1,7 @@
 #ifndef QR_ECC_H
 #define QR_ECC_H
 
-#include <stdint.h>
-#include <stddef.h>
+#include <qr/types.h>
 
 typedef struct
 {

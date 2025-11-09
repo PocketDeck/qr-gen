@@ -157,7 +157,7 @@ unsigned qr_min_version(const char *str, qr_ec_level level)
 
     for (i = 0; i < QR_VERSION_COUNT && str_len > qr_capacity_bytes[level][i]; ++i);
 
-    return (unsigned) i + 1;
+    return (unsigned) i;
 }
 
 size_t qr_calculate_encoded_bits(const char *str, unsigned *required_version, qr_ec_level level)
