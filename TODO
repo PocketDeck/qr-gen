@@ -6,8 +6,9 @@
 [ ] - - - - optional; maybe fill remaining with 0s?
 [ ] - redundancy introduction / error correction
 [ ] - - L:.07; M:.15; Q:.25; H:.3
-[ ] - matrix construction rules
-[ ] - - 21x21 + k(4x4), k in (1,40)
-[ ] - - hardcoded data maps / order ?
+[x] - matrix construction rules
+[x] - - 21x21 + k(4x4), k in (1,40)
+[x] - - fill remaining code with 0s
+[x] - - hardcoded data maps / order ?
 [x] - masking / brightness of image
 [x] - info embeddings
