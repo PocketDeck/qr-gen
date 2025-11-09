@@ -22,8 +22,8 @@ typedef enum
 
 typedef struct
 {
-    qr_ec_level ec_level;
-    qr_encoding_mode encoding_mode;
+    qr_ec_level level;
+    qr_encoding_mode mode;
     unsigned version;
 
     size_t n_data_codewords, n_ec_codewords;

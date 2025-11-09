@@ -21,7 +21,7 @@ static const unsigned FORMAT_INFO_MAP[QR_EC_LEVEL_COUNT * QR_MASK_PATTERN_COUNT]
 void
 qr_format_info_apply(qr_code *qr)
 {
-    unsigned format_info = FORMAT_INFO_MAP[ECL_INDICATOR_MAP[qr->ec_level] + qr->mask];
+    unsigned format_info = FORMAT_INFO_MAP[ECL_INDICATOR_MAP[qr->level] + qr->mask];
 
     // upper left
     qr_module_set(qr, 0, 8, (format_info >> 0) & 1);
