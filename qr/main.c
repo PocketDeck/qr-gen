@@ -49,9 +49,11 @@ main(int argc, char **argv)
     printf("  Input: %s\n", input);
     printf("  Error Correction: %s\n", (const char*[]){"L (7%)", "M (15%)", "Q (25%)", "H (30%)"}[ec_level]);
     printf("  Version: %u\n", version + 1);
+    printf("\n");
 
     qr_code *qr = qr_create(ec_level, QR_MODE_BYTE, version);
     qr_encode_message(qr, input);
+    printf("\n");
     qr_matrix_print(qr);
     qr_destroy(qr);
 

@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <qr/info.h>
 #include <qr/mask.h>
 #include <qr/matrix.h>
@@ -197,7 +198,7 @@ qr_mask_apply_pattern(qr_code *qr, size_t mask_pattern)
 void
 qr_mask_apply(qr_code *qr)
 {
-    int score, best_score = -1;
+    int score, best_score = INT_MAX;
     size_t mask, best_mask;
 
     // version info is necessary for mask evaluation

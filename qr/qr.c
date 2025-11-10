@@ -46,7 +46,7 @@ void
 qr_encode_message(qr_code *qr, const char *message)
 {
     // 1. enc
-    printf("Encoding message..."); fflush(stdout);
+    printf("Encoding message............"); fflush(stdout);
     qr_encode_data(qr, message);
     printf("OK\n");
 
@@ -56,12 +56,12 @@ qr_encode_message(qr_code *qr, const char *message)
     printf("OK\n");
 
     // 3. block
-    printf("Interleaving codewords..."); fflush(stdout);
+    printf("Interleaving codewords......"); fflush(stdout);
     qr_interleave_codewords(qr);
     printf("OK\n");
 
     // 4. matrix
-    printf("Generating matrix..."); fflush(stdout);
+    printf("Generating matrix..........."); fflush(stdout);
     qr_place_codewords(qr);
     qr_finder_patterns_apply(qr);
     qr_separators_apply(qr);
@@ -70,12 +70,12 @@ qr_encode_message(qr_code *qr, const char *message)
     printf("OK\n");
 
     // 5. masking
-    printf("Masking..."); fflush(stdout);
+    printf("Masking....................."); fflush(stdout);
     qr_mask_apply(qr);
     printf("OK\n");
 
     // 6. info
-    printf("Applying meta inforamtion..."); fflush(stdout);
+    printf("Applying meta information..."); fflush(stdout);
     qr_format_info_apply(qr);
     qr_version_info_apply(qr);
     printf("OK\n");

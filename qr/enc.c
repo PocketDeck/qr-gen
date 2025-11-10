@@ -56,7 +56,7 @@ append_bit(word *buffer, size_t *byte, size_t *bit, int value)
 void
 qr_encode_data(qr_code *qr, const char *message)
 {
-    size_t i, j, length, byte, bit;
+    size_t i, j, length, byte = 0, bit = 0;
 
     switch (qr->mode)
     {

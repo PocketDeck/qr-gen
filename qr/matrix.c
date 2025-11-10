@@ -22,8 +22,11 @@ qr_matrix_print(const qr_code *qr)
 
     // quiet zone
     for (i = 0; i < 4; ++i)
-        for (j = 0; j < qr->side_length; ++j)
+    {
+        for (j = 0; j < qr->side_length + 8; ++j)
             printf("\x1b[7m  \x1b[27m");
+        printf("\n");
+    }
 
     for (i = 0; i < qr->side_length; ++i)
     {
@@ -41,8 +44,11 @@ qr_matrix_print(const qr_code *qr)
 
     // quiet zone
     for (i = 0; i < 4; ++i)
-        for (j = 0; j < qr->side_length; ++j)
+    {
+        for (j = 0; j < qr->side_length + 8; ++j)
             printf("\x1b[7m  \x1b[27m");
+        printf("\n");
+    }
 }
 
 int
@@ -76,21 +82,24 @@ place_bit(qr_code *qr, size_t *i, size_t *j, int *left, int *up, qr_module_state
 
     while (!exit)
     {
-        if (*i == 6) --*i;
-
         if (!qr_module_is_reserved(qr, *i, *j))
         {
             qr_module_set(qr, *i, *j, value);
             exit = 1;
         }
 
-        if (*left)
+        if (!*left)
         {
             if ((*up && *i == 0) || (!*up && *i == qr->side_length - 1))
             {
                 *up ^= 1;
                 *j -= 2;
             }
+            else
+            {
+                *i += *up ? -1 : 1;
+            }
+            ++*j;
         }
         else
         {
@@ -98,6 +107,9 @@ place_bit(qr_code *qr, size_t *i, size_t *j, int *left, int *up, qr_module_state
         }
 
         *left ^= 1;
+
+        // skip vertical timing pattern
+        if (*j == 6) --*j;
     }
 }
 
@@ -126,5 +138,6 @@ qr_place_codewords(qr_code *qr)
         place_bit(qr, &i, &j, &left, &up, 0);
 
     // TODO: remove
-    assert(i == qr->side_length - 9 && j == 0 && "Codewords not fully fill symbol");
+    printf("%zu %zu %zu\n", i, j, qr->side_length - 8);
+    assert((i == qr->side_length - 8 || i == 7) && j == 1 && "Codewords not fully fill symbol");
 }
