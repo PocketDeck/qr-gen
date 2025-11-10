@@ -73,6 +73,7 @@ void
 qr_version_info_apply(qr_code *qr)
 {
     unsigned version_info = VERSION_INFO_MAP[qr->version];
+    if (!version_info) return;
 
     // upper right
     qr_module_set(qr, 0, qr->side_length - 11, (version_info >> 0) & 1);
