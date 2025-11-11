@@ -13,4 +13,6 @@
 [x] - masking / brightness of image
 [x] - info embeddings
 
-[ ] - matrix sanity checks
+[x] - matrix sanity checks
+[ ] - correct interleaving
+[ ] - better tests for masking
