@@ -10,7 +10,7 @@ word gf_log[GF_SIZE];
 static word gf_antilog[(GF_SIZE * 2) - 2];
 static int gf_tables_initialized = 0;
 
-void
+static void
 gf_init_log_antilog(void)
 {
     if (gf_tables_initialized) return;
@@ -43,20 +43,21 @@ gf_add(word a, word b)
 }
 
 static void
-generate_generator_polynomial(word *poly, size_t degree)
+generator_polynomial(word *poly, size_t degree)
 {
     size_t i, j;
 
-    poly[0] = 1;
-    for (i = 1; i <= degree; ++i)
+    for (i = 0; i < degree; ++i)
         poly[i] = 0;
+    poly[degree] = 1;
 
     for (i = 0; i < degree; ++i)
     {
         word coef = gf_antilog[i];
 
-        for (j = i + 1; j > 0; --j)
-            poly[j] = gf_add(poly[j - 1], gf_mul(poly[j], coef));
+        for (j = 0; j < degree; ++j)
+            poly[j] = gf_add(poly[j + 1], gf_mul(poly[j], coef));
+        poly[degree] = gf_mul(poly[degree], coef);
     }
 }
 
@@ -74,7 +75,7 @@ ecc_generate(const word *data, size_t data_length, word *ecc, size_t ecc_length,
         feedback = gf_add(data[i], ecc[0]);
         for (j = 0; j < ecc_length - 1; ++j)
             ecc[j] = gf_add(ecc[j + 1], gf_mul(feedback, g[j]));
-        ecc[ecc_length - 1] = gf_mul(feedback, g[j]);
+        ecc[ecc_length - 1] = gf_mul(feedback, g[ecc_length - 1]);
     }
 }
 
@@ -194,6 +195,8 @@ static const size_t TOTAL_DATA_CODEWORD_COUNT[QR_EC_LEVEL_COUNT][QR_VERSION_COUN
 void
 qr_ec_encode(qr_code *qr)
 {
+    gf_init_log_antilog();
+
     size_t i, j, data_length, ecc_length;
     word *data = qr->codewords;
     word *ecc = qr->codewords + TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version];
@@ -203,11 +206,11 @@ qr_ec_encode(qr_code *qr)
         data_length = DATA_CODEWORD_COUNT[qr->level][qr->version][i];
         ecc_length = TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - data_length;
         word generator[ecc_length + 1];
-        generate_generator_polynomial(generator, ecc_length);
+        generator_polynomial(generator, ecc_length);
 
         for (j = 0; j < BLOCK_COUNT[qr->level][qr->version][i]; ++j)
         {
-            ecc_generate(data, data_length, ecc, ecc_length, generator);
+            ecc_generate(data, data_length, ecc, ecc_length, generator + 1);
             data += data_length;
             ecc += ecc_length;
         }
@@ -235,7 +238,7 @@ qr_interleave_codewords(qr_code *qr)
             for (codeword = 0; codeword < DATA_CODEWORD_COUNT[qr->level][qr->version][i]; ++codeword)
                 final_message[(codeword * words_in_column) + block + data_offset] = *(data++);
 
-            for (codeword = 0; codeword < TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - DATA_CODEWORD_COUNT[qr->level][qr->version][i]; ++codeword)
+            for (; codeword < TOTAL_CODEWORD_COUNT[qr->level][qr->version][i]; ++codeword)
                 final_message[(codeword * words_in_column) + block + ecc_offset] = *(ecc++);
         }
 
@@ -247,3 +250,9 @@ qr_interleave_codewords(qr_code *qr)
     for (i = 0; i < qr->codeword_count; ++i)
         qr->codewords[i] = final_message[i];
 }
+
+
+
+// TODO: test for manual errors in tables
+// - qr_ec_blocks 0 => 0 in qr_ec_total_codewords and qr_ec_data_codewords
+// - qr_ec_blocks * qr_ec_total_codewords = qr_capacity_bytes
