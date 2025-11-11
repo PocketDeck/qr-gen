@@ -44,7 +44,7 @@ A lightweight, C-based QR code generator that creates QR codes from text input w
 
 ### Examples
 
-Generate a QR code with default error correction (L):
+Generate a QR code with default error correction (M):
 ```bash
 ./build/release/qr-gen "Hello, World!"
 ```
