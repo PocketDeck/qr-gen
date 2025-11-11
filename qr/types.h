@@ -28,7 +28,7 @@ typedef struct
     qr_encoding_mode mode;
     unsigned version;
 
-    int *matrix; // TODO: type
+    int *matrix;
     size_t side_length;
 
     size_t mask;
