@@ -44,7 +44,7 @@ qr_min_version(size_t bytes, qr_ec_level level)
 static void
 append_bit(word *buffer, size_t *byte, size_t *bit, int value)
 {
-    buffer[*byte] |= (value & 1) << *bit;
+    buffer[*byte] |= (value & 1) << (7 - *bit);
 
     if (++*bit == 8)
     {
@@ -53,10 +53,19 @@ append_bit(word *buffer, size_t *byte, size_t *bit, int value)
     }
 }
 
+static void
+append_byte(word *buffer, size_t *byte, size_t *bit, word value)
+{
+    size_t i;
+
+    for (i = 7; i < 8; --i)
+        append_bit(buffer, byte, bit, (value >> i) & 1);
+}
+
 void
 qr_encode_data(qr_code *qr, const char *message)
 {
-    size_t i, j, length, byte = 0, bit = 0;
+    size_t i, length, byte = 0, bit = 0;
 
     switch (qr->mode)
     {
@@ -71,15 +80,12 @@ qr_encode_data(qr_code *qr, const char *message)
         append_bit(qr->codewords, &byte, &bit, 0);
 
         // character count indicator
-        for (i = qr->version <= 9 ? 8 : 16; i <= 16; --i)
+        for (i = qr->version <= 9 ? 7 : 15; i < 16; --i)
             append_bit(qr->codewords, &byte, &bit, (length >> i) & 1);
 
         // data
         for (i = 0; i < length; ++i)
-        {
-            for (j = 7; j <= 8; --j)
-                append_bit(qr->codewords, &byte, &bit, (message[i] >> j) & 1);
-        }
+            append_byte(qr->codewords, &byte, &bit, message[i]);
 
         // terminator
         append_bit(qr->codewords, &byte, &bit, 0);
@@ -88,17 +94,9 @@ qr_encode_data(qr_code *qr, const char *message)
         append_bit(qr->codewords, &byte, &bit, 0);
 
         // padding
-        for (i = 0; i < CAPACITY_BYTES[qr->level][qr->version] - length; ++i)
-        {
-            for (j = 0; j < 8; ++j)
-                append_bit(qr->codewords, &byte, &bit, 0);
-        }
         while (bit % 8)
             append_bit(qr->codewords, &byte, &bit, 0);
+        for (i = 0; i < CAPACITY_BYTES[qr->level][qr->version] - length; ++i)
+            append_byte(qr->codewords, &byte, &bit, i % 2 == 0 ? 0xEC : 0x11);
     }
 }
-
-
-// TODO: test for manual errors in tables
-// - qr_ec_blocks 0 => 0 in qr_ec_total_codewords and qr_ec_data_codewords
-// - qr_ec_blocks * qr_ec_total_codewords = qr_capacity_bytes
