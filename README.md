@@ -8,7 +8,6 @@ A lightweight, C-based QR code generator that creates QR codes from text input w
 - Support for multiple error correction levels (L, M, Q, H)
 - Pure C implementation with no external dependencies
 - Simple command-line interface
-- Unit tests for core functionality
 
 ## Prerequisites
 
@@ -79,8 +78,4 @@ make test
 
 ## References
 
-- [ISO/IEC 18004:2015](refs/ISO_IEC_18004_2015_Standard.pdf) - QR Code specification
-
-## Contributing
-
-[Add contribution guidelines here]
+- [ISO/IEC 18004:2024](https://www.iso.org/standard/83389.html) - QR Code specification
