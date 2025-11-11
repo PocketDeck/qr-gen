@@ -2,5 +2,5 @@
 
 TEST(sanity_addition)
 {
-	return 3 + 4 == 7 ? 0 : 1;
+    return 3 + 4 == 7 ? 0 : 1;
 }
