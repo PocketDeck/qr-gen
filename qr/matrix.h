@@ -2,6 +2,7 @@
 #define QR_MATRIX_H
 
 #include <qr/types.h>
+#include <stddef.h>
 
 typedef enum
 {
