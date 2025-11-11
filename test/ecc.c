@@ -113,7 +113,6 @@ TEST(ecc_generation) {
 TEST(ecc_table_consistency) {
     for (int level = 0; level < QR_EC_LEVEL_COUNT; level++) {
         for (int version = 0; version < QR_VERSION_COUNT; version++) {
-            size_t total_blocks = 0;
             size_t total_codewords = 0;
             size_t total_data_codewords = 0;
             
@@ -136,7 +135,6 @@ TEST(ecc_table_consistency) {
                     return 20000 + (level * 1000) + (version * 10) + block_type;
                 }
                 
-                total_blocks += block_count;
                 total_codewords += block_count * total_cw;
                 total_data_codewords += block_count * data_cw;
             }
