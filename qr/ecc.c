@@ -220,32 +220,48 @@ qr_ec_encode(qr_code *qr)
     assert(data - qr->codewords == (long int) TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version]);
 }
 
-// TODO: check and clean up
-void
-qr_interleave_codewords(qr_code *qr)
+static word *
+interleave_words(const size_t codeword_count[BLOCK_TYPES_PER_VERSION], const size_t block_count[BLOCK_TYPES_PER_VERSION], word *in, word *out)
 {
     size_t i, block, codeword;
-    size_t words_in_column = 0, data_offset = 0, ecc_offset = 0;
-    word final_message[qr->codeword_count], *data = qr->codewords, *ecc = qr->codewords + TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version];
-
-    for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
-        words_in_column += BLOCK_COUNT[qr->level][qr->version][i];
+    size_t block_offsets[BLOCK_TYPES_PER_VERSION], max_codeword_count = 0;
 
     for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
     {
-        for (block = 0; block < BLOCK_COUNT[qr->level][qr->version][i]; ++block)
-        {
-            for (codeword = 0; codeword < DATA_CODEWORD_COUNT[qr->level][qr->version][i]; ++codeword)
-                final_message[(codeword * words_in_column) + block + data_offset] = *(data++);
-
-            for (; codeword < TOTAL_CODEWORD_COUNT[qr->level][qr->version][i]; ++codeword)
-                final_message[(codeword * words_in_column) + block + ecc_offset] = *(ecc++);
-        }
-
-        data_offset += words_in_column * DATA_CODEWORD_COUNT[qr->level][qr->version][i];
-        data_offset += words_in_column * (TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - DATA_CODEWORD_COUNT[qr->level][qr->version][i]);
-        words_in_column -= BLOCK_COUNT[qr->level][qr->version][i];
+        block_offsets[i] = i ? block_offsets[i - 1] + (codeword_count[i - 1] * block_count[i - 1]) : 0;
+        if (codeword_count[i] > max_codeword_count)
+            max_codeword_count = codeword_count[i];
     }
+
+    for (codeword = 0; codeword < max_codeword_count; ++codeword)
+    {
+        for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
+        {
+            if (codeword >= codeword_count[i]) continue;
+
+            for (block = 0; block < block_count[i]; ++block)
+                *(out++) = in[(block * codeword_count[i]) + codeword + block_offsets[i]];
+        }
+    }
+
+    return out;
+}
+
+void
+qr_interleave_codewords(qr_code *qr)
+{
+    word final_message[qr->codeword_count], *word_ptr = final_message;
+    const size_t *data_codeword_count = DATA_CODEWORD_COUNT[qr->level][qr->version];
+    const size_t *block_count = BLOCK_COUNT[qr->level][qr->version];
+    size_t i, ecc_codeword_count[BLOCK_TYPES_PER_VERSION];
+
+    for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
+        ecc_codeword_count[i] = TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - data_codeword_count[i];
+
+    word_ptr = interleave_words(data_codeword_count, block_count, qr->codewords, word_ptr);
+    word_ptr = interleave_words(ecc_codeword_count, block_count, qr->codewords + TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version], word_ptr);
+
+    assert(word_ptr == final_message + qr->codeword_count && "Length of interleaved message does not match length of original message");
 
     for (i = 0; i < qr->codeword_count; ++i)
         qr->codewords[i] = final_message[i];
