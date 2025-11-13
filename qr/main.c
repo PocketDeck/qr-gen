@@ -65,14 +65,16 @@ main(int argc, char **argv)
 
     log_("QR Code Generation:\n");
     log_("  Input: %s\n", input);
-    log_("  Error Correction: %s\n", (const char*[]){"L (7%)", "M (15%)", "Q (25%)", "H (30%)"}[ec_level]);
+    log_("  Error Correction: %s\n", (const char *[]) {"L (7%)", "M (15%)", "Q (25%)", "H (30%)"}[ec_level]);
     log_("  Version: %u\n", version + 1);
     log_("\n");
 
     qr_code *qr = qr_create(ec_level, QR_MODE_BYTE, version);
     qr_encode_message(qr, input);
     log_("\n");
+    #ifndef NDEBUG
     qr_matrix_print(qr, stderr);
+    #endif
     qr_svg_print(qr, stdout);
     qr_destroy(qr);
 
