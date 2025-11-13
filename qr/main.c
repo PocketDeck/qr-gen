@@ -24,7 +24,7 @@ static void
 print_usage(const char *program_name)
 {
     log_("Usage: %s <string> [error_correction]\n", program_name);
-    log_("  error_correction: L (7%%), M (15%%), Q (25%%), H (30%%). Default: L\n");
+    log_("  error_correction: L (7%%), M (15%%), Q (25%%), H (30%%). Default: M\n");
 }
 
 static qr_ec_level
