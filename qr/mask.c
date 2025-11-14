@@ -185,7 +185,7 @@ qr_mask_evaluate(const qr_code *qr)
 }
 
 void
-qr_mask_apply_pattern(qr_code *qr, size_t mask_pattern)
+qr_mask_apply_pattern(qr_code *qr, unsigned mask_pattern)
 {
     if (mask_pattern >= QR_MASK_PATTERN_COUNT) return;
 
@@ -206,7 +206,7 @@ void
 qr_mask_apply(qr_code *qr)
 {
     int score, best_score = INT_MAX;
-    size_t mask, best_mask;
+    unsigned mask, best_mask;
 
     // version info is necessary for mask evaluation
     qr_version_info_apply(qr);

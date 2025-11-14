@@ -31,7 +31,7 @@ typedef struct
     int *matrix;
     size_t side_length;
 
-    size_t mask;
+    unsigned mask;
 
     size_t codeword_count;
     word *codewords;
