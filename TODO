@@ -14,5 +14,5 @@
 [x] - info embeddings
 
 [x] - matrix sanity checks
-[ ] - correct interleaving
-[ ] - better tests for masking
+[x] - correct interleaving
+[x] - better tests for masking
