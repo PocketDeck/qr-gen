@@ -68,7 +68,7 @@ TEST(generator_polynomial) {
 	word expected5_exponents[6] = {0, 113, 164, 166, 119, 10};
 
 	for (int i = 0; i <= 5; i++) {
-		assert_equal(poly[i], gf_antilog[expected5_exponents[i]], 
+		assert_equal(poly[i], gf_antilog[expected5_exponents[i]],
 			"Generator polynomial coefficient for degree 5");
 	}
 
@@ -82,7 +82,7 @@ TEST(generator_polynomial) {
 	};
 
 	for (int i = 0; i <= 16; i++) {
-		assert_equal(poly[i], gf_antilog[expected16_exponents[i]], 
+		assert_equal(poly[i], gf_antilog[expected16_exponents[i]],
 			"Generator polynomial coefficient for degree 16");
 	}
 
@@ -110,7 +110,7 @@ TEST(ecc_generation) {
 
 	// Compare generated ECC with expected values
 	for (int i = 0; i < 10; i++) {
-		assert_equal(ecc[i], expected_ecc[i], 
+		assert_equal(ecc[i], expected_ecc[i],
 			"ECC generation mismatch");
 	}
 
@@ -164,7 +164,7 @@ TEST(codeword_interleaving_version1_h) {
 
 	// For Version 1-H with 1 block, the codewords should remain in the same order
 	for (size_t i = 0; i < qr.codeword_count; i++) {
-		assert_equal((int) qr.codewords[i], (int) (i + 1), 
+		assert_equal((int) qr.codewords[i], (int) (i + 1),
 			"Codeword order should remain unchanged for single block");
 	}
 
@@ -287,11 +287,11 @@ TEST(ecc_table_consistency) {
 			}
 
 			// Test 3: Total data codewords should match the precomputed value
-			assert_equal(total_data_codewords, TOTAL_DATA_CODEWORD_COUNT[level][version], 
+			assert_equal(total_data_codewords, TOTAL_DATA_CODEWORD_COUNT[level][version],
 				"Total data codewords should match precomputed value");
 
 			// Test 4: Total codewords should match the version's capacity
-			assert_equal(total_codewords, CODEWORD_COUNT[version], 
+			assert_equal(total_codewords, CODEWORD_COUNT[version],
 				"Total codewords should match version capacity");
 		}
 	}

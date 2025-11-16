@@ -1,7 +1,7 @@
 /**
  * @file matrix.c
  * @brief Test cases for QR code matrix operations
- * 
+ *
  * This file contains test cases for the QR code matrix module, including
  * module manipulation, reserved module detection, and codeword placement.
  */
@@ -17,7 +17,7 @@
 
 /**
  * @brief Creates a test QR code with the specified version and size
- * 
+ *
  * @param version QR code version (1-40)
  * @param size Side length of the QR code matrix
  * @return qr_code* Pointer to the created QR code, or NULL on failure
@@ -29,22 +29,22 @@ static qr_code *create_test_qr(unsigned version, size_t size) {
 	qr->version = version;
 	qr->side_length = size;
 	qr->matrix = calloc(size * size, sizeof(int));
-	
+
 	if (!qr->matrix) return NULL;
-	
+
 	return qr;
 }
 
 /**
  * @brief Test codeword placement with all bits set to 1
- * 
+ *
  * Verifies that when all codeword bits are 1, all non-reserved modules
  * are set to QR_MODULE_DARK after placement.
  */
 TEST(codeword_placement) {
 	const size_t size = 21;  // Version 1 QR code
 	const size_t num_codewords = 26;  // Version 1-H has 26 codewords
-	
+
 	// Create test QR code
 	qr_code *qr = create_test_qr(0, size);
 	if (!qr) return TEST_FAILURE("Failed to create test QR code");
@@ -56,7 +56,7 @@ TEST(codeword_placement) {
 	qr->codewords = calloc(num_codewords, sizeof(word));
 	if (!qr->codewords) return TEST_FAILURE("Failed to allocate codewords");
 	qr->codeword_count = num_codewords;
-	
+
 	// Set all codeword bits to 1
 	memset(qr->codewords, 0xFF, num_codewords * sizeof(word));
 
@@ -68,11 +68,11 @@ TEST(codeword_placement) {
 		for (size_t j = 0; j < size; j++) {
 			if (qr_module_is_reserved(qr, i, j)) {
 				// Reserved modules should remain QR_MODULE_LIGHT (0)
-				assert_equal(qr_module_get(qr, i, j), QR_MODULE_LIGHT, 
+				assert_equal(qr_module_get(qr, i, j), QR_MODULE_LIGHT,
 					"Reserved module should remain light");
 			} else {
 				// Non-reserved modules should be QR_MODULE_DARK (1)
-				assert_equal(qr_module_get(qr, i, j), QR_MODULE_DARK, 
+				assert_equal(qr_module_get(qr, i, j), QR_MODULE_DARK,
 					"Non-reserved module should be set to dark");
 			}
 		}
@@ -83,7 +83,7 @@ TEST(codeword_placement) {
 
 /**
  * @brief Test module get/set operations
- * 
+ *
  * Verifies that module states can be set and retrieved correctly.
  */
 TEST(module_get_set) {
@@ -98,8 +98,8 @@ TEST(module_get_set) {
 			qr_module_state expected = (i + j) % 2 ? QR_MODULE_DARK : QR_MODULE_LIGHT;
 			qr_module_set(qr, i, j, expected);
 			qr_module_state actual = qr_module_get(qr, i, j);
-			
-			assert_equal(actual, expected, 
+
+			assert_equal(actual, expected,
 				"Module state should match expected value");
 		}
 	}
@@ -109,7 +109,7 @@ TEST(module_get_set) {
 
 /**
  * @brief Test reserved module detection
- * 
+ *
  * Verifies that reserved modules (finder patterns, timing patterns, etc.)
  * are correctly identified.
  */
@@ -121,23 +121,23 @@ TEST(reserved_module_detection) {
 	// Test finder pattern positions (top-left corner)
 	for (int i = 0; i < 7; i++) {
 		for (int j = 0; j < 7; j++) {
-			assert_equal(qr_module_is_reserved(qr, i, j), 1, 
+			assert_equal(qr_module_is_reserved(qr, i, j), 1,
 				"Finder pattern position should be reserved");
 		}
 	}
 
 	// Test timing pattern (row 6, columns 8-12)
 	for (int j = 8; j < 13; j++) {
-		assert_equal(qr_module_is_reserved(qr, 6, j), 1, 
+		assert_equal(qr_module_is_reserved(qr, 6, j), 1,
 			"Timing pattern position should be reserved");
 	}
 
 	// Test format information (top-left corner)
-	assert_equal(qr_module_is_reserved(qr, 8, 8), 1, 
+	assert_equal(qr_module_is_reserved(qr, 8, 8), 1,
 		"Format information module should be reserved");
 
 	// Test non-reserved area (outside finder patterns and timing patterns)
-	assert_equal(qr_module_is_reserved(qr, 9, 8), 0, 
+	assert_equal(qr_module_is_reserved(qr, 9, 8), 0,
 		"Data module should not be reserved");
 
 	return TEST_SUCCESS;
@@ -145,7 +145,7 @@ TEST(reserved_module_detection) {
 
 /**
  * @brief Test edge cases for module access
- * 
+ *
  * Verifies that the module access functions handle edge cases correctly.
  */
 TEST(module_edge_cases) {
@@ -155,7 +155,7 @@ TEST(module_edge_cases) {
 
 	// Test setting and getting the last module
 	qr_module_set(qr, size-1, size-1, QR_MODULE_DARK);
-	assert_equal(qr_module_get(qr, size-1, size-1), QR_MODULE_DARK, 
+	assert_equal(qr_module_get(qr, size-1, size-1), QR_MODULE_DARK,
 		"Last module should be set to dark");
 
 	return TEST_SUCCESS;

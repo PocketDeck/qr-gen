@@ -297,7 +297,7 @@ TEST(mask_different_versions)
 			for (size_t col = 0; col < qr->side_length; col++) {
 				// Skip reserved modules
 				if (qr_module_is_reserved(qr, row, col)) continue;
-				
+
 				if (qr->matrix[row * qr->side_length + col] != original[row * qr->side_length + col]) {
 					toggled++;
 				}
@@ -311,7 +311,7 @@ TEST(mask_different_versions)
 		for (size_t row = 0; row < qr->side_length; row++) {
 			for (size_t col = 0; col < qr->side_length; col++) {
 				if (qr_module_is_reserved(qr, row, col)) {
-					assert_equal(qr->matrix[row * qr->side_length + col], 
+					assert_equal(qr->matrix[row * qr->side_length + col],
 						original[row * qr->side_length + col],
 						"Reserved module should not be modified by mask pattern");
 				}
