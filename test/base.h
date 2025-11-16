@@ -36,27 +36,27 @@ static struct test_result __before_all(void)
 #define TEST_SUCCESS (struct test_result){0, NULL, 0}
 #define TEST_FAILURE(message) (struct test_result){1, message, __LINE__}
 
-#define assert_base(actual, expected, message, operator) \
+#define assert_base(lhs, rhs, message, operator) \
 	do { \
-		int __assert_actual = (actual); \
-		int __assert_expected = (expected); \
-		if (!(__assert_actual operator __assert_expected)) \
+		int __assert_lhs = (lhs); \
+		int __assert_rhs = (rhs); \
+		if (!(__assert_lhs operator __assert_rhs)) \
 		{ \
 			size_t __assert_length = \
 				strlen(message) + \
-				strlen(": actual {%d} " #operator " expected {%d}") + (2 * INT_MAX_CHARS) + 1; \
+				strlen(": %d " #operator " %d") + (2 * INT_MAX_CHARS) + 1; \
 			char *__assert_message = malloc(__assert_length); \
 			if (__assert_message == NULL) return (struct test_result){1, "assert: malloc failed", __LINE__}; \
-			snprintf(__assert_message, __assert_length, "%s: actual {%d} " #operator " expected {%d}", message, __assert_actual, __assert_expected); \
+			snprintf(__assert_message, __assert_length, "%s: %d " #operator " %d", message, __assert_lhs, __assert_rhs); \
 			return (struct test_result){1, __assert_message, __LINE__}; \
 		} \
 	} while (0)
 
-#define assert_equal(actual, expected, message) assert_base(actual, expected, message, ==)
-#define assert_not_equal(actual, expected, message) assert_base(actual, expected, message, !=)
-#define assert_less_than(actual, expected, message) assert_base(actual, expected, message, <)
-#define assert_greater_than(actual, expected, message) assert_base(actual, expected, message, >)
-#define assert_less_than_or_equal(actual, expected, message) assert_base(actual, expected, message, <=)
-#define assert_greater_than_or_equal(actual, expected, message) assert_base(actual, expected, message, >=)
+#define assert_equal(lhs, rhs, message) assert_base(lhs, rhs, message, ==)
+#define assert_not_equal(lhs, rhs, message) assert_base(lhs, rhs, message, !=)
+#define assert_less_than(lhs, rhs, message) assert_base(lhs, rhs, message, <)
+#define assert_greater_than(lhs, rhs, message) assert_base(lhs, rhs, message, >)
+#define assert_less_than_or_equal(lhs, rhs, message) assert_base(lhs, rhs, message, <=)
+#define assert_greater_than_or_equal(lhs, rhs, message) assert_base(lhs, rhs, message, >=)
 
 #endif // TEST_BASE_H
