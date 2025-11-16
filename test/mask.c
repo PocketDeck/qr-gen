@@ -26,15 +26,15 @@
  * that can be used to verify mask application. The pattern is designed to
  * produce consistent results when masked.
  *
- * @param size The side length of the QR code matrix (including quiet zone)
+ * @param version The version of the QR code
  * @return qr_code* Pointer to the created QR code, or NULL on failure
  */
-static qr_code *create_test_qr(size_t size) {
+static qr_code *create_test_qr(size_t version) {
 	qr_code *qr = calloc(1, sizeof(qr_code));
 	if (!qr) return NULL;
 
-	qr->version = 1;  // Version 1 QR code (21x21)
-	qr->side_length = size;  // No quiet zone in the matrix
+	qr->version = version;  // Version 1 QR code (21x21)
+	qr->side_length = 21 + (version * 4);  // No quiet zone in the matrix
 	qr->matrix = calloc(qr->side_length * qr->side_length, sizeof(int));
 
 	if (!qr->matrix) {
@@ -54,40 +54,22 @@ static qr_code *create_test_qr(size_t size) {
 }
 
 /**
- * @brief Frees resources allocated for a test QR code
- *
- * @param qr Pointer to the QR code to free
- */
-static void free_test_qr(qr_code *qr) {
-	if (qr) {
-		free(qr->matrix);
-		free(qr);
-	}
-}
-
-/**
  * @brief Tests the application of all QR code mask patterns
  *
  * This test verifies that each of the 8 standard QR code mask patterns
  * is correctly applied to a test pattern. It checks that the mask patterns
  * toggle the appropriate modules according to their respective formulas.
  *
- * @return 0 on success, non-zero error code on failure
- *         1000 + pattern_num: Mask pattern application failed
- *         2000 + pattern_num: No modules were toggled
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_patterns_application)
 {
-	const size_t size = 21;  // Version 1 QR code (21x21 modules)
-	qr_code *qr = create_test_qr(size);
-	if (!qr) return 1;
+	qr_code *qr = create_test_qr(2); // Version 2
+	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 	// Make a copy of the original matrix for comparison
 	int *original = malloc(qr->side_length * qr->side_length * sizeof(int));
-	if (!original) {
-		free_test_qr(qr);
-		return 1;
-	}
+	if (!original) return TEST_FAILURE("Memory allocation failed");
 	memcpy(original, qr->matrix, qr->side_length * qr->side_length * sizeof(int));
 
 	// Test each mask pattern
@@ -102,11 +84,8 @@ TEST(mask_patterns_application)
 				// Skip reserved modules (finders, timing, alignment, etc.)
 				if (qr_module_is_reserved(qr, i, j)) {
 					// Verify reserved modules were not modified
-					if (original[i * qr->side_length + j] != qr->matrix[i * qr->side_length + j]) {
-						free(original);
-						free_test_qr(qr);
-						return 1000 + pattern;  // Mask pattern modified reserved module
-					}
+					assert_equal(original[i * qr->side_length + j], qr->matrix[i * qr->side_length + j],
+						"Reserved module should not be modified by mask pattern");
 					continue;
 				}
 				// Check if this module should be toggled based on the mask pattern
@@ -127,30 +106,21 @@ TEST(mask_patterns_application)
 				int original_value = original[i * qr->side_length + j];
 				int expected_value = should_toggle ? !original_value : original_value;
 
-				if (qr->matrix[i * qr->side_length + j] != expected_value) {
-					free(original);
-					free_test_qr(qr);
-					return 1000 + pattern;  // Error code indicating which pattern failed
-				}
+				assert_equal(qr->matrix[i * qr->side_length + j], expected_value,
+					"Mask pattern should toggle modules according to formula");
 
 				if (should_toggle) toggled++;
 			}
 		}
 
 		// Make sure at least some modules were toggled
-		if (toggled == 0) {
-			free(original);
-			free_test_qr(qr);
-			return 2000 + pattern;  // Error code for no modules toggled
-		}
+		assert_greater_than(toggled, 0, "Mask pattern should toggle at least some modules");
 
 		// Reset for next pattern
 		memcpy(qr->matrix, original, qr->side_length * qr->side_length * sizeof(int));
 	}
 
-	free(original);
-	free_test_qr(qr);
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -165,13 +135,15 @@ TEST(mask_patterns_application)
  * @param qr QR code structure to initialize
  * @param size Size of the QR code (e.g., 21 for version 1)
  * @param seed Seed value for the random number generator (srand)
+ *
+ * @return 0 on success, non-zero on failure
  */
-static void init_random_qr(qr_code *qr, size_t size, unsigned int seed) {
+static int init_random_qr(qr_code *qr, size_t size, unsigned int seed) {
 	// Initialize QR code structure
 	qr->version = 1;
 	qr->side_length = size;
 	qr->matrix = calloc(size * size, sizeof(int));
-	if (!qr->matrix) return;
+	if (!qr->matrix) return 1;
 
 	// Initialize random number generator with the provided seed
 	srand(seed);
@@ -190,6 +162,8 @@ static void init_random_qr(qr_code *qr, size_t size, unsigned int seed) {
 	qr_timing_patterns_apply(qr);
 	qr_format_info_apply(qr);
 	qr_version_info_apply(qr);
+
+	return 0;
 }
 
 /**
@@ -199,7 +173,7 @@ static void init_random_qr(qr_code *qr, size_t size, unsigned int seed) {
  * chooses the mask pattern with the lowest penalty score across
  * multiple random patterns.
  *
- * @return 0 on success, non-zero on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_selection_optimality)
 {
@@ -209,9 +183,7 @@ TEST(mask_selection_optimality)
 	// Test with different random patterns
 	for (int test_case = 0; test_case < num_tests; test_case++) {
 		qr_code qr = {0};
-		init_random_qr(&qr, size, (unsigned int)test_case);  // Use test_case as seed
-
-		if (!qr.matrix) return 1000 + test_case;
+		if (init_random_qr(&qr, size, (unsigned int)test_case)) return TEST_FAILURE("Matrix allocation failed");
 
 		// Find the best mask pattern by evaluating all of them
 		int best_score = INT_MAX;
@@ -221,10 +193,7 @@ TEST(mask_selection_optimality)
 			// Create a copy of the QR code
 			qr_code qr_copy = qr;
 			qr_copy.matrix = malloc(size * size * sizeof(int));
-			if (!qr_copy.matrix) {
-				free(qr.matrix);
-				return 2000 + test_case;
-			}
+			if (!qr_copy.matrix) return TEST_FAILURE("Matrix copy allocation failed");
 			memcpy(qr_copy.matrix, qr.matrix, size * size * sizeof(int));
 
 			// Apply pattern and evaluate
@@ -234,26 +203,20 @@ TEST(mask_selection_optimality)
 
 			free(qr_copy.matrix);
 
-			if (score < best_score) {
-				best_score = score;
-			}
+			if (score < best_score) best_score = score;
 		}
 
 		// Verify that the selected pattern has the lowest score
 		for (int pattern = 0; pattern < QR_MASK_PATTERN_COUNT; pattern++) {
-			if (pattern_scores[pattern] < best_score) {
-				// Found a better pattern that wasn't selected
-				free(qr.matrix);
-				return 3000 + (test_case * 10) + pattern;
-			}
+			assert_greater_than_or_equal(pattern_scores[pattern], best_score,
+				"Selected pattern should have the lowest penalty score");
 		}
 
 		// Clean up
 		free(qr.matrix);
 	}
 
-	return 0;
-	// All test cases passed successfully
+	return TEST_SUCCESS;
 }
 /**
  * @brief Test individual mask evaluation features
@@ -264,50 +227,39 @@ TEST(mask_selection_optimality)
  * 3. Specific patterns (1011101 and 000010000100001111101)
  * 4. Ratio of dark to light modules
  *
- * @return 0 on success, non-zero error code on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_evaluation_features)
 {
-	qr_code *qr = create_test_qr(21);
-	if (!qr) return 1;
+	qr_code *qr = create_test_qr(1);
+	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 	// Test feature 1: Adjacent modules in row/column
 	int score1 = feature_1_evaluation(qr);
-	if (score1 < 0) {
-		free_test_qr(qr);
-		return 5000 + score1;  // Error code for feature 1 evaluation
-	}
+	assert_greater_than_or_equal(score1, 0,
+		"Feature 1 evaluation should return non-negative score");
 
 	// Test feature 2: 2x2 blocks of same color
 	int score2 = feature_2_evaluation(qr);
-	if (score2 < 0) {
-		free_test_qr(qr);
-		return 6000 + score2;  // Error code for feature 2 evaluation
-	}
+	assert_greater_than_or_equal(score2, 0,
+		"Feature 2 evaluation should return non-negative score");
 
 	// Test feature 3: Specific patterns (1011101 and 000010000100001111101)
 	int score3 = feature_3_evaluation(qr);
-	if (score3 < 0) {
-		free_test_qr(qr);
-		return 7000 + score3;  // Error code for feature 3 evaluation
-	}
+	assert_greater_than_or_equal(score3, 0,
+		"Feature 3 evaluation should return non-negative score");
 
 	// Test feature 4: Ratio of dark to light modules
 	int score4 = feature_4_evaluation(qr);
-	if (score4 < 0) {
-		free_test_qr(qr);
-		return 8000 + score4;  // Error code for feature 4 evaluation
-	}
+	assert_greater_than_or_equal(score4, 0,
+		"Feature 4 evaluation should return non-negative score");
 
 	// Test overall evaluation
 	int total_score = qr_mask_evaluate(qr);
-	if (total_score < 0) {
-		free_test_qr(qr);
-		return 9000 + total_score;  // Error code for overall evaluation
-	}
+	assert_greater_than_or_equal(total_score, 0,
+		"Overall mask evaluation should return non-negative score");
 
-	free_test_qr(qr);
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -316,33 +268,68 @@ TEST(mask_evaluation_features)
  * This test verifies that mask patterns can be correctly applied to
  * QR codes of different versions (sizes). It tests versions 1-5.
  *
- * @return 0 on success, non-zero on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_different_versions)
 {
-	// Test with different QR code versions (sizes for versions 1-5)
-	// These are the module counts (not including quiet zone)
-	const size_t sizes[] = {21, 25, 29, 33, 37};
-	const int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
-
-	for (int i = 0; i < num_sizes; i++) {
-		qr_code *qr = create_test_qr(sizes[i]);
-		if (!qr) return 1;
+	// Test with different QR code versions (1-5)
+	for (int i = 0; i < 5; i++) {
+		qr_code *qr = create_test_qr(i);
+		if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 		// Set version based on size (simplified)
 		qr->version = i + 1;
 
-		// Apply a random mask pattern
+		// Create a simple test pattern (checkerboard) to verify mask application
+		for (size_t row = 0; row < qr->side_length; row++) {
+			for (size_t col = 0; col < qr->side_length; col++) {
+				// Only set non-reserved modules to a checkerboard pattern
+				if (!qr_module_is_reserved(qr, row, col)) {
+					qr->matrix[row * qr->side_length + col] = ((row + col) % 2) ? QR_MODULE_DARK : QR_MODULE_LIGHT;
+				}
+			}
+		}
+
+		// Make a copy of the original matrix for comparison
+		int *original = malloc(qr->side_length * qr->side_length * sizeof(int));
+		if (!original) return TEST_FAILURE("Original matrix allocation failed");
+		memcpy(original, qr->matrix, qr->side_length * qr->side_length * sizeof(int));
+
+		// Apply a mask pattern
 		int pattern = i % QR_MASK_PATTERN_COUNT;
 		qr_mask_apply_pattern(qr, pattern);
 
-		// Verify the mask was applied to the entire matrix
-		// No quiet zone to check here - it's added during export
+		// Verify the mask was applied - at least some non-reserved modules should be toggled
+		size_t toggled = 0;
+		for (size_t row = 0; row < qr->side_length; row++) {
+			for (size_t col = 0; col < qr->side_length; col++) {
+				// Skip reserved modules
+				if (qr_module_is_reserved(qr, row, col)) continue;
+				
+				if (qr->matrix[row * qr->side_length + col] != original[row * qr->side_length + col]) {
+					toggled++;
+				}
+			}
+		}
 
-		free_test_qr(qr);
+		// Verify that the mask pattern actually changed some modules
+		assert_greater_than(toggled, 0, "Mask pattern should toggle at least some modules");
+
+		// Verify that reserved modules were not modified
+		for (size_t row = 0; row < qr->side_length; row++) {
+			for (size_t col = 0; col < qr->side_length; col++) {
+				if (qr_module_is_reserved(qr, row, col)) {
+					assert_equal(qr->matrix[row * qr->side_length + col], 
+						original[row * qr->side_length + col],
+						"Reserved module should not be modified by mask pattern");
+				}
+			}
+		}
+
+		free(original);
 	}
 
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -352,14 +339,14 @@ TEST(mask_different_versions)
  * appropriate patterns for specific input patterns. It uses a
  * horizontal line pattern that should be penalized by mask 1.
  *
- * @return 0 on success, non-zero on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_pattern_selection_known_cases)
 {
 	// Create a QR code with a pattern containing horizontal lines
 	// This pattern should be penalized by mask 1 (which creates horizontal lines)
-	qr_code *qr = create_test_qr(21);
-	if (!qr) return 1;
+	qr_code *qr = create_test_qr(1);
+	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 	// Create a pattern with many horizontal lines (should be penalized by mask 1)
 	for (size_t i = 4; i < qr->side_length - 4; i++) {
@@ -369,18 +356,15 @@ TEST(mask_pattern_selection_known_cases)
 		}
 	}
 
-	// Find the best pattern for this QR code
-	int best_pattern = 0;
+	// Apply all patterns and find the best one
+	int best_pattern = -1;
 	int best_score = INT_MAX;
 
 	for (int pattern = 0; pattern < QR_MASK_PATTERN_COUNT; pattern++) {
-		// Create a copy of the QR code
+		// Create a copy
 		qr_code qr_copy = *qr;
 		qr_copy.matrix = malloc(qr->side_length * qr->side_length * sizeof(int));
-		if (!qr_copy.matrix) {
-			free_test_qr(qr);
-			return 1;
-		}
+		if (!qr_copy.matrix) return TEST_FAILURE("Matrix copy allocation failed");
 		memcpy(qr_copy.matrix, qr->matrix, qr->side_length * qr->side_length * sizeof(int));
 
 		// Apply pattern and evaluate
@@ -396,13 +380,10 @@ TEST(mask_pattern_selection_known_cases)
 	}
 
 	// Mask 1 creates horizontal lines, which would be bad for this pattern
-	if (best_pattern == 1) {
-		free_test_qr(qr);
-		return 20000 + best_pattern;  // Error code for suboptimal pattern selection
-	}
+	assert_not_equal(best_pattern, 1,
+		"Mask 1 should not be selected for horizontal line pattern");
 
-	free_test_qr(qr);
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -412,10 +393,7 @@ TEST(mask_pattern_selection_known_cases)
  * applying the same mask pattern again. It uses a checkerboard pattern to ensure
  * that the mask patterns interact with the data in a predictable way.
  *
- * @return 0 on success, non-zero error code on failure
- *         1: Memory allocation failed
- *         2: Mask pattern application failed
- *         3: Double mask application didn't return to original
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_patterns)
 {
@@ -425,7 +403,7 @@ TEST(mask_patterns)
 	qr.side_length = 21;  // No quiet zone
 	qr.matrix = calloc(qr.side_length * qr.side_length, sizeof(int));
 
-	if (!qr.matrix) return 1;
+	if (!qr.matrix) return TEST_FAILURE("Matrix allocation failed");
 
 	// Create a checkerboard pattern
 	for (size_t i = 0; i < qr.side_length; i++) {
@@ -439,10 +417,7 @@ TEST(mask_patterns)
 
 	// Make a copy of the original matrix for comparison
 	int *original = malloc(qr.side_length * qr.side_length * sizeof(int));
-	if (!original) {
-		free(qr.matrix);
-		return 1;
-	}
+	if (!original) return TEST_FAILURE("Original matrix allocation failed");
 	memcpy(original, qr.matrix, qr.side_length * qr.side_length * sizeof(int));
 
 	// Test each mask pattern
@@ -455,11 +430,8 @@ TEST(mask_patterns)
 			for (size_t j = 0; j < qr.side_length; j++) {
 				// Skip reserved modules - they shouldn't be modified
 				if (qr_module_is_reserved(&qr, i, j)) {
-					if (qr.matrix[i * qr.side_length + j] != original[i * qr.side_length + j]) {
-						free(original);
-						free(qr.matrix);
-						return 1000 + pattern;  // Mask pattern modified reserved module
-					}
+					assert_equal(qr.matrix[i * qr.side_length + j], original[i * qr.side_length + j],
+						"Reserved module was modified by mask pattern");
 					continue;
 				}
 
@@ -478,11 +450,8 @@ TEST(mask_patterns)
 
 				// The module should be toggled if the mask pattern says so
 				int expected = original[i * qr.side_length + j] ^ should_toggle;
-				if (qr.matrix[i * qr.side_length + j] != expected) {
-					free(original);
-					free(qr.matrix);
-					return 2000 + pattern;  // Mask pattern application failed
-				}
+				assert_equal(qr.matrix[i * qr.side_length + j], expected,
+					"Mask pattern should toggle modules according to formula");
 			}
 		}
 
@@ -492,17 +461,15 @@ TEST(mask_patterns)
 		// Verify we're back to the original pattern
 		for (size_t i = 0; i < qr.side_length; i++) {
 			for (size_t j = 0; j < qr.side_length; j++) {
-				if (qr.matrix[i * qr.side_length + j] != original[i * qr.side_length + j]) {
-					free(original);
-					free(qr.matrix);
-					return 3000 + pattern;  // Double mask application didn't return to original
-				}
+				assert_equal(qr.matrix[i * qr.side_length + j], original[i * qr.side_length + j],
+					"Double mask application didn't return to original");
 			}
 		}
 	}
 
+	free(original);
 	free(qr.matrix);
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -520,7 +487,6 @@ typedef struct {
  *
  * @param qr Pointer to QR code structure to initialize
  * @param test The test case containing the pattern
- * @return int 0 on success, non-zero on error
  */
 static int init_qr_from_pattern(qr_code *qr, const mask_penalty_test_case *test) {
 	qr->version = (test->size - 21) / 4;  // Version 1 for testing (21x21)
@@ -552,15 +518,13 @@ static int init_qr_from_pattern(qr_code *qr, const mask_penalty_test_case *test)
 	return 0;
 }
 
-int loggg = 0;
-
 /**
  * @brief Test mask penalty calculation for specific patterns
  *
  * This test verifies that the mask penalty calculation works correctly
  * by testing against known patterns with pre-calculated penalty scores.
  *
- * @return 0 on success, non-zero on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_penalty_calculation)
 {
@@ -603,9 +567,7 @@ TEST(mask_penalty_calculation)
 
 		// Initialize QR code from pattern
 		qr_code qr = {0};
-		if (init_qr_from_pattern(&qr, test)) {
-			return 1000 + t;  // Memory allocation failed
-		}
+		if (init_qr_from_pattern(&qr, test)) return TEST_FAILURE("Memory allocation failed");
 
 		// Test each mask pattern
 		for (int pattern = 0; pattern < QR_MASK_PATTERN_COUNT; pattern++) {
@@ -616,17 +578,12 @@ TEST(mask_penalty_calculation)
 			qr_version_info_apply(&qr);
 
 			// Calculate the penalty score
-			loggg = 1;
 			int score = qr_mask_evaluate(&qr);
-			loggg = 0;
 
 			// Verify the score matches expected
-			if (test->expected_scores[pattern] != -1 &&  // -1 means skip this check
-				score != test->expected_scores[pattern]) {
-				free(qr.matrix);
-				printf("Score mismatch for test %zu, pattern %d: expected %d, got %d\n\n\n", t, pattern, test->expected_scores[pattern], score);
-				return 2000 + (t * 10) + pattern;  // Penalty score mismatch
-			}
+			if (test->expected_scores[pattern] != -1)  // -1 means skip this check
+				assert_equal(score, test->expected_scores[pattern],
+					"Penalty score mismatch");
 
 			// Undo the mask for the next test
 			qr_mask_apply_pattern(&qr, pattern);
@@ -635,7 +592,7 @@ TEST(mask_penalty_calculation)
 		free(qr.matrix);
 	}
 
-	return 0;
+	return TEST_SUCCESS;
 }
 
 // Test mask evaluation features
@@ -647,7 +604,7 @@ TEST(mask_evaluation)
 	qr.side_length = 21 + 8;  // 21 modules + 8 quiet zone (4 on each side)
 	qr.matrix = calloc(qr.side_length * qr.side_length, sizeof(int));
 
-	if (!qr.matrix) return 1;
+	if (!qr.matrix) return TEST_FAILURE("Matrix allocation failed");
 
 	// Test feature 1: Adjacent modules in row/column
 	// Create 6 dark modules in a row (should be penalized)
@@ -656,10 +613,7 @@ TEST(mask_evaluation)
 	}
 
 	int score = qr_mask_evaluate(&qr);
-	if (score == 0) {
-		free(qr.matrix);
-		return 2;  // Failed to detect consecutive modules
-	}
+	assert_greater_than(score, 0, "Should detect consecutive modules in row/column");
 
 	// Clear the matrix
 	memset(qr.matrix, 0, qr.side_length * qr.side_length * sizeof(int));
@@ -674,13 +628,9 @@ TEST(mask_evaluation)
 	qr.matrix[(base_i + 1) * qr.side_length + base_j + 1] = 1;
 
 	score = qr_mask_evaluate(&qr);
-	if (score == 0) {
-		free(qr.matrix);
-		return 3;  // Failed to detect 2x2 block
-	}
+	assert_greater_than(score, 0, "Should detect 2x2 block of same modules");
 
-	free(qr.matrix);
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -690,7 +640,7 @@ TEST(mask_evaluation)
  * the same pattern for different inputs. It creates multiple random matrices
  * and checks that at least 3 different patterns are selected across them.
  *
- * @return 0 on success, non-zero on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(mask_pattern_diversity)
 {
@@ -708,9 +658,7 @@ TEST(mask_pattern_diversity)
 		qr.version = 1;  // Version 1
 		qr.side_length = size;
 		qr.matrix = calloc(size * size, sizeof(int));
-		if (!qr.matrix) {
-			return 1000 + test_case;
-		}
+		if (!qr.matrix) return TEST_FAILURE("Matrix allocation failed");
 
 		init_random_qr(&qr, size, test_case + 1234);
 
@@ -722,22 +670,19 @@ TEST(mask_pattern_diversity)
 		int best_pattern = (int)qr.mask;
 
 		// Track how many times each pattern was selected
-		if (pattern_counts[best_pattern] == 0) {
-			unique_patterns++;
-		}
+		if (pattern_counts[best_pattern] == 0) unique_patterns++;
 		pattern_counts[best_pattern]++;
 
 		// Clean up
 		free(qr.matrix);
 
 		// Early exit if we've already met our diversity requirement
-		if (unique_patterns >= min_unique_patterns) {
-			break;
-		}
+		if (unique_patterns >= min_unique_patterns) break;
 	}
 
 	// Verify we have sufficient pattern diversity
-	if (unique_patterns < min_unique_patterns) return 3000 + unique_patterns;
+	assert_greater_than_or_equal(unique_patterns, min_unique_patterns,
+		"Insufficient pattern diversity");
 
-	return 0;
+	return TEST_SUCCESS;
 }

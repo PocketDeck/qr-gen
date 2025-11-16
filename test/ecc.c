@@ -20,11 +20,11 @@
  * Sets up the Galois Field log/antilog tables required for ECC calculations.
  * This function is automatically called before each test case.
  *
- * @return 0 on success, non-zero on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 BEFORE() {
 	gf_init_log_antilog();
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -35,23 +35,23 @@ BEFORE() {
  * - Multiplication using log/antilog tables
  * - Edge cases with zero and one
  *
- * @return 0 on success, non-zero error code on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(gf_arithmetic) {
 	// Test multiplication
-	if (gf_mul(2, 3) != 6) return 1;     // 2 * 3 = 6
-	if (gf_mul(0, 5) != 0) return 2;     // 0 * 5 = 0
-	if (gf_mul(7, 1) != 7) return 3;     // 7 * 1 = 7
+	assert_equal(gf_mul(2, 3), 6, "Galois Field multiplication of 2 and 3");
+	assert_equal(gf_mul(0, 5), 0, "Galois Field multiplication with zero");
+	assert_equal(gf_mul(7, 1), 7, "Galois Field multiplication with one");
 
 	// Test addition (XOR in GF)
-	if (gf_add(5, 3) != 6) return 4;     // 5 + 3 = 6 (XOR)
-	if (gf_add(0, 4) != 4) return 5;     // 0 + 4 = 4
+	assert_equal(gf_add(5, 3), 6, "Galois Field addition of 5 and 3");
+	assert_equal(gf_add(0, 4), 4, "Galois Field addition with zero");
 
 	// Test multiplication with log/antilog tables
-	if (gf_mul(0x03, 0x0E) != 18) return 6;  // Example from QR spec
-	if (gf_mul(0x1A, 0x0B) != 254) return 7; // Example from QR spec
+	assert_equal(gf_mul(0x03, 0x0E), 18, "Galois Field multiplication of 0x03 and 0x0E");
+	assert_equal(gf_mul(0x1A, 0x0B), 254, "Galois Field multiplication of 0x1A and 0x0B");
 
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -61,7 +61,7 @@ TEST(gf_arithmetic) {
  * expected coefficients for given polynomial degrees. The generator polynomial
  * is used in the Reed-Solomon error correction process.
  *
- * @return 0 on success, non-zero error code on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(generator_polynomial) {
 	word poly[30];  // Large enough for testing
@@ -74,9 +74,8 @@ TEST(generator_polynomial) {
 	word expected5_exponents[6] = {0, 113, 164, 166, 119, 10};
 
 	for (int i = 0; i <= 5; i++) {
-		if (poly[i] != gf_antilog[expected5_exponents[i]]) {
-			return 1;  // Coefficient mismatch
-		}
+		assert_equal(poly[i], gf_antilog[expected5_exponents[i]], 
+			"Generator polynomial coefficient for degree 5");
 	}
 
 	// Test case 2: Degree 16 generator polynomial (17 coefficients)
@@ -89,12 +88,11 @@ TEST(generator_polynomial) {
 	};
 
 	for (int i = 0; i <= 16; i++) {
-		if (poly[i] != gf_antilog[expected16_exponents[i]]) {
-			return 2;  // Coefficient mismatch
-		}
+		assert_equal(poly[i], gf_antilog[expected16_exponents[i]], 
+			"Generator polynomial coefficient for degree 16");
 	}
 
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -118,12 +116,11 @@ TEST(ecc_generation) {
 
 	// Compare generated ECC with expected values
 	for (int i = 0; i < 10; i++) {
-		if (ecc[i] != expected_ecc[i]) {
-			return i + 1;  // Return position + 1 as error code
-		}
+		assert_equal(ecc[i], expected_ecc[i], 
+			"ECC generation mismatch at position");
 	}
 
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -142,7 +139,7 @@ TEST(ecc_generation) {
  * - 17 ECC codewords (26 total - 9 data)
  */
 TEST(codeword_interleaving_version1_h) {
-		// Test case for Version 1-H QR code which has:
+	// Test case for Version 1-H QR code which has:
 	// - 1 block (no interleaving needed)
 	// - 9 data codewords
 	// - 17 ECC codewords (26 total - 9 data)
@@ -159,11 +156,11 @@ TEST(codeword_interleaving_version1_h) {
 
 	// Allocate and initialize test codewords
 	word *test_codewords = calloc(qr.codeword_count, sizeof(word));
-	if (!test_codewords) return 1;
+	if (!test_codewords) return TEST_FAILURE("Memory allocation failed");
 
 	// Fill test data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
 	for (size_t i = 0; i < qr.codeword_count; i++) {
-		test_codewords[i] = (word)(i + 1);
+		test_codewords[i] = (word) (i + 1);
 	}
 
 	qr.codewords = test_codewords;
@@ -173,14 +170,12 @@ TEST(codeword_interleaving_version1_h) {
 
 	// For Version 1-H with 1 block, the codewords should remain in the same order
 	for (size_t i = 0; i < qr.codeword_count; i++) {
-		if (qr.codewords[i] != (word)(i + 1)) {
-			free(test_codewords);
-			return 2; // Codeword at position %zu doesn't match expected value
-		}
+		assert_equal((int) qr.codewords[i], (int) (i + 1), 
+			"Codeword order should remain unchanged for single block");
 	}
 
 	free(test_codewords);
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -190,7 +185,7 @@ TEST(codeword_interleaving_version1_h) {
  * - Block Type 1: 1 block, 15 data codewords, 17 total codewords (2 ECC codewords)
  */
 TEST(codeword_interleaving_version8_m) {
-		// Test case for Version 8-M QR code which has:
+	// Test case for Version 8-M QR code which has:
 	// - 2 blocks of Type 0: 38 data + 22 ECC = 60 codewords each
 	// - 2 blocks of Type 1: 39 data + 22 ECC = 61 codewords each
 	// Total codewords = 2*60 + 2*61 = 242
@@ -207,17 +202,16 @@ TEST(codeword_interleaving_version8_m) {
 
 	// Allocate and initialize test codewords
 	word *test_codewords = calloc(qr.codeword_count, sizeof(word));
-	if (!test_codewords) return 1;
+	if (!test_codewords) return TEST_FAILURE("Memory allocation failed");
 
 	// Fill test data:
 	// Block 0-0 (type 0, block 0): [1, 2, ..., 60] (38 data + 22 ECC)
 	// Block 0-1 (type 0, block 1): [101, 102, ..., 120] (38 data + 22 ECC)
 	// Block 1-0 (type 1, block 0): [121, 122, ..., 181] (39 data + 22 ECC)
 	// Block 1-1 (type 1, block 1): [182, 183, ..., 242] (39 data + 22 ECC)
-
 	// Fill Block 0-0 (type 0, block 0)
 	for (size_t i = 0; i < 242; i++) {
-		test_codewords[i] = (word)(i + 1);
+		test_codewords[i] = (word) (i + 1);
 	}
 
 	qr.codewords = test_codewords;
@@ -237,33 +231,32 @@ TEST(codeword_interleaving_version8_m) {
 	//    - Block 0-1: 22 ECC codewords (83-104)
 	//    - Block 1-0: 22 ECC codewords (105-126)
 	//    - Block 1-1: 22 ECC codewords (127-148)
-
 	// Check first data codeword from each block
-	if (qr.codewords[0] != 1) { free(test_codewords); return 2; }
-	if (qr.codewords[1] != 39) { free(test_codewords); return 3; }
-	if (qr.codewords[2] != 77) { free(test_codewords); return 4; }
+	assert_equal(qr.codewords[0], 1, "Data codeword value verification");
+	assert_equal(qr.codewords[1], 39, "Data codeword value verification");
+	assert_equal(qr.codewords[2], 77, "Data codeword value verification");
 
 	// Check second data codeword from each block
-	if (qr.codewords[3] != 116) { free(test_codewords); return 5; }
-	if (qr.codewords[4] != 2) { free(test_codewords); return 6; }
-	if (qr.codewords[5] != 40) { free(test_codewords); return 7; }
+	assert_equal(qr.codewords[3], 116, "Data codeword value verification");
+	assert_equal(qr.codewords[4], 2, "Data codeword value verification");
+	assert_equal(qr.codewords[5], 40, "Data codeword value verification");
 
 	// Check last data codeword from each block
-	if (qr.codewords[148] != 38) { free(test_codewords); return 8; }     // Last of block 0-0
-	if (qr.codewords[149] != 76) { free(test_codewords); return 9; }    // Last of block 0-1
-	if (qr.codewords[152] != 115) { free(test_codewords); return 10; }   // Last of block 1-0
-	if (qr.codewords[153] != 154) { free(test_codewords); return 11; }   // Last of block 1-0
+	assert_equal(qr.codewords[148], 38, "Data codeword value verification");
+	assert_equal(qr.codewords[149], 76, "Data codeword value verification");
+	assert_equal(qr.codewords[152], 115, "Data codeword value verification");
+	assert_equal(qr.codewords[153], 154, "Data codeword value verification");
 
 	// Check ECC codewords
-	if (qr.codewords[154] != 155) { free(test_codewords); return 12; }    // First ECC of block 0-0
-	if (qr.codewords[155] != 177) { free(test_codewords); return 13; }   // First ECC of block 0-1
-	if (qr.codewords[156] != 199) { free(test_codewords); return 14; }   // First ECC of block 1-0
-	if (qr.codewords[157] != 221) { free(test_codewords); return 15; }    // First ECC of block 1-1
-	if (qr.codewords[158] != 156) { free(test_codewords); return 16; }   // Second ECC of block 0-0
-	if (qr.codewords[159] != 178) { free(test_codewords); return 17; }   // Second ECC of block 0-1
+	assert_equal(qr.codewords[154], 155, "ECC codeword value verification");
+	assert_equal(qr.codewords[155], 177, "ECC codeword value verification");
+	assert_equal(qr.codewords[156], 199, "ECC codeword value verification");
+	assert_equal(qr.codewords[157], 221, "ECC codeword value verification");
+	assert_equal(qr.codewords[158], 156, "ECC codeword value verification");
+	assert_equal(qr.codewords[159], 178, "ECC codeword value verification");
 
 	free(test_codewords);
-	return 0;
+	return TEST_SUCCESS;
 }
 
 /**
@@ -272,7 +265,7 @@ TEST(codeword_interleaving_version8_m) {
  * Verifies that the ECC tables (BLOCK_COUNT, TOTAL_CODEWORD_COUNT, DATA_CODEWORD_COUNT)
  * are consistent with each other and follow the QR code specification.
  *
- * @return 0 on success, non-zero error code on failure
+ * @return TEST_SUCCESS on success, error message string on failure
  */
 TEST(ecc_table_consistency) {
 	for (int level = 0; level < QR_EC_LEVEL_COUNT; level++) {
@@ -288,32 +281,28 @@ TEST(ecc_table_consistency) {
 
 				// Test 1: If block_count is 0, both total_cw and data_cw should be 0
 				if (block_count == 0) {
-					if (total_cw != 0 || data_cw != 0) {
-						return 10000 + (level * 1000) + (version * 10) + block_type;
-					}
+					assert_equal(total_cw, 0, "Total codewords count when block count is 0");
+					assert_equal(data_cw, 0, "Data codewords count when block count is 0");
 					continue;
 				}
 
 				// Test 2: total_cw should be >= data_cw
-				if (total_cw < data_cw) {
-					return 20000 + (level * 1000) + (version * 10) + block_type;
-				}
+				assert_greater_than_or_equal(total_cw, data_cw,
+					"Total codewords should be >= data codewords");
 
 				total_codewords += block_count * total_cw;
 				total_data_codewords += block_count * data_cw;
 			}
 
 			// Test 3: Total data codewords should match the precomputed value
-			if (total_data_codewords != TOTAL_DATA_CODEWORD_COUNT[level][version]) {
-				return 30000 + (level * 1000) + (version * 10);
-			}
+			assert_equal(total_data_codewords, TOTAL_DATA_CODEWORD_COUNT[level][version], 
+				"Total data codewords should match precomputed value");
 
 			// Test 4: Total codewords should match the version's capacity
-			if (total_codewords != CODEWORD_COUNT[version]) {
-				return 40000 + (level * 1000) + (version * 10);
-			}
+			assert_equal(total_codewords, CODEWORD_COUNT[version], 
+				"Total codewords should match version capacity");
 		}
 	}
 
-	return 0;
+	return TEST_SUCCESS;
 }

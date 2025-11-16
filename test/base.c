@@ -7,10 +7,10 @@
 typedef struct test_node
 {
 	const char *name;
-	int (*fn)(void);
-	struct test_node *next;
-	int res;
 	int is_preparation;
+	struct test_result (*fn)(void);
+	struct test_result res;
+	struct test_node *next;
 } test_node;
 
 typedef struct group_node
@@ -25,16 +25,16 @@ static group_node *group_head;
 static size_t biggest_group_name = 0;
 
 test_node *
-append_test(test_node **head, const char *name, int (*fn)(void))
+append_test(test_node **head, const char *name, struct test_result (*fn)(void))
 {
 	test_node *new_test, *current;
 
 	new_test = malloc(sizeof(test_node));
 	new_test->name = name;
-	new_test->fn = fn;
-	new_test->next = NULL;
-	new_test->res = 0;
 	new_test->is_preparation = 0;
+	new_test->fn = fn;
+	new_test->res = TEST_SUCCESS;
+	new_test->next = NULL;
 
 	if (!*head)
 	{
@@ -50,16 +50,16 @@ append_test(test_node **head, const char *name, int (*fn)(void))
 }
 
 test_node *
-prepend_preparation(test_node **head, const char *name, int (*fn)(void))
+prepend_preparation(test_node **head, const char *name, struct test_result (*fn)(void))
 {
 	test_node *new_test;
 
 	new_test = malloc(sizeof(test_node));
 	new_test->name = name;
-	new_test->fn = fn;
-	new_test->next = *head;
-	new_test->res = 0;
 	new_test->is_preparation = 1;
+	new_test->fn = fn;
+	new_test->res = TEST_SUCCESS;
+	new_test->next = *head;
 
 	*head = new_test;
 
@@ -73,9 +73,9 @@ append_group(group_node **head, const char *name)
 
 	group_node *new_group = malloc(sizeof(group_node));
 	new_group->name = name;
-	new_group->next = NULL;
 	new_group->tests = NULL;
 	new_group->count = 0;
+	new_group->next = NULL;
 
 	if (!*head)
 	{
@@ -105,7 +105,7 @@ group_exists(group_node **head, const char *name)
 }
 
 void
-test_register(const char *group_name, const char *test_name, int (*fn)(void))
+test_register(const char *group_name, const char *test_name, struct test_result (*fn)(void))
 {
 	group_node *group;
 
@@ -117,7 +117,7 @@ test_register(const char *group_name, const char *test_name, int (*fn)(void))
 }
 
 void
-before_register(const char *group_name, const char *test_name, int (*fn)(void))
+before_register(const char *group_name, const char *test_name, struct test_result (*fn)(void))
 {
 	group_node *group;
 
@@ -132,8 +132,8 @@ before_register(const char *group_name, const char *test_name, int (*fn)(void))
 size_t
 run_test_group(group_node *group)
 {
-	size_t total, failures, i;
-	total = failures = 0;
+	size_t total = 0, failures = 0, i;
+
 	printf("Test group %s:\n", group->name);
 	for (test_node *current_test = group->tests; current_test; current_test = current_test->next)
 	{
@@ -143,18 +143,18 @@ run_test_group(group_node *group)
 			continue;
 		}
 
-		printf("=> '%s' (%zu/%zu)", current_test->name, total, group->count);
+		printf("  => %s (%zu/%zu)", current_test->name, total, group->count);
 		fflush(stdout);
 		++total;
 		current_test->res = current_test->fn();
 		printf("\r\x1b[K");
 
-		if (!current_test->res) continue;
+		if (!current_test->res.failed) continue;
 		++failures;
-		printf("  => '%s' failed: %d\n", current_test->name, current_test->res);
+		printf("  => %s:%zu [%s] failed:\n    => %s\n", current_test->name, current_test->res.line, current_test->name, current_test->res.message);
 	}
 
-	for (i = 0; i < failures + 1; ++i)
+	for (i = 0; i < (2 * failures) + 1; ++i)
 		printf("\x1b[K\x1b[A");
 
 	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, ((int) biggest_group_name) - ((int) strlen(group->name)) + 1, ":", total, failures);
@@ -175,18 +175,20 @@ main(void)
 {
 	group_node *current_group;
 	test_node *current_test;
-	size_t total_failures = 0;
+	size_t total_failures = 0, total_tests = 0;
 
 	for (current_group = group_head; current_group; current_group = current_group->next)
+		total_tests += current_group->count;
+	for (current_group = group_head; current_group; current_group = current_group->next)
 		total_failures += run_test_group(current_group);
+
+	printf("\nSummary: %zu test(s) ran; %zu failed.\n", total_tests, total_failures);
 	for (current_group = group_head; current_group; current_group = current_group->next)
 	{
 		for (current_test = current_group->tests; current_test; current_test = current_test->next)
 		{
-			if (!current_test->res)
-				continue;
-
-			printf("  => '%s [%s]' failed: %d\n", current_group->name, current_test->name, current_test->res);
+			if (!current_test->res.failed) continue;
+			printf("  => %s:%zu [%s] failed:\n    => %s\n", current_group->name, current_test->res.line, current_test->name, current_test->res.message);
 		}
 	}
 
