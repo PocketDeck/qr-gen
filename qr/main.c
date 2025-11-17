@@ -57,7 +57,7 @@ main(int argc, char **argv)
 	qr_ec_level ec_level = (argc > 2) ? parse_ec_level(argv[2]) : QR_EC_LEVEL_M;
 
 	unsigned version = qr_min_version(strlen(input), ec_level);
-	if (version > QR_VERSION_COUNT)
+	if (version >= QR_VERSION_COUNT)
 	{
 		log_("Error: Input too large for QR code\n");
 		return 1;
