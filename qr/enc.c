@@ -82,7 +82,7 @@ qr_encode_data(qr_code *qr, const char *message)
 		append_bit(qr->codewords, &byte, &bit, 0);
 
 		// character count indicator
-		for (i = qr->version <= 9 ? 7 : 15; i < 16; --i)
+		for (i = qr->version + 1 >= 10 ? 15 : 7; i < 16; --i)
 			append_bit(qr->codewords, &byte, &bit, (length >> i) & 1);
 
 		// data
