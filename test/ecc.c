@@ -60,7 +60,7 @@ TEST(gf_arithmetic) {
 TEST(generator_polynomial) {
 	word poly[30];  // Large enough for testing
 
-	// Test case 1: Degree 5 generator polynomial (6 coefficients)
+	// Test case 1: Degree 5 generator polynomial (5 non-trivial coefficients)
 	// g(x) = (x-α^0)(x-α^1)(x-α^2)(x-α^3)(x-α^4)
 	generator_polynomial(poly, 5);
 
@@ -72,7 +72,7 @@ TEST(generator_polynomial) {
 			"Generator polynomial coefficient for degree 5");
 	}
 
-	// Test case 2: Degree 16 generator polynomial (17 coefficients)
+	// Test case 2: Degree 16 generator polynomial (16 non-trivial coefficients)
 	// Used in version 1-M QR codes
 	generator_polynomial(poly, 16);
 
@@ -97,12 +97,12 @@ TEST(ecc_generation) {
 	// Simple test case: Version 1-L (7 data codewords, 10 ECC codewords)
 	word data[7] = {40, 88, 12, 6, 46, 77, 36};
 	word ecc[10] = {0};
-	word g[10] = {0};  // +1 for leading coefficient
+	word g[10] = {0};
 
 	// Generate the generator polynomial for 10 ECC codewords
 	generator_polynomial(g, 10);
 
-	// Generate ECC (skip the leading coefficient in g)
+	// Generate ECC
 	ecc_generate(data, 7, ecc, 10, g);
 
 	// Expected ECC values for the test data
