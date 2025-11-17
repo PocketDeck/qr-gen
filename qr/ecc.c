@@ -49,17 +49,17 @@ generator_polynomial(word *poly, size_t degree)
 {
 	size_t i, j;
 
-	for (i = 0; i < degree; ++i)
+	for (i = 0; i < degree - 1; ++i)
 		poly[i] = 0;
-	poly[degree] = 1;
+	poly[degree - 1] = 1;
 
 	for (i = 0; i < degree; ++i)
 	{
 		word coef = gf_antilog[i];
 
-		for (j = 0; j < degree; ++j)
+		for (j = 0; j < degree - 1; ++j)
 			poly[j] = gf_add(poly[j + 1], gf_mul(poly[j], coef));
-		poly[degree] = gf_mul(poly[degree], coef);
+		poly[degree - 1] = gf_mul(poly[degree - 1], coef);
 	}
 }
 
@@ -207,12 +207,12 @@ qr_ec_encode(qr_code *qr)
 	{
 		data_length = DATA_CODEWORD_COUNT[qr->level][qr->version][i];
 		ecc_length = TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - data_length;
-		word generator[ecc_length + 1];
+		word generator[ecc_length];
 		generator_polynomial(generator, ecc_length);
 
 		for (j = 0; j < BLOCK_COUNT[qr->level][qr->version][i]; ++j)
 		{
-			ecc_generate(data, data_length, ecc, ecc_length, generator + 1);
+			ecc_generate(data, data_length, ecc, ecc_length, generator);
 			data += data_length;
 			ecc += ecc_length;
 		}

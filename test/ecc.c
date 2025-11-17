@@ -65,9 +65,9 @@ TEST(generator_polynomial) {
 	generator_polynomial(poly, 5);
 
 	// Expected exponents for the antilog table
-	word expected5_exponents[6] = {0, 113, 164, 166, 119, 10};
+	word expected5_exponents[5] = {113, 164, 166, 119, 10};
 
-	for (int i = 0; i <= 5; i++) {
+	for (int i = 0; i < 5; i++) {
 		assert_eq(poly[i], gf_antilog[expected5_exponents[i]],
 			"Generator polynomial coefficient for degree 5");
 	}
@@ -76,12 +76,12 @@ TEST(generator_polynomial) {
 	// Used in version 1-M QR codes
 	generator_polynomial(poly, 16);
 
-	word expected16_exponents[17] = {
-		0, 120, 104, 107, 109, 102, 161, 76, 3, 91,
+	word expected16_exponents[16] = {
+		120, 104, 107, 109, 102, 161, 76, 3, 91,
 		191, 147, 169, 182, 194, 225, 120
 	};
 
-	for (int i = 0; i <= 16; i++) {
+	for (int i = 0; i < 16; i++) {
 		assert_eq(poly[i], gf_antilog[expected16_exponents[i]],
 			"Generator polynomial coefficient for degree 16");
 	}
@@ -97,13 +97,13 @@ TEST(ecc_generation) {
 	// Simple test case: Version 1-L (7 data codewords, 10 ECC codewords)
 	word data[7] = {40, 88, 12, 6, 46, 77, 36};
 	word ecc[10] = {0};
-	word g[10 + 1] = {0};  // +1 for leading coefficient
+	word g[10] = {0};  // +1 for leading coefficient
 
 	// Generate the generator polynomial for 10 ECC codewords
 	generator_polynomial(g, 10);
 
 	// Generate ECC (skip the leading coefficient in g)
-	ecc_generate(data, 7, ecc, 10, g + 1);
+	ecc_generate(data, 7, ecc, 10, g);
 
 	// Expected ECC values for the test data
 	word expected_ecc[10] = {214, 246, 18, 193, 38, 69, 160, 197, 199, 15};
