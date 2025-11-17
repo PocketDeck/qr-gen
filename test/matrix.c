@@ -10,7 +10,6 @@
 #include <qr/types.h>
 #include <qr/matrix.h>
 #include <string.h>
-#include <stdlib.h>
 
 // Include the source file directly to test static functions
 #include "../qr/matrix.c"
@@ -23,12 +22,12 @@
  * @return qr_code* Pointer to the created QR code, or NULL on failure
  */
 static qr_code *create_test_qr(unsigned version, size_t size) {
-	qr_code *qr = calloc(1, sizeof(qr_code));
+	qr_code *qr = test_malloc(sizeof(qr_code));
 	if (!qr) return NULL;
 
 	qr->version = version;
 	qr->side_length = size;
-	qr->matrix = calloc(size * size, sizeof(int));
+	qr->matrix = test_malloc(size * size * sizeof(int));
 
 	if (!qr->matrix) return NULL;
 
@@ -53,7 +52,7 @@ TEST(codeword_placement) {
 	memset(qr->matrix, 0, size * size * sizeof(int));
 
 	// Allocate and initialize test codewords (all bits set to 1)
-	qr->codewords = calloc(num_codewords, sizeof(word));
+	qr->codewords = test_malloc(num_codewords * sizeof(word));
 	if (!qr->codewords) return TEST_FAILURE("Failed to allocate codewords");
 	qr->codeword_count = num_codewords;
 

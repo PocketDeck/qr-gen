@@ -3,7 +3,6 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 struct test_result
@@ -31,6 +30,8 @@ __attribute__((constructor)) static void __beforeregister(void) \
 } \
 static struct test_result __before_all(void)
 
+void *test_malloc(size_t size);
+
 #define INT_MAX_CHARS 11
 
 #define TEST_SUCCESS (struct test_result) {0, NULL, 0}
@@ -45,8 +46,8 @@ static struct test_result __before_all(void)
 			size_t __assert_length = \
 				strlen(message) + \
 				strlen(": %d " #operator " %d") + (2 * INT_MAX_CHARS) + 1; \
-			char *__assert_message = malloc(__assert_length); \
-			if (__assert_message == NULL) return TEST_FAILURE("assert: malloc failed"); \
+			char *__assert_message = test_malloc(__assert_length); \
+			if (__assert_message == NULL) return TEST_FAILURE("assert: test_malloc failed"); \
 			snprintf(__assert_message, __assert_length, "%s: %d " #operator " %d", message, __assert_lhs, __assert_rhs); \
 			return TEST_FAILURE(__assert_message); \
 		} \

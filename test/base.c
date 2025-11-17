@@ -21,7 +21,7 @@ typedef struct group_node
 	struct group_node *next;
 } group_node;
 
-static group_node *group_head;
+static group_node *group_head = NULL;
 static size_t biggest_group_name = 0;
 
 test_node *
@@ -29,7 +29,7 @@ append_test(test_node **head, const char *name, struct test_result (*fn)(void))
 {
 	test_node *new_test, *current;
 
-	new_test = malloc(sizeof(test_node));
+	new_test = test_malloc(sizeof(test_node));
 	new_test->name = name;
 	new_test->is_preparation = 0;
 	new_test->fn = fn;
@@ -54,7 +54,7 @@ prepend_preparation(test_node **head, const char *name, struct test_result (*fn)
 {
 	test_node *new_test;
 
-	new_test = malloc(sizeof(test_node));
+	new_test = test_malloc(sizeof(test_node));
 	new_test->name = name;
 	new_test->is_preparation = 1;
 	new_test->fn = fn;
@@ -71,7 +71,7 @@ append_group(group_node **head, const char *name)
 {
 	group_node *current;
 
-	group_node *new_group = malloc(sizeof(group_node));
+	group_node *new_group = test_malloc(sizeof(group_node));
 	new_group->name = name;
 	new_group->tests = NULL;
 	new_group->count = 0;
@@ -101,6 +101,7 @@ group_exists(group_node **head, const char *name)
 	for (current = *head; current; current = current->next)
 		if (!strcmp(current->name, name))
 			return current;
+
 	return NULL;
 }
 
@@ -125,6 +126,40 @@ before_register(const char *group_name, const char *test_name, struct test_resul
 		group = append_group(&group_head, group_name);
 
 	prepend_preparation(&group->tests, test_name, fn);
+}
+
+typedef struct memory_node
+{
+	void *ptr;
+	struct memory_node *next;
+} memory_node;
+
+memory_node *memory_head = NULL;
+
+void *
+test_malloc(size_t size)
+{
+	void *ptr = malloc(size);
+	memory_node *new_memory = malloc(sizeof(memory_node));
+	new_memory->ptr = ptr;
+	new_memory->next = memory_head;
+	memory_head = new_memory;
+	return ptr;
+}
+
+void
+test_free(void)
+{
+	memory_node *current, *next;
+
+	for (current = memory_head; current; current = next)
+	{
+		free(current->ptr);
+		next = current->next;
+		free(current);
+	}
+
+	memory_head = NULL;
 }
 
 #define BAR_WIDTH 40
@@ -192,5 +227,6 @@ main(void)
 		}
 	}
 
+	test_free();
 	return total_failures;
 }

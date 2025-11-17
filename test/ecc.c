@@ -149,7 +149,7 @@ TEST(codeword_interleaving_version1_h) {
 	};
 
 	// Allocate and initialize test codewords
-	word *test_codewords = calloc(qr.codeword_count, sizeof(word));
+	word *test_codewords = test_malloc(qr.codeword_count * sizeof(word));
 	if (!test_codewords) return TEST_FAILURE("Memory allocation failed");
 
 	// Fill test data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
@@ -168,7 +168,6 @@ TEST(codeword_interleaving_version1_h) {
 			"Codeword order should remain unchanged for single block");
 	}
 
-	free(test_codewords);
 	return TEST_SUCCESS;
 }
 
@@ -195,7 +194,7 @@ TEST(codeword_interleaving_version8_m) {
 	};
 
 	// Allocate and initialize test codewords
-	word *test_codewords = calloc(qr.codeword_count, sizeof(word));
+	word *test_codewords = test_malloc(qr.codeword_count * sizeof(word));
 	if (!test_codewords) return TEST_FAILURE("Memory allocation failed");
 
 	// Fill test data:
@@ -249,7 +248,6 @@ TEST(codeword_interleaving_version8_m) {
 	assert_equal(qr.codewords[158], 156, "ECC codeword value verification");
 	assert_equal(qr.codewords[159], 178, "ECC codeword value verification");
 
-	free(test_codewords);
 	return TEST_SUCCESS;
 }
 
