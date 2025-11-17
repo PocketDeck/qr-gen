@@ -37,15 +37,15 @@ qr_separators_apply(qr_code *qr)
 	for (i = 0; i < 8; ++i)
 	{
 		// upper left
-		qr_module_set(qr, i, 8, QR_MODULE_LIGHT);
-		qr_module_set(qr, 8, i, QR_MODULE_LIGHT);
+		qr_module_set(qr, i, 7, QR_MODULE_LIGHT);
+		qr_module_set(qr, 7, i, QR_MODULE_LIGHT);
 
 		// upper right
 		qr_module_set(qr, i, qr->side_length - 8, QR_MODULE_LIGHT);
-		qr_module_set(qr, 8, qr->side_length - 8 + i, QR_MODULE_LIGHT);
+		qr_module_set(qr, 7, qr->side_length - 8 + i, QR_MODULE_LIGHT);
 
 		// lower left
-		qr_module_set(qr, qr->side_length - 8 + i, 8, QR_MODULE_LIGHT);
+		qr_module_set(qr, qr->side_length - 8 + i, 7, QR_MODULE_LIGHT);
 		qr_module_set(qr, qr->side_length - 8, i, QR_MODULE_LIGHT);
 	}
 }
