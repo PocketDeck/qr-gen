@@ -178,7 +178,7 @@ run_test_group(group_node *group)
 			continue;
 		}
 
-		printf("  => %s (%zu/%zu)", current_test->name, total, group->count);
+		printf("  => %s (%zu/%zu)", current_test->name, total + 1, group->count);
 		fflush(stdout);
 		++total;
 		current_test->res = current_test->fn();
