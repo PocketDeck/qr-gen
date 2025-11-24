@@ -15,12 +15,12 @@ void test_register(const char *group, const char *name, struct test_result (*fn)
 void before_register(const char *group, const char *name, struct test_result (*fn)(void));
 
 #define TEST(test_id) \
-static struct test_result __test_## test_id(void); \
-__attribute__((constructor)) static void __testregister_## test_id(void) \
+static struct test_result __test_##test_id(void); \
+__attribute__((constructor)) static void __testregister_##test_id(void) \
 { \
-	test_register(__FILE__, #test_id, __test_## test_id); \
+	test_register(__FILE__, #test_id, __test_##test_id); \
 } \
-static struct test_result __test_## test_id(void)
+static struct test_result __test_##test_id(void)
 
 #define BEFORE() \
 static struct test_result __before_all(void); \
@@ -35,7 +35,7 @@ void *test_malloc(size_t size);
 #define INT_MAX_CHARS 11
 
 #define TEST_SUCCESS (struct test_result) {0, NULL, 0}
-#define TEST_FAILURE(message) (struct test_result) {1, message, __LINE__}
+#define TEST_FAILURE(message) (struct test_result) {1, (message), __LINE__}
 
 #define assert_base(lhs, rhs, message, operator) \
 	do { \
