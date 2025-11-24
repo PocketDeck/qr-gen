@@ -45,7 +45,8 @@ void *test_malloc(size_t size);
 		{ \
 			size_t __assert_length = \
 				strlen(message) + \
-				strlen(": %d " #operator " %d") + (2 * INT_MAX_CHARS) + 1; \
+				strlen(":  " #operator " ") + \
+				(2 * INT_MAX_CHARS) + 1; \
 			char *__assert_message = test_malloc(__assert_length); \
 			if (__assert_message == NULL) return TEST_FAILURE("assert: test_malloc failed"); \
 			snprintf(__assert_message, __assert_length, "%s: %d " #operator " %d", message, __assert_lhs, __assert_rhs); \
