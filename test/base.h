@@ -15,20 +15,20 @@ void test_register(const char *group, const char *name, struct test_result (*fn)
 void before_register(const char *group, const char *name, struct test_result (*fn)(void));
 
 #define TEST(test_id) \
-static struct test_result __test_##test_id(void); \
-__attribute__((constructor)) static void __testregister_##test_id(void) \
+static struct test_result _test_##test_id(void); \
+__attribute__((constructor)) static void _testregister_##test_id(void) \
 { \
-	test_register(__FILE__, #test_id, __test_##test_id); \
+	test_register(__FILE__, #test_id, _test_##test_id); \
 } \
-static struct test_result __test_##test_id(void)
+static struct test_result _test_##test_id(void)
 
 #define BEFORE() \
-static struct test_result __before_all(void); \
-__attribute__((constructor)) static void __beforeregister(void) \
+static struct test_result _before_all_##__LINE__(void); \
+__attribute__((constructor)) static void _beforeregister(void) \
 { \
-	before_register(__FILE__, "BEFORE", __before_all); \
+	before_register(__FILE__, "before_"##__LINE__, _before_all_##__LINE__); \
 } \
-static struct test_result __before_all(void)
+static struct test_result _before_all_##__LINE__(void)
 
 void *test_malloc(size_t size);
 
@@ -39,18 +39,18 @@ void *test_malloc(size_t size);
 
 #define test_expect_base(lhs, rhs, message, operator) \
 	do { \
-		int __test_expect_lhs = (lhs); \
-		int __test_expect_rhs = (rhs); \
-		if (!(__test_expect_lhs operator __test_expect_rhs)) \
+		int _test_expect_lhs = (lhs); \
+		int _test_expect_rhs = (rhs); \
+		if (!(_test_expect_lhs operator _test_expect_rhs)) \
 		{ \
-			size_t __test_expect_length = \
+			size_t _test_expect_length = \
 				strlen(message) + \
 				strlen(":  " #operator " ") + \
 				(2 * INT_MAX_CHARS) + 1; \
-			char *__test_expect_message = test_malloc(__test_expect_length); \
-			if (__test_expect_message == NULL) return TEST_FAILURE("test_expect: test_malloc failed"); \
-			snprintf(__test_expect_message, __test_expect_length, "%s: %d " #operator " %d", message, __test_expect_lhs, __test_expect_rhs); \
-			return TEST_FAILURE(__test_expect_message); \
+			char *_test_expect_message = test_malloc(_test_expect_length); \
+			if (_test_expect_message == NULL) return TEST_FAILURE("test_expect: test_malloc failed"); \
+			snprintf(_test_expect_message, _test_expect_length, "%s: %d " #operator " %d", message, _test_expect_lhs, _test_expect_rhs); \
+			return TEST_FAILURE(_test_expect_message); \
 		} \
 	} while (0)
 
