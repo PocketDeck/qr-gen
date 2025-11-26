@@ -22,13 +22,16 @@ __attribute__((constructor)) static void _testregister_##test_id(void) \
 } \
 static struct test_result _test_##test_id(void)
 
+#define PASTE(a, b) a##b
+#define EXPAND_AND_PASTE(a, b) PASTE(a, b)
+
 #define BEFORE() \
-static struct test_result _before_all_##__LINE__(void); \
-__attribute__((constructor)) static void _beforeregister(void) \
+static struct test_result EXPAND_AND_PASTE(_before_all_, __LINE__)(void); \
+__attribute__((constructor)) static void EXPAND_AND_PASTE(_beforeregister_, __LINE__)(void) \
 { \
-	before_register(__FILE__, "before_"##__LINE__, _before_all_##__LINE__); \
+	before_register(__FILE__, "BEFORE", EXPAND_AND_PASTE(_before_all_, __LINE__)); \
 } \
-static struct test_result _before_all_##__LINE__(void)
+static struct test_result EXPAND_AND_PASTE(_before_all_, __LINE__)(void)
 
 void *test_malloc(size_t size);
 
