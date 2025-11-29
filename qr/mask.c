@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <limits.h>
 #include <qr/info.h>
 #include <qr/mask.h>
@@ -187,7 +188,7 @@ qr_mask_evaluate(const qr_code *qr)
 void
 qr_mask_apply_pattern(qr_code *qr, unsigned mask_pattern)
 {
-	if (mask_pattern >= QR_MASK_PATTERN_COUNT) return;
+	assert(mask_pattern < QR_MASK_PATTERN_COUNT && "Specified mask pattern does not exist");
 
 	size_t i, j;
 
@@ -225,6 +226,7 @@ qr_mask_apply(qr_code *qr)
 			best_mask = mask;
 		}
 
+		// apply mask again to restore original matrix
 		qr_mask_apply_pattern(qr, mask);
 	}
 
