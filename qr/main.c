@@ -4,6 +4,7 @@
 #include <qr/types.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 void
@@ -50,7 +51,7 @@ main(int argc, char **argv)
 	if (argc < 2)
 	{
 		print_usage(argv[0]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	const char *input = argv[1];
@@ -60,7 +61,7 @@ main(int argc, char **argv)
 	if (version >= QR_VERSION_COUNT)
 	{
 		log_("Error: Input too large for QR code\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	log_("QR Code Generation:\n");
@@ -70,6 +71,11 @@ main(int argc, char **argv)
 	log_("\n");
 
 	qr_code *qr = qr_create(ec_level, QR_MODE_BYTE, version);
+	if (!qr) {
+		log_("Error: Memory allocation for QR code failed\n");
+		return EXIT_FAILURE;
+	}
+
 	qr_encode_message(qr, input);
 	log_("\n");
 	#ifndef NDEBUG
@@ -78,5 +84,5 @@ main(int argc, char **argv)
 	qr_svg_print(qr, stdout);
 	qr_destroy(qr);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

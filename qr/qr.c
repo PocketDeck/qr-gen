@@ -24,15 +24,25 @@ qr_code *
 qr_create(qr_ec_level level, qr_encoding_mode mode, unsigned version)
 {
 	qr_code *qr = malloc(sizeof(qr_code));
+	if (!qr) return NULL;
 
 	qr->level = level;
 	qr->mode = mode;
 	qr->version = version;
 	qr->side_length = 21 + (qr->version * 4);
 	qr->matrix = malloc((qr->side_length * qr->side_length) * sizeof(*qr->matrix));
+	if (!qr->matrix) {
+		free(qr);
+		return NULL;
+	}
 
 	qr->codeword_count = CODEWORD_COUNT[qr->version];
 	qr->codewords = malloc(qr->codeword_count * sizeof(word));
+	if (!qr->codewords) {
+		free(qr->matrix);
+		free(qr);
+		return NULL;
+	}
 
 	return qr;
 }
