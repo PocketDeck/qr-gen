@@ -207,7 +207,7 @@ void
 qr_mask_apply(qr_code *qr)
 {
 	int score, best_score = INT_MAX;
-	unsigned mask, best_mask;
+	unsigned mask, best_mask = 0;
 
 	// version info is necessary for mask evaluation
 	qr_version_info_apply(qr);
