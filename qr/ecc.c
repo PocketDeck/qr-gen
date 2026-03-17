@@ -60,7 +60,7 @@ generator_polynomial(word *poly, size_t degree)
 		word coef = gf_antilog[i];
 
 		for (j = 0; j < degree - 1; ++j)
-			poly[j] = gf_add(poly[j + 1], gf_mul(poly[j], coef));
+			poly[j] = gf_add(gf_mul(poly[j], coef), poly[j + 1]);
 		poly[degree - 1] = gf_mul(poly[degree - 1], coef);
 	}
 }
@@ -78,8 +78,8 @@ ecc_generate(const word *data, size_t data_length, word *ecc, size_t ecc_length,
 	{
 		feedback = gf_add(data[i], ecc[0]);
 		for (j = 0; j < ecc_length - 1; ++j)
-			ecc[j] = gf_add(ecc[j + 1], gf_mul(feedback, g[j]));
-		ecc[ecc_length - 1] = gf_mul(feedback, g[ecc_length - 1]);
+			ecc[j] = gf_add(ecc[j + 1], gf_mul(g[j], feedback));
+		ecc[ecc_length - 1] = gf_mul(g[ecc_length - 1], feedback);
 	}
 }
 
