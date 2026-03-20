@@ -50,6 +50,7 @@ generator_polynomial(word *poly, size_t degree)
 	if (degree == 0) return;
 
 	size_t i, j;
+	word coef;
 
 	for (i = 0; i < degree - 1; ++i)
 		poly[i] = 0;
@@ -57,8 +58,7 @@ generator_polynomial(word *poly, size_t degree)
 
 	for (i = 0; i < degree; ++i)
 	{
-		word coef = gf_antilog[i];
-
+		coef = gf_antilog[i];
 		for (j = 0; j < degree - 1; ++j)
 			poly[j] = gf_add(gf_mul(poly[j], coef), poly[j + 1]);
 		poly[degree - 1] = gf_mul(poly[degree - 1], coef);
