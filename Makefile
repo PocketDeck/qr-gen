@@ -9,7 +9,7 @@ OBJS  := $(patsubst qr/%.c, $(RELEASE_DIR)/%.o, $(SRCS))
 TESTS := $(wildcard test/*.c)
 TOBJS := $(patsubst test/%.c, $(TEST_DIR)/%.o, $(TESTS))
 
-CFLAGS := -Wall -Wextra -Werror -I.
+CFLAGS := -Wall -Wextra -Wpedantic -Werror -I.
 ifdef NDEBUG
 CFLAGS += -DNDEBUG
 endif
