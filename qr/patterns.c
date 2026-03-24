@@ -128,7 +128,7 @@ void
 qr_alignment_patterns_apply(qr_code *qr)
 {
 	size_t entry_a, entry_b, i, j;
-	int in_finder_upper_left, in_finder_upper_right, in_finder_lower_left;
+	bool in_finder_upper_left, in_finder_upper_right, in_finder_lower_left;
 
 	for (entry_a = 0; entry_a < MAX_ALIGNMENT_ENTRIES; ++entry_a)
 	{
@@ -149,11 +149,11 @@ qr_alignment_patterns_apply(qr_code *qr)
 	}
 }
 
-int
+bool
 qr_is_in_alignment_patterns(const qr_code *qr, size_t i_, size_t j_)
 {
 	size_t entry_a, entry_b, i, j;
-	int in_finder_upper_left, in_finder_upper_right, in_finder_lower_left;
+	bool in_finder_upper_left, in_finder_upper_right, in_finder_lower_left;
 
 	for (entry_a = 0; entry_a < MAX_ALIGNMENT_ENTRIES; ++entry_a)
 	{
@@ -170,9 +170,9 @@ qr_is_in_alignment_patterns(const qr_code *qr, size_t i_, size_t j_)
 				continue;
 
 			if (i_ >= i && i_ <= i + 4 && j_ >= j && j_ <= j + 4)
-				return 1;
+				return true;
 		}
 	}
 
-	return 0;
+	return false;
 }

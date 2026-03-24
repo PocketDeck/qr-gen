@@ -6,16 +6,16 @@
 #include <qr/types.h>
 #include <stddef.h>
 
-static int mask_pattern_0(size_t i, size_t j) { return (i + j) % 2 == 0; }
-static int mask_pattern_1(size_t i, size_t j) { (void) j; return i % 2 == 0; }
-static int mask_pattern_2(size_t i, size_t j) { (void) i; return j % 3 == 0; }
-static int mask_pattern_3(size_t i, size_t j) { return (i + j) % 3 == 0; }
-static int mask_pattern_4(size_t i, size_t j) { return ((i / 2) + (j / 3)) % 2 == 0; }
-static int mask_pattern_5(size_t i, size_t j) { return ((i * j) % 2) + ((i * j) % 3) == 0; }
-static int mask_pattern_6(size_t i, size_t j) { return (((i * j) % 2) + ((i * j) % 3)) % 2 == 0; }
-static int mask_pattern_7(size_t i, size_t j) { return (((i + j) % 2) + ((i * j) % 3)) % 2 == 0; }
+static bool mask_pattern_0(size_t i, size_t j) { return (i + j) % 2 == 0; }
+static bool mask_pattern_1(size_t i, size_t j) { (void) j; return i % 2 == 0; }
+static bool mask_pattern_2(size_t i, size_t j) { (void) i; return j % 3 == 0; }
+static bool mask_pattern_3(size_t i, size_t j) { return (i + j) % 3 == 0; }
+static bool mask_pattern_4(size_t i, size_t j) { return ((i / 2) + (j / 3)) % 2 == 0; }
+static bool mask_pattern_5(size_t i, size_t j) { return ((i * j) % 2) + ((i * j) % 3) == 0; }
+static bool mask_pattern_6(size_t i, size_t j) { return (((i * j) % 2) + ((i * j) % 3)) % 2 == 0; }
+static bool mask_pattern_7(size_t i, size_t j) { return (((i + j) % 2) + ((i * j) % 3)) % 2 == 0; }
 
-static int (* const MASK_PREDICATES[QR_MASK_PATTERN_COUNT])(size_t i, size_t j) =
+static bool (* const MASK_PREDICATES[QR_MASK_PATTERN_COUNT])(size_t i, size_t j) =
 {
 	mask_pattern_0, mask_pattern_1, mask_pattern_2, mask_pattern_3,
 	mask_pattern_4, mask_pattern_5, mask_pattern_6, mask_pattern_7,
@@ -95,9 +95,9 @@ feature_3_evaluation(const qr_code *qr)
 	// 1:1:3:1:1 ratio (dark:light:dark:light:dark) pattern in row/column, preceded or followed by light area 4 modules wide
 	int points = 0;
 	size_t i, j;
-	int pattern_row, pattern_column;
-	int preceded_row, preceded_column;
-	int followed_row, followed_column;
+	bool pattern_row, pattern_column;
+	bool preceded_row, preceded_column;
+	bool followed_row, followed_column;
 
 	for (i = 0; i < qr->side_length; ++i)
 	{

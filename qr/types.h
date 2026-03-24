@@ -22,13 +22,20 @@ typedef enum
 
 typedef uint8_t word;
 
+typedef enum
+{
+	QR_MODULE_LIGHT = 0,
+	QR_MODULE_DARK  = 1,
+} qr_module_state;
+
+
 typedef struct
 {
 	qr_ec_level level;
 	qr_encoding_mode mode;
 	unsigned version;
 
-	int *matrix;
+	qr_module_state *matrix;
 	size_t side_length;
 
 	unsigned mask;

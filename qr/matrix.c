@@ -53,48 +53,48 @@ qr_matrix_print(const qr_code *qr, FILE *stream)
 	}
 }
 
-int
+bool
 qr_module_is_reserved(const qr_code *qr, size_t i, size_t j)
 {
 	// finder pattern (7) + separator (1)
-	int in_finder_upper_left = i < 8 && j < 8;
-	int in_finder_upper_right = i < 8 && j >= qr->side_length - 8;
-	int in_finder_lower_left = i >= qr->side_length - 8 && j < 8;
-	int in_finder = in_finder_upper_left || in_finder_upper_right || in_finder_lower_left;
+	bool in_finder_upper_left = i < 8 && j < 8;
+	bool in_finder_upper_right = i < 8 && j >= qr->side_length - 8;
+	bool in_finder_lower_left = i >= qr->side_length - 8 && j < 8;
+	bool in_finder = in_finder_upper_left || in_finder_upper_right || in_finder_lower_left;
 
-	int in_timing = i == 6 || j == 6;
-	int in_alignment = qr_is_in_alignment_patterns(qr, i, j);
+	bool in_timing = i == 6 || j == 6;
+	bool in_alignment = qr_is_in_alignment_patterns(qr, i, j);
 
-	int in_version_lower_left = i < 6 && j >= qr->side_length - 11;
-	int in_version_upper_right = i >= qr->side_length - 11 && j < 6;
-	int in_version = qr->version + 1 >= 7 && (in_version_lower_left || in_version_upper_right);
+	bool in_version_lower_left = i < 6 && j >= qr->side_length - 11;
+	bool in_version_upper_right = i >= qr->side_length - 11 && j < 6;
+	bool in_version = qr->version + 1 >= 7 && (in_version_lower_left || in_version_upper_right);
 
-	int in_format_upper_left = i < 9 && j < 9;
-	int in_format_upper_right = i < 9 && j >= qr->side_length - 8;
-	int in_format_lower_left = i >= qr->side_length - 8 && j < 9;
-	int in_format = in_format_upper_left || in_format_upper_right || in_format_lower_left;
+	bool in_format_upper_left = i < 9 && j < 9;
+	bool in_format_upper_right = i < 9 && j >= qr->side_length - 8;
+	bool in_format_lower_left = i >= qr->side_length - 8 && j < 9;
+	bool in_format = in_format_upper_left || in_format_upper_right || in_format_lower_left;
 
 	return in_finder || in_timing || in_alignment || in_version || in_format;
 }
 
 static void
-place_bit(qr_code *qr, size_t *i, size_t *j, int *left, int *up, qr_module_state value)
+place_bit(qr_code *qr, size_t *i, size_t *j, bool *left, bool *up, qr_module_state value)
 {
-	int exit = 0;
+	bool exit = false;
 
 	while (!exit)
 	{
 		if (!qr_module_is_reserved(qr, *i, *j))
 		{
 			qr_module_set(qr, *i, *j, value);
-			exit = 1;
+			exit = true;
 		}
 
 		if (!*left)
 		{
 			if ((*up && *i == 0) || (!*up && *i == qr->side_length - 1))
 			{
-				*up ^= 1;
+				*up = !*up;
 				*j -= 2;
 			}
 			else
@@ -108,7 +108,7 @@ place_bit(qr_code *qr, size_t *i, size_t *j, int *left, int *up, qr_module_state
 			--*j;
 		}
 
-		*left ^= 1;
+		*left = !*left;
 
 		// skip vertical timing pattern
 		if (*j == 6) --*j;
@@ -129,7 +129,7 @@ qr_place_codewords(qr_code *qr)
 	size_t word, bit;
 
 	size_t i, j;
-	int left = 1, up = 1;
+	bool left = true, up = true;
 	i = j = qr->side_length - 1;
 
 	for (word = 0; word < qr->codeword_count; ++word)

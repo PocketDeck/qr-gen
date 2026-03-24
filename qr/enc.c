@@ -43,10 +43,10 @@ qr_min_version(size_t bytes, qr_ec_level level)
 }
 
 static void
-append_bit(word *buffer, size_t *byte, size_t *bit, int value)
+append_bit(word *buffer, size_t *byte, size_t *bit, bool value)
 {
 	if (*bit == 0) buffer[*byte] = 0;
-	buffer[*byte] |= (value & 1) << (7 - *bit);
+	buffer[*byte] |= value << (7 - *bit);
 
 	if (++*bit == 8)
 	{

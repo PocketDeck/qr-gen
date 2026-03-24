@@ -8,9 +8,9 @@
 #define GF_SIZE 256
 #define PRIMITIVE 0x11D
 
-word gf_log[GF_SIZE];
+static word gf_log[GF_SIZE];
 static word gf_antilog[(GF_SIZE * 2) - 2];
-static int gf_tables_initialized = 0;
+static bool gf_tables_initialized = false;
 
 static void
 gf_init_log_antilog(void)
@@ -28,7 +28,7 @@ gf_init_log_antilog(void)
 		x = (x << 1) ^ ((x & 0x80) ? PRIMITIVE : 0);
 	}
 
-	gf_tables_initialized = 1;
+	gf_tables_initialized = true;
 }
 
 static inline word
@@ -220,8 +220,8 @@ qr_ec_encode(qr_code *qr)
 		}
 	}
 
-	assert(data - qr->codewords == (long int) TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version] && "Sum of data codewords in blocks do not match expected number of data codewords");
-	assert(ecc - qr->codewords == (long int) qr->codeword_count && "Number of generated ec codewords do not match the expected number of codewords");
+	assert(data - qr->codewords == (ptrdiff_t) TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version] && "Sum of data codewords in blocks do not match expected number of data codewords");
+	assert(ecc - qr->codewords == (ptrdiff_t) qr->codeword_count && "Number of generated ec codewords do not match the expected number of codewords");
 }
 
 static word *
