@@ -209,6 +209,9 @@ qr_ec_encode(qr_code *qr)
 	{
 		data_length = DATA_CODEWORD_COUNT[qr->level][qr->version][i];
 		ecc_length = TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - data_length;
+
+		if (ecc_length == 0) continue;
+
 		word generator[ecc_length];
 		generator_polynomial(generator, ecc_length);
 
