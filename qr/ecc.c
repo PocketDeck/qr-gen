@@ -24,8 +24,8 @@ gf_init_log_antilog(void)
 	{
 		gf_antilog[i] = x;
 		gf_antilog[i + (GF_SIZE - 1)] = x;
-		gf_log[x] = i;
-		x = (x << 1) ^ ((x & 0x80) ? PRIMITIVE : 0);
+		gf_log[x] = (word) i;
+		x = (word) ((x << 1) ^ ((x & 0x80) ? PRIMITIVE : 0));
 	}
 
 	gf_tables_initialized = true;
