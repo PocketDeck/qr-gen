@@ -113,7 +113,7 @@ qr_svg_print(qr_code *qr, FILE *stream)
 		for (j = 0; j < qr->side_length; ++j)
 		{
 			color = qr_module_get(qr, i, j) ? "black" : "white";
-			fprintf(stream, "<rect x=\"%zu\" y=\"%zu\" width=1 height=1 fill=\"%s\"/>\n", j + 4, i + 4, color);
+			fprintf(stream, "<rect x=\"%zu\" y=\"%zu\" width=\"1\" height=\"1\" fill=\"%s\"/>\n", j + 4, i + 4, color);
 		}
 	}
 
