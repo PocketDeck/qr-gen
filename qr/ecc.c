@@ -257,10 +257,10 @@ interleave_words(const size_t codeword_count[BLOCK_TYPES_PER_VERSION], const siz
 void
 qr_interleave_codewords(qr_code *qr)
 {
-	word final_message[qr->codeword_count], *word_ptr = final_message;
 	const size_t *data_codeword_count = DATA_CODEWORD_COUNT[qr->level][qr->version];
 	const size_t *block_count = BLOCK_COUNT[qr->level][qr->version];
 	size_t i, ecc_codeword_count[BLOCK_TYPES_PER_VERSION];
+	word final_message[qr->codeword_count], *word_ptr = final_message;
 
 	for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
 		ecc_codeword_count[i] = TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - data_codeword_count[i];

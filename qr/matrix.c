@@ -129,6 +129,7 @@ qr_place_codewords(qr_code *qr)
 	size_t word, bit;
 	size_t i, j;
 	bool left = true, up = true;
+
 	i = j = qr->side_length - 1;
 
 	for (word = 0; word < qr->codeword_count; ++word)

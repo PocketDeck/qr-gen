@@ -27,9 +27,9 @@ static int
 feature_1_evaluation(const qr_code *qr)
 {
 	// adjacent modules in row in same color
-	int points = 0;
 	size_t i, j, run_row, run_column;
 	qr_module_state color_row = QR_MODULE_LIGHT, color_column = QR_MODULE_LIGHT;
+	int points = 0;
 
 	for (i = 0; i < qr->side_length; ++i)
 	{
@@ -68,9 +68,9 @@ static int
 feature_2_evaluation(const qr_code *qr)
 {
 	// block of modules in same color
-	int points = 0;
 	size_t i, j;
 	qr_module_state m[4];
+	int points = 0;
 
 	for (i = 0; i < qr->side_length - 1; ++i)
 	{
@@ -93,11 +93,11 @@ static int
 feature_3_evaluation(const qr_code *qr)
 {
 	// 1:1:3:1:1 ratio (dark:light:dark:light:dark) pattern in row/column, preceded or followed by light area 4 modules wide
-	int points = 0;
 	size_t i, j;
 	bool pattern_row, pattern_column;
 	bool preceded_row, preceded_column;
 	bool followed_row, followed_column;
+	int points = 0;
 
 	for (i = 0; i < qr->side_length; ++i)
 	{
@@ -206,8 +206,8 @@ qr_mask_apply_pattern(qr_code *qr, unsigned mask_pattern)
 void
 qr_mask_apply(qr_code *qr)
 {
-	int score, best_score = INT_MAX;
 	unsigned mask, best_mask = 0;
+	int score, best_score = INT_MAX;
 
 	// version info is necessary for mask evaluation
 	qr_version_info_apply(qr);
