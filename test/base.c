@@ -175,6 +175,7 @@ run_test_group(group_node *group)
 		if (current_test->is_preparation)
 		{
 			current_test->res = current_test->fn();
+			if (current_test->res.failed) break;
 			continue;
 		}
 
