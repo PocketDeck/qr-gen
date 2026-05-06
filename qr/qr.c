@@ -21,14 +21,14 @@ static const size_t CODEWORD_COUNT[QR_VERSION_COUNT] =
 };
 
 qr_code *
-qr_create(qr_ec_level level, qr_encoding_mode mode, unsigned version)
+qr_create(unsigned version, qr_encoding_mode mode, qr_ec_level level)
 {
 	qr_code *qr = malloc(sizeof(qr_code));
 	if (!qr) return NULL;
 
-	qr->level = level;
-	qr->mode = mode;
 	qr->version = version;
+	qr->mode = mode;
+	qr->level = level;
 	qr->side_length = 21 + (qr->version * 4);
 	qr->matrix = malloc((qr->side_length * qr->side_length) * sizeof(*qr->matrix));
 	if (!qr->matrix) {

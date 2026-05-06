@@ -70,7 +70,7 @@ main(int argc, char **argv)
 	log_("  Version: %u\n", version + 1);
 	log_("\n");
 
-	qr_code *qr = qr_create(ec_level, QR_MODE_BYTE, version);
+	qr_code *qr = qr_create(version, QR_MODE_BYTE, ec_level);
 	if (!qr) {
 		log_("Error: Memory allocation for QR code failed\n");
 		return EXIT_FAILURE;
