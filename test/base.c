@@ -167,10 +167,11 @@ test_free(void)
 size_t
 run_test_group(group_node *group)
 {
+	test_node *current_test;
 	size_t total = 0, failures = 0, i;
 
 	printf("Test group %s:\n", group->name);
-	for (test_node *current_test = group->tests; current_test; current_test = current_test->next)
+	for (current_test = group->tests; current_test; current_test = current_test->next)
 	{
 		if (current_test->is_preparation)
 		{
