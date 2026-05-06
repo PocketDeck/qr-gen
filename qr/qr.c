@@ -106,7 +106,7 @@ qr_svg_print(qr_code *qr, FILE *stream)
 	size_t total_side_length = qr->side_length + 8;  // added quiet zone padding
 
 	fprintf(stream, fmt_str, total_side_length, total_side_length, total_side_length, total_side_length);
-	fprintf(stream, "<rect width=\"100%%\" height=\"100%%\" fill=\"white\"/>\n");
+	fprintf(stream, "<rect width=\"%zu\" height=\"%zu\" fill=\"white\"/>\n", total_side_length, total_side_length);
 
 	for (i = 0; i < qr->side_length; ++i)
 	{
