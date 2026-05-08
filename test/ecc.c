@@ -13,8 +13,8 @@
 #include <test/base.h>
 
 // Include the source file directly to test static functions
-#include "../qr/ecc.c"
-#include "../qr/qr.c"
+#include <qr/ecc.c>
+#include <qr/qr.c>
 
 /**
  * @brief Initialize the test environment
@@ -167,7 +167,6 @@ TEST(qr_ec_encode_version1_l)
 	}
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -220,7 +219,6 @@ TEST(qr_ec_encode_version9_m)
 	}
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -257,7 +255,6 @@ TEST(codeword_interleaving_version1_h)
 	}
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -327,7 +324,6 @@ TEST(codeword_interleaving_version8_m)
 	test_expect_eq(qr->codewords[159], 178, "ECC codeword value verification");
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 

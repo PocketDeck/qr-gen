@@ -16,8 +16,10 @@ BEFORE()
 {
 	if (system("which curl >/dev/null 2>&1"))
 		return TEST_FAILURE("Could not find curl, skipping suite...");
+
 	if (system("which magick >/dev/null 2>&1"))
 		return TEST_FAILURE("Could not find magick, skipping suite...");
+
 	return TEST_SUCCESS;
 }
 
@@ -190,6 +192,7 @@ compare_with_oracle(const char *text, qr_ec_level level)
 	/* Prepare failure message */
 	memcpy(msg, "QR Code comparison failed: \n", 28);
 	qr_side_by_side_to_str(our_qr, oracle_qr, msg + 28);
+	msg[27] = '\0';
 
 	/* Compare matrices */
 	for (i = 0; i < our_qr->side_length; ++i)
@@ -203,7 +206,6 @@ compare_with_oracle(const char *text, qr_ec_level level)
 
 	qr_destroy(our_qr);
 	qr_destroy(oracle_qr);
-
 	return TEST_SUCCESS;
 }
 

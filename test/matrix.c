@@ -43,7 +43,6 @@ TEST(module_get_set)
 	}
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -66,7 +65,6 @@ TEST(module_edge_cases)
 		"Last module should be set to light");
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -124,7 +122,6 @@ TEST(reserved_module_detection_version1)
 	test_expect_eq(reserved, 233, "Total number of reserved modules");
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -199,7 +196,6 @@ TEST(reserved_module_detection_version7)
 	test_expect_eq(reserved, 457, "Total number of reserved modules");
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -297,7 +293,6 @@ TEST(codeword_placement_wrap_version1)
 	test_expect_eq(qr_module_get(qr, 8, 9), QR_MODULE_LIGHT, "19. codeword (18) bit 1");
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -344,6 +339,5 @@ TEST(codeword_placement_wrap_version21)
 	test_expect_eq(qr_module_get(qr, 5, 83), QR_MODULE_DARK, "200. codeword (199) bit 1");
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
