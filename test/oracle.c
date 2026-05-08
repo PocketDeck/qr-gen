@@ -1,3 +1,8 @@
+/**
+ * @file oracle.c
+ * @brief Integration tests comparing QR generation with an oracle (ZXing)
+ */
+
 #include <qr/ecc.h>
 #include <qr/enc.h>
 #include <qr/info.h>
@@ -10,11 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <test/base.h>
-
-/**
- * @file oracle.c
- * @brief Integration tests comparing QR generation with an oracle (ZXing)
- */
 
 BEFORE()
 {
@@ -30,19 +30,18 @@ BEFORE()
  *
  * Uses curl to download and ImageMagick to process into a bit string.
  */
-static char *fetch_oracle_bits(const char *text, const char *ecc)
+static char *
+fetch_oracle_bits(const char *text, qr_ec_level level)
 {
 	char cmd[4096];
-	char *bits;
-	FILE *fp;
-	size_t size;
+	char ecc = (char []) { 'L', 'M', 'Q', 'H' }[level];
 
 	/* Command to fetch oracle matrix and convert to bits */
 	/* Uses ZXing API with curl's URL encoding to handle spaces and special characters */
 	snprintf(cmd, sizeof(cmd),
 		"curl -s -G \"https://zxing.org/w/chart\" "
 		"--data-urlencode \"chl=%s\" "
-		"--data \"chld=%s\" "
+		"--data \"chld=%c\" "
 		"--data \"chs=1x1\" "
 		"--data \"cht=qr\" "
 		"--data \"choe=ISO-8859-1\" 2>/dev/null "
@@ -50,10 +49,10 @@ static char *fetch_oracle_bits(const char *text, const char *ecc)
 		"| tail -n +5 | head -n -4 | cut -c 5- | rev | cut -c 5- | rev | tr -d ' \\n'",
 		text, ecc);
 
-	fp = popen(cmd, "r");
+	FILE *fp = popen(cmd, "r");
 	if (!fp) return NULL;
 
-	bits = test_malloc(32768); /* Large enough for version 40 */
+	char *bits = test_malloc(32768); /* Large enough for version 40 */
 	if (!bits)
 	{
 		pclose(fp);
@@ -68,18 +67,14 @@ static char *fetch_oracle_bits(const char *text, const char *ecc)
 
 	pclose(fp);
 
-	/* Remove potential newline */
-	size = strlen(bits);
-	if (size > 0 && bits[size - 1] == '\n')
-		bits[size - 1] = '\0';
-
 	return bits;
 }
 
 /**
  * @brief Initialize a QR code structure from a bit string
  */
-static void init_qr_from_bits(qr_code *qr, const char *bits)
+static void
+init_qr_from_bits(qr_code *qr, const char *bits)
 {
 	size_t i, j;
 
@@ -95,7 +90,8 @@ static void init_qr_from_bits(qr_code *qr, const char *bits)
 /**
  * @brief Generate a string containing two QR codes side-by-side with a 2-black-space gap
  */
-static void qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
+static void
+qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 {
 	size_t i, j;
 	char *p = buf;
@@ -139,119 +135,110 @@ static void qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char 
 }
 
 /**
- * @brief Compare our QR generation with oracle
+ * @brief Create an oracle QR code object from text and EC level
  */
-static struct test_result compare_with_oracle(const char *text, const char *ecc_str)
+static qr_code *
+qr_create_oracle(const char *text, qr_ec_level level)
 {
-	qr_ec_level level;
+	char *bits;
+	size_t len, side;
 	unsigned version;
 	qr_code *qr;
-	qr_code *oracle_qr;
-	char *oracle_bits;
-	size_t oracle_len;
-	size_t oracle_side;
+
+	bits = fetch_oracle_bits(text, level);
+	if (!bits) return NULL;
+
+	len = strlen(bits);
+	side = 0;
+	while (side * side < len) ++side;
+	if (side * side != len) return NULL;
+
+	version = ((side - 21) / 4) + 1;
+	qr = qr_create(version, QR_MODE_BYTE, level);
+	if (!qr) return NULL;
+
+	init_qr_from_bits(qr, bits);
+	return qr;
+}
+
+/**
+ * @brief Compare our QR generation with oracle
+ */
+static struct test_result
+compare_with_oracle(const char *text, qr_ec_level level)
+{
+	unsigned version;
+	qr_code *our_qr, *oracle_qr;
 	size_t i, j;
 
 	char *msg = test_malloc(1024 * 1024); /* 1MB */
 	if (!msg) return TEST_FAILURE("Failed to allocate memory for error message");
 
-	/* Parse EC level */
-	switch (ecc_str[0])
-	{
-		case 'L': level = QR_EC_LEVEL_L; break;
-		case 'M': level = QR_EC_LEVEL_M; break;
-		case 'Q': level = QR_EC_LEVEL_Q; break;
-		case 'H': level = QR_EC_LEVEL_H; break;
-		default: return TEST_FAILURE("Invalid ECC level");
-	}
-
 	/* Create our QR code */
 	version = qr_min_version(strlen(text), level);
 	if (!version) return TEST_FAILURE("Input too large");
 
-	qr = qr_create(version, QR_MODE_BYTE, level);
-	if (!qr) return TEST_FAILURE("Failed to create QR code");
+	our_qr = qr_create(version, QR_MODE_BYTE, level);
+	if (!our_qr) return TEST_FAILURE("Failed to create QR code");
 
-	/* Generate QR matrix */
-	qr_encode_data(qr, text);
-	qr_ec_encode(qr);
-	qr_interleave_codewords(qr);
-	qr_place_codewords(qr);
-	qr_finder_patterns_apply(qr);
-	qr_separators_apply(qr);
-	qr_timing_patterns_apply(qr);
-	qr_alignment_patterns_apply(qr);
-	qr_mask_apply(qr);
-	qr_format_info_apply(qr);
-	qr_version_info_apply(qr);
+	qr_encode_message(our_qr, text);
 
-	/* Fetch oracle bits */
-	oracle_bits = fetch_oracle_bits(text, ecc_str);
-	if (!oracle_bits) return TEST_FAILURE("Failed to fetch oracle bits");
+	/* Create oracle QR code object */
+	oracle_qr = qr_create_oracle(text, level);
+	if (!oracle_qr) return TEST_FAILURE("Failed to fetch/create oracle QR object");
 
-	oracle_len = strlen(oracle_bits);
-	oracle_side = 0;
-	while (oracle_side * oracle_side < oracle_len) ++oracle_side;
+	/* Compare side length */
+	if (our_qr->side_length != oracle_qr->side_length)
+		test_expect_eq(our_qr->side_length, oracle_qr->side_length, "Size mismatch between our QR and oracle");
 
-	if (oracle_side * oracle_side != oracle_len)
-		return TEST_FAILURE("Oracle bit string length is not a perfect square");
-
-	/* Oracle from ZXing with chs=1x1 and chld=ECC already strips quiet zone.
-	 * Our qr->side_length also doesn't include quiet zone.
-	 * So we compare directly. */
-	if (qr->side_length != oracle_side)
-		test_expect_eq(qr->side_length, oracle_side, "Size mismatch between our QR and oracle");
-
-	/* Create oracle QR code object for side-by-side print if needed */
-	oracle_qr = qr_create(qr->version + 1, qr->mode, qr->level);
-	if (!oracle_qr)
-		return TEST_FAILURE("Failed to create oracle QR object");
-	init_qr_from_bits(oracle_qr, oracle_bits);
-
+	/* Prepare failure message */
 	memcpy(msg, "QR Code comparison failed: \n", 28);
-	qr_side_by_side_to_str(qr, oracle_qr, msg + 28);
+	qr_side_by_side_to_str(our_qr, oracle_qr, msg + 28);
 
 	/* Compare matrices */
-	for (i = 0; i < qr->side_length; ++i)
+	for (i = 0; i < our_qr->side_length; ++i)
 	{
-		for (j = 0; j < qr->side_length; ++j)
+		for (j = 0; j < our_qr->side_length; ++j)
 		{
-			if (qr_module_get(qr, i, j) != qr_module_get(oracle_qr, i, j))
+			if (qr_module_get(our_qr, i, j) != qr_module_get(oracle_qr, i, j))
 				return TEST_FAILURE(msg);
 		}
 	}
+
+	qr_destroy(our_qr);
+	qr_destroy(oracle_qr);
 
 	return TEST_SUCCESS;
 }
 
 TEST(oracle_simple_L)
 {
-	return compare_with_oracle("HELLO", "L");
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_L);
 }
 
 TEST(oracle_simple_M)
 {
-	return compare_with_oracle("HELLO", "M");
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_M);
 }
 
 TEST(oracle_simple_Q)
 {
-	return compare_with_oracle("HELLO", "Q");
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_Q);
 }
 
 TEST(oracle_simple_H)
 {
-	return compare_with_oracle("HELLO", "H");
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_H);
 }
 
 TEST(oracle_url_M)
 {
-	return compare_with_oracle("https://example.com", "M");
+	return compare_with_oracle("https://example.com", QR_EC_LEVEL_M);
 }
 
 TEST(oracle_long_M)
 {
-	return compare_with_oracle("The quick brown fox jumps over the lazy dog", "M");
+	return compare_with_oracle("The quick brown fox jumps over the lazy dog", QR_EC_LEVEL_M);
 }
 
 TEST(oracle_very_long_L)
@@ -262,7 +249,7 @@ TEST(oracle_very_long_L)
 		"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
 		"nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
 		"reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-		"L"
+		QR_EC_LEVEL_L
 	);
 }
 
@@ -274,6 +261,6 @@ TEST(oracle_very_long_H)
 		"1994 for the automotive industry in Japan. A barcode is a "
 		"machine-readable optical label that contains information about the "
 		"item to which it is attached.",
-		"H"
+		QR_EC_LEVEL_H
 	);
 }
