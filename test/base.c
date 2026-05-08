@@ -168,7 +168,7 @@ size_t
 run_test_group(group_node *group)
 {
 	test_node *current_test;
-	size_t total = 0, failures = 0, i;
+	size_t total = 0, failures = 0, message_newlines = 0, i;
 
 	printf("Test group %s:\n", group->name);
 	for (current_test = group->tests; current_test; current_test = current_test->next)
@@ -188,10 +188,16 @@ run_test_group(group_node *group)
 
 		if (!current_test->res.failed) continue;
 		++failures;
+		for (i = 0; current_test->res.message[i]; ++i)
+		{
+			if (current_test->res.message[i] == '\n')
+				++message_newlines;
+		}
+
 		printf("  => %s:%zu [%s] failed:\n    => %s\n", current_test->name, current_test->res.line, current_test->name, current_test->res.message);
 	}
 
-	for (i = 0; i < (2 * failures) + 1; ++i)
+	for (i = 0; i < (2 * failures) + 1 + message_newlines; ++i)
 		printf("\x1b[K\x1b[A");
 
 	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, ((int) biggest_group_name) - ((int) strlen(group->name)) + 1, ":", total, failures);
