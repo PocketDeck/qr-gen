@@ -6,8 +6,10 @@
  * including Galois Field arithmetic, generator polynomial creation, and codeword interleaving.
  */
 
+#include <qr/ecc.h>
+#include <qr/qr.h>
 #include <qr/types.h>
-#include <stdio.h>
+#include <stddef.h>
 #include <test/base.h>
 
 // Include the source file directly to test static functions
