@@ -143,7 +143,7 @@ TEST(qr_ec_encode_version1_l)
 	const size_t ecc_length = total_cw - data_count;
 
 	// Create test QR code, version 1
-	qr_code *qr = qr_create(0, QR_MODE_BYTE, QR_EC_LEVEL_L);
+	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
 	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 	// Set codeword pattern
@@ -182,7 +182,7 @@ TEST(qr_ec_encode_version9_m)
 	const size_t ecc_length = total_cw - data_count;
 
 	// Create test QR code, version 9
-	qr_code *qr = qr_create(8, QR_MODE_BYTE, QR_EC_LEVEL_M);
+	qr_code *qr = qr_create(9, QR_MODE_BYTE, QR_EC_LEVEL_M);
 	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 	// Set codeword pattern
@@ -234,7 +234,7 @@ TEST(codeword_interleaving_version1_h)
 	// - 1 block (no interleaving needed)
 	// - 9 data codewords
 	// - 17 ECC codewords (26 total - 9 data)
-	qr_code *qr = qr_create(0, QR_MODE_BYTE, QR_EC_LEVEL_H);
+	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_H);
 
 	// Fill test data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
 	for (i = 0; i < qr->codeword_count; ++i)
@@ -267,7 +267,7 @@ TEST(codeword_interleaving_version8_m)
 	// - 2 blocks of Type 0: 38 data + 22 ECC = 60 codewords each
 	// - 2 blocks of Type 1: 39 data + 22 ECC = 61 codewords each
 	// Total codewords = 2*60 + 2*61 = 242
-	qr_code *qr = qr_create(7, QR_MODE_BYTE, QR_EC_LEVEL_M);
+	qr_code *qr = qr_create(8, QR_MODE_BYTE, QR_EC_LEVEL_M);
 	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 	// Fill test data:

@@ -23,6 +23,8 @@ static const size_t CODEWORD_COUNT[QR_VERSION_COUNT] =
 qr_code *
 qr_create(unsigned version, qr_encoding_mode mode, qr_ec_level level)
 {
+	if (--version >= QR_VERSION_COUNT) return NULL;
+
 	qr_code *qr = malloc(sizeof(qr_code));
 	if (!qr) return NULL;
 

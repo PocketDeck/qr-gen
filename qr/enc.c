@@ -39,7 +39,7 @@ qr_min_version(size_t bytes, qr_ec_level level)
 
 	for (i = 0; i < QR_VERSION_COUNT && bytes > CAPACITY_BYTES[level][i]; ++i);
 
-	return (unsigned) i;
+	return i == QR_VERSION_COUNT ? 0 : (unsigned) (i + 1);
 }
 
 static void

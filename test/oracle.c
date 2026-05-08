@@ -167,8 +167,7 @@ static struct test_result compare_with_oracle(const char *text, const char *ecc_
 
 	/* Create our QR code */
 	version = qr_min_version(strlen(text), level);
-	if (version >= QR_VERSION_COUNT)
-		return TEST_FAILURE("Input too large");
+	if (!version) return TEST_FAILURE("Input too large");
 
 	qr = qr_create(version, QR_MODE_BYTE, level);
 	if (!qr) return TEST_FAILURE("Failed to create QR code");
@@ -204,7 +203,7 @@ static struct test_result compare_with_oracle(const char *text, const char *ecc_
 		test_expect_eq(qr->side_length, oracle_side, "Size mismatch between our QR and oracle");
 
 	/* Create oracle QR code object for side-by-side print if needed */
-	oracle_qr = qr_create(qr->version, qr->mode, qr->level);
+	oracle_qr = qr_create(qr->version + 1, qr->mode, qr->level);
 	if (!oracle_qr)
 		return TEST_FAILURE("Failed to create oracle QR object");
 	init_qr_from_bits(oracle_qr, oracle_bits);
