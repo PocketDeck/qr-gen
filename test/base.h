@@ -37,8 +37,8 @@ void *test_malloc(size_t size);
 
 #define INT_MAX_CHARS 11
 
-#define TEST_SUCCESS (struct test_result) {0, NULL, 0}
-#define TEST_FAILURE(message) (struct test_result) {1, (message), __LINE__}
+#define TEST_SUCCESS (struct test_result) { 0, NULL, 0 }
+#define TEST_FAILURE(message) (struct test_result) { 1, (message), __LINE__ }
 
 #define test_expect_base(lhs, rhs, message, operator) \
 	do { \
