@@ -164,6 +164,8 @@ TEST(qr_ec_encode_version1_l)
 			"qr_ec_encode produced unexpected ECC bytes");
 	}
 
+	qr_destroy(qr);
+
 	return TEST_SUCCESS;
 }
 
@@ -215,6 +217,8 @@ TEST(qr_ec_encode_version9_m)
 			"qr_ec_encode produced unexpected ECC bytes");
 	}
 
+	qr_destroy(qr);
+
 	return TEST_SUCCESS;
 }
 
@@ -249,6 +253,8 @@ TEST(codeword_interleaving_version1_h)
 		test_expect_eq((int) qr->codewords[i], (int) (i + 1),
 			"Codeword order should remain unchanged for single block");
 	}
+
+	qr_destroy(qr);
 
 	return TEST_SUCCESS;
 }
@@ -317,6 +323,8 @@ TEST(codeword_interleaving_version8_m)
 	test_expect_eq(qr->codewords[157], 221, "ECC codeword value verification");
 	test_expect_eq(qr->codewords[158], 156, "ECC codeword value verification");
 	test_expect_eq(qr->codewords[159], 178, "ECC codeword value verification");
+
+	qr_destroy(qr);
 
 	return TEST_SUCCESS;
 }
