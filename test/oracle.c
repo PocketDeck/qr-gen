@@ -3,15 +3,11 @@
  * @brief Integration tests comparing QR generation with an oracle (ZXing)
  */
 
-#include <qr/ecc.h>
 #include <qr/enc.h>
-#include <qr/info.h>
-#include <qr/mask.h>
 #include <qr/matrix.h>
-#include <qr/patterns.h>
 #include <qr/qr.h>
 #include <qr/types.h>
-#include <stdio.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <test/base.h>
