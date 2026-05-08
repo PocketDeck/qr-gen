@@ -296,6 +296,8 @@ TEST(codeword_placement_wrap_version1)
 	test_expect_eq(qr_module_get(qr, 8, 10), QR_MODULE_DARK, "19. codeword (18) bit 2");
 	test_expect_eq(qr_module_get(qr, 8, 9), QR_MODULE_LIGHT, "19. codeword (18) bit 1");
 
+	qr_destroy(qr);
+
 	return TEST_SUCCESS;
 }
 
@@ -340,6 +342,8 @@ TEST(codeword_placement_wrap_version21)
 	test_expect_eq(qr_module_get(qr, 7, 83), QR_MODULE_DARK, "200. codeword (199) bit 3");
 	test_expect_eq(qr_module_get(qr, 5, 84), QR_MODULE_DARK, "200. codeword (199) bit 2");
 	test_expect_eq(qr_module_get(qr, 5, 83), QR_MODULE_DARK, "200. codeword (199) bit 1");
+
+	qr_destroy(qr);
 
 	return TEST_SUCCESS;
 }
