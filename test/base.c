@@ -202,13 +202,13 @@ run_test_group(group_node *group)
 
 	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, ((int) biggest_group_name) - ((int) strlen(group->name)) + 1, ":", total, failures);
 
-	printf("[\x1b[32m");
+	printf("[\x1b[32m\x1b[7m");
 	for (i = 0; i < ((total - failures) / (float) total) * BAR_WIDTH; ++i)
 		printf("-");
 	printf("\x1b[31m");
 	for (; i < BAR_WIDTH; ++i)
 		printf("-");
-	printf("\x1b[0m]\n");
+	printf("\x1b[27m\x1b[0m]\n");
 
 	return failures;
 }
