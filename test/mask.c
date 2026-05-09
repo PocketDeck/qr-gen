@@ -38,6 +38,7 @@ qr_init_random(qr_code *qr, unsigned int seed)
 	}
 
 	// Apply all QR code structure patterns
+	qr->mask = 0;
 	qr_finder_patterns_apply(qr);
 	qr_separators_apply(qr);
 	qr_alignment_patterns_apply(qr);
