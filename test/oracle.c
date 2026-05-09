@@ -223,7 +223,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
  * @brief Create oracle QR code
  */
 static qr_code *
-qr_create_oracle(const char *text, qr_ec_level level, qr_encoding_mode mode)
+qr_create_oracle(const char *text, qr_ec_level level, qr_mode mode)
 {
 	size_t len, side;
 	unsigned version;
@@ -249,7 +249,7 @@ qr_create_oracle(const char *text, qr_ec_level level, qr_encoding_mode mode)
  * @brief Compare QR generation with oracle
  */
 static struct test_result
-compare_with_oracle(const char *text, qr_ec_level level, qr_encoding_mode mode)
+compare_with_oracle(const char *text, qr_ec_level level, qr_mode mode)
 {
 	unsigned version;
 	qr_code *our_qr, *oracle_qr;

@@ -20,7 +20,7 @@ typedef enum
 	QR_MODE_NUMERIC,
 	QR_MODE_ALPHANUMERIC,
 	QR_MODE_BYTE,
-} qr_encoding_mode;
+} qr_mode;
 
 typedef uint8_t word;
 
@@ -34,7 +34,7 @@ typedef enum
 typedef struct
 {
 	qr_ec_level level;
-	qr_encoding_mode mode;
+	qr_mode mode;
 	unsigned version;
 
 	qr_module *matrix;
