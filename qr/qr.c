@@ -32,7 +32,7 @@ qr_create(unsigned version, qr_encoding_mode mode, qr_ec_level level)
 	qr->mode = mode;
 	qr->level = level;
 	qr->side_length = 21 + (qr->version * 4);
-	qr->matrix = malloc((qr->side_length * qr->side_length) * sizeof(*qr->matrix));
+	qr->matrix = malloc((qr->side_length * qr->side_length) * sizeof(qr_module_state));
 	if (!qr->matrix) {
 		free(qr);
 		return NULL;
