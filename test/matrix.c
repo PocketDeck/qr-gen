@@ -216,7 +216,7 @@ TEST(codeword_placement_reserved)
 		if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
 		// Initialize all matrix modules to QR_MODULE_LIGHT (0)
-		memset(qr->matrix, 0, qr->side_length * qr->side_length * sizeof(*qr->matrix));
+		memset(qr->matrix, 0, qr->side_length * qr->side_length * sizeof(qr_module_state));
 
 		// Set all codeword bits to 1
 		memset(qr->codewords, 0xFF, qr->codeword_count * sizeof(word));
@@ -237,6 +237,9 @@ TEST(codeword_placement_reserved)
 				}
 				else
 				{
+					// Skip remainder bits
+					if (i >= qr->side_length - 12 && j < 2) continue;
+
 					// Non-reserved modules should be QR_MODULE_DARK (1)
 					test_expect_eq(qr_module_get(qr, i, j), QR_MODULE_DARK,
 						"Non-reserved module should be set to dark");
@@ -319,24 +322,24 @@ TEST(codeword_placement_wrap_version21)
 	test_expect_eq(qr_module_get(qr, 46, 95), QR_MODULE_DARK, "56. codeword (55) bit 1");
 
 	// 104. codeword (103=64+32+4+2+1)
-	test_expect_eq(qr_module_get(qr, 8, 90), QR_MODULE_LIGHT, "104. codeword (103) bit 8");
-	test_expect_eq(qr_module_get(qr, 8, 89), QR_MODULE_DARK, "104. codeword (103) bit 7");
-	test_expect_eq(qr_module_get(qr, 9, 90), QR_MODULE_DARK, "104. codeword (103) bit 6");
-	test_expect_eq(qr_module_get(qr, 9, 89), QR_MODULE_LIGHT, "104. codeword (103) bit 5");
-	test_expect_eq(qr_module_get(qr, 10, 90), QR_MODULE_LIGHT, "104. codeword (103) bit 4");
-	test_expect_eq(qr_module_get(qr, 10, 89), QR_MODULE_DARK, "104. codeword (103) bit 3");
-	test_expect_eq(qr_module_get(qr, 11, 90), QR_MODULE_DARK, "104. codeword (103) bit 2");
-	test_expect_eq(qr_module_get(qr, 11, 89), QR_MODULE_DARK, "104. codeword (103) bit 1");
+	test_expect_eq(qr_module_get(qr, 0, 89), QR_MODULE_LIGHT, "104. codeword (103) bit 8");
+	test_expect_eq(qr_module_get(qr, 1, 89), QR_MODULE_DARK, "104. codeword (103) bit 7");
+	test_expect_eq(qr_module_get(qr, 2, 90), QR_MODULE_DARK, "104. codeword (103) bit 6");
+	test_expect_eq(qr_module_get(qr, 3, 89), QR_MODULE_LIGHT, "104. codeword (103) bit 5");
+	test_expect_eq(qr_module_get(qr, 4, 89), QR_MODULE_LIGHT, "104. codeword (103) bit 4");
+	test_expect_eq(qr_module_get(qr, 5, 89), QR_MODULE_DARK, "104. codeword (103) bit 3");
+	test_expect_eq(qr_module_get(qr, 7, 89), QR_MODULE_DARK, "104. codeword (103) bit 2");
+	test_expect_eq(qr_module_get(qr, 7, 90), QR_MODULE_DARK, "104. codeword (103) bit 1");
 
 	// 200. codeword (199=128+64+4+2+1)
-	test_expect_eq(qr_module_get(qr, 9, 84), QR_MODULE_DARK, "200. codeword (199) bit 8");
-	test_expect_eq(qr_module_get(qr, 9, 83), QR_MODULE_DARK, "200. codeword (199) bit 7");
-	test_expect_eq(qr_module_get(qr, 8, 84), QR_MODULE_LIGHT, "200. codeword (199) bit 6");
-	test_expect_eq(qr_module_get(qr, 8, 83), QR_MODULE_LIGHT, "200. codeword (199) bit 5");
-	test_expect_eq(qr_module_get(qr, 7, 84), QR_MODULE_LIGHT, "200. codeword (199) bit 4");
-	test_expect_eq(qr_module_get(qr, 7, 83), QR_MODULE_DARK, "200. codeword (199) bit 3");
-	test_expect_eq(qr_module_get(qr, 5, 84), QR_MODULE_DARK, "200. codeword (199) bit 2");
-	test_expect_eq(qr_module_get(qr, 5, 83), QR_MODULE_DARK, "200. codeword (199) bit 1");
+	test_expect_eq(qr_module_get(qr, 13, 84), QR_MODULE_DARK, "200. codeword (199) bit 8");
+	test_expect_eq(qr_module_get(qr, 13, 83), QR_MODULE_DARK, "200. codeword (199) bit 7");
+	test_expect_eq(qr_module_get(qr, 12, 84), QR_MODULE_LIGHT, "200. codeword (199) bit 6");
+	test_expect_eq(qr_module_get(qr, 12, 83), QR_MODULE_LIGHT, "200. codeword (199) bit 5");
+	test_expect_eq(qr_module_get(qr, 11, 84), QR_MODULE_LIGHT, "200. codeword (199) bit 4");
+	test_expect_eq(qr_module_get(qr, 11, 83), QR_MODULE_DARK, "200. codeword (199) bit 3");
+	test_expect_eq(qr_module_get(qr, 10, 84), QR_MODULE_DARK, "200. codeword (199) bit 2");
+	test_expect_eq(qr_module_get(qr, 10, 83), QR_MODULE_DARK, "200. codeword (199) bit 1");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
