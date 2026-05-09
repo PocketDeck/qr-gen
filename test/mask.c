@@ -309,7 +309,7 @@ typedef struct {
 	const char *name;
 	const char *pattern;
 	unsigned version;
-	qr_ec_level level;
+	qr_ecl level;
 	int expected_scores[QR_MASK_PATTERN_COUNT];
 } mask_penalty_test_case;
 

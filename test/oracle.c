@@ -111,7 +111,7 @@ END                                     \
  * @brief Fetch oracle QR matrix from ZXing API
  */
 static char *
-fetch_oracle_bits(const char *text, qr_ec_level level)
+fetch_oracle_bits(const char *text, qr_ecl level)
 {
 	char cmd[4096];
 	char ecc = (char []) { 'L', 'M', 'Q', 'H' }[level];
@@ -223,7 +223,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
  * @brief Create oracle QR code
  */
 static qr_code *
-qr_create_oracle(const char *text, qr_ec_level level, qr_mode mode)
+qr_create_oracle(const char *text, qr_ecl level, qr_mode mode)
 {
 	size_t len, side;
 	unsigned version;
@@ -249,7 +249,7 @@ qr_create_oracle(const char *text, qr_ec_level level, qr_mode mode)
  * @brief Compare QR generation with oracle
  */
 static struct test_result
-compare_with_oracle(const char *text, qr_ec_level level, qr_mode mode)
+compare_with_oracle(const char *text, qr_ecl level, qr_mode mode)
 {
 	unsigned version;
 	qr_code *our_qr, *oracle_qr;

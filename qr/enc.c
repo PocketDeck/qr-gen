@@ -89,7 +89,7 @@ static const size_t CAPACITY_BYTE[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT] =
 };
 
 unsigned
-qr_min_version(qr_mode mode, qr_ec_level level, size_t bytes)
+qr_min_version(qr_mode mode, qr_ecl level, size_t bytes)
 {
 	const size_t *capacity;
 	size_t i;

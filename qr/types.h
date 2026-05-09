@@ -11,7 +11,7 @@ typedef enum
 	QR_EC_LEVEL_Q,
 	QR_EC_LEVEL_H,
 	QR_EC_LEVEL_COUNT
-} qr_ec_level;
+} qr_ecl;
 
 #define QR_VERSION_COUNT 40
 
@@ -33,7 +33,7 @@ typedef enum
 
 typedef struct
 {
-	qr_ec_level level;
+	qr_ecl level;
 	qr_mode mode;
 	unsigned version;
 

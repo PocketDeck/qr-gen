@@ -28,7 +28,7 @@ print_usage(const char *program_name)
 	log_("  error_correction: L (7%%), M (15%%), Q (25%%), H (30%%). Default: M\n");
 }
 
-static qr_ec_level
+static qr_ecl
 parse_ec_level(const char *level_str)
 {
 	if (!level_str) return QR_EC_LEVEL_M;
@@ -55,7 +55,7 @@ main(int argc, char **argv)
 	}
 
 	const char *input = argv[1];
-	qr_ec_level ec_level = (argc > 2) ? parse_ec_level(argv[2]) : QR_EC_LEVEL_M;
+	qr_ecl ec_level = (argc > 2) ? parse_ec_level(argv[2]) : QR_EC_LEVEL_M;
 
 	unsigned version = qr_min_version(QR_MODE_BYTE, ec_level, strlen(input));
 	if (!version)

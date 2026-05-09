@@ -258,7 +258,7 @@ TEST(codeword_interleaving_version8_m)
  */
 TEST(ecc_table_consistency)
 {
-	qr_ec_level level;
+	qr_ecl level;
 	size_t version;
 	size_t total_codewords, total_data_codewords;
 	size_t block_type;
