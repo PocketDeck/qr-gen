@@ -33,14 +33,16 @@ qr_create(unsigned version, qr_mode mode, qr_ecl level)
 	qr->level = level;
 	qr->side_length = 21 + (qr->version * 4);
 	qr->matrix = malloc((qr->side_length * qr->side_length) * sizeof(qr_module));
-	if (!qr->matrix) {
+	if (!qr->matrix)
+	{
 		free(qr);
 		return NULL;
 	}
 
 	qr->codeword_count = CODEWORD_COUNT[qr->version];
 	qr->codewords = malloc(qr->codeword_count * sizeof(word));
-	if (!qr->codewords) {
+	if (!qr->codewords)
+	{
 		free(qr->matrix);
 		free(qr);
 		return NULL;
