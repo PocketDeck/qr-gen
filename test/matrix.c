@@ -303,7 +303,7 @@ TEST(codeword_placement_wrap_version21)
 	// Test 104th codeword (103) placement
 	test_expect_eq(qr_module_get(qr, 0, 89), QR_MODULE_LIGHT, "Codeword 103 bit 8 incorrect");
 	test_expect_eq(qr_module_get(qr, 1, 89), QR_MODULE_DARK, "Codeword 103 bit 7 incorrect");
-	test_expect_eq(qr_module_get(qr, 2, 90), QR_MODULE_DARK, "Codeword 103 bit 6 incorrect");
+	test_expect_eq(qr_module_get(qr, 2, 89), QR_MODULE_DARK, "Codeword 103 bit 6 incorrect");
 	test_expect_eq(qr_module_get(qr, 3, 89), QR_MODULE_LIGHT, "Codeword 103 bit 5 incorrect");
 	test_expect_eq(qr_module_get(qr, 4, 89), QR_MODULE_LIGHT, "Codeword 103 bit 4 incorrect");
 	test_expect_eq(qr_module_get(qr, 5, 89), QR_MODULE_DARK, "Codeword 103 bit 3 incorrect");
