@@ -16,7 +16,7 @@
 TEST(module_get_set)
 {
 	size_t i, j;
-	qr_module_state actual, expected;
+	qr_module actual, expected;
 
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_H);
 	if (!qr) return TEST_FAILURE("Failed to create QR code");
@@ -199,7 +199,7 @@ TEST(codeword_placement_reserved)
 		if (!qr) return TEST_FAILURE("Failed to create QR code");
 
 		// Clear matrix and set all codewords to 1 (dark)
-		memset(qr->matrix, 0, qr->side_length * qr->side_length * sizeof(qr_module_state));
+		memset(qr->matrix, 0, qr->side_length * qr->side_length * sizeof(qr_module));
 		memset(qr->codewords, 0xFF, qr->codeword_count * sizeof(word));
 		qr_place_codewords(qr);
 

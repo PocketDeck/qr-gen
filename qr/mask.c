@@ -28,7 +28,7 @@ feature_1_evaluation(const qr_code *qr)
 {
 	// adjacent modules in row in same color
 	size_t i, j, run_row, run_column;
-	qr_module_state color_row = QR_MODULE_LIGHT, color_column = QR_MODULE_LIGHT;
+	qr_module color_row = QR_MODULE_LIGHT, color_column = QR_MODULE_LIGHT;
 	int points = 0;
 
 	for (i = 0; i < qr->side_length; ++i)
@@ -69,7 +69,7 @@ feature_2_evaluation(const qr_code *qr)
 {
 	// block of modules in same color
 	size_t i, j;
-	qr_module_state m[4];
+	qr_module m[4];
 	int points = 0;
 
 	for (i = 0; i < qr->side_length - 1; ++i)

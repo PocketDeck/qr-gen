@@ -5,14 +5,14 @@
 #include <stddef.h>
 #include <stdio.h>
 
-qr_module_state
+qr_module
 qr_module_get(const qr_code *qr, size_t i, size_t j)
 {
 	return qr->matrix[i * qr->side_length + j] ? QR_MODULE_DARK : QR_MODULE_LIGHT;
 }
 
 void
-qr_module_set(qr_code *qr, size_t i, size_t j, qr_module_state value)
+qr_module_set(qr_code *qr, size_t i, size_t j, qr_module value)
 {
 	qr->matrix[i * qr->side_length + j] = value;
 }
@@ -78,7 +78,7 @@ qr_module_is_reserved(const qr_code *qr, size_t i, size_t j)
 }
 
 static void
-place_bit(qr_code *qr, size_t *i, size_t *j, bool *left, bool *up, qr_module_state value)
+place_bit(qr_code *qr, size_t *i, size_t *j, bool *left, bool *up, qr_module value)
 {
 	bool exit = false;
 

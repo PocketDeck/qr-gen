@@ -28,7 +28,7 @@ typedef enum
 {
 	QR_MODULE_LIGHT = 0,
 	QR_MODULE_DARK  = 1,
-} qr_module_state;
+} qr_module;
 
 
 typedef struct
@@ -37,7 +37,7 @@ typedef struct
 	qr_encoding_mode mode;
 	unsigned version;
 
-	qr_module_state *matrix;
+	qr_module *matrix;
 	size_t side_length;
 
 	unsigned mask;

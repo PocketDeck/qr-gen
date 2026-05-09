@@ -159,7 +159,7 @@ TEST(mask_feature_3)
 {
 	size_t i, j;
 	int score;
-	const qr_module_state pattern[] =
+	const qr_module pattern[] =
 	{
 		QR_MODULE_DARK,
 		QR_MODULE_LIGHT,
@@ -245,9 +245,9 @@ TEST(mask_patterns)
 	}
 
 	// Save original matrix state for verification
-	qr_module_state *original = test_malloc(qr->side_length * qr->side_length * sizeof(qr_module_state));
+	qr_module *original = test_malloc(qr->side_length * qr->side_length * sizeof(qr_module));
 	if (!original) return TEST_FAILURE("Matrix allocation failed");
-	memcpy(original, qr->matrix, qr->side_length * qr->side_length * sizeof(qr_module_state));
+	memcpy(original, qr->matrix, qr->side_length * qr->side_length * sizeof(qr_module));
 
 	// Test each mask pattern's toggle behavior
 	for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
@@ -260,7 +260,7 @@ TEST(mask_patterns)
 			for (j = 0; j < qr->side_length; ++j)
 			{
 				int should_toggle = 0;
-				qr_module_state expected;
+				qr_module expected;
 
 				if (qr_module_is_reserved(qr, i, j))
 				{
