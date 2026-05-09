@@ -88,8 +88,3 @@ make -s test
   - `types.h` - Common type definitions
   - `main.c` - Command-line interface
 - `test/` - Unit tests
-- `refs/` - Reference materials
-
-## References
-
-- [ISO/IEC 18004:2024](https://www.iso.org/standard/83389.html) - QR Code specification
