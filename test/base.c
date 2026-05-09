@@ -18,11 +18,12 @@ typedef struct group_node
 	const char *name;
 	test_node *tests;
 	size_t count;
+	size_t longest_test_name;
 	struct group_node *next;
 } group_node;
 
 static group_node *group_head = NULL;
-static size_t biggest_group_name = 0;
+static size_t longest_group_name = 0;
 
 test_node *
 append_test(test_node **head, const char *name, struct test_result (*fn)(void))
@@ -75,6 +76,7 @@ append_group(group_node **head, const char *name)
 	new_group->name = name;
 	new_group->tests = NULL;
 	new_group->count = 0;
+	new_group->longest_test_name = 0;
 	new_group->next = NULL;
 
 	if (!*head)
@@ -87,8 +89,8 @@ append_group(group_node **head, const char *name)
 		current->next = new_group;
 	}
 
-	if (strlen(new_group->name) > biggest_group_name)
-		biggest_group_name = strlen(new_group->name);
+	if (strlen(new_group->name) > longest_group_name)
+		longest_group_name = strlen(new_group->name);
 
 	return new_group;
 }
@@ -109,11 +111,15 @@ void
 test_register_case(const char *group_name, const char *test_name, struct test_result (*fn)(void))
 {
 	group_node *group;
+	test_node *test;
 
 	if (!(group = group_exists(&group_head, group_name)))
 		group = append_group(&group_head, group_name);
 
-	append_test(&group->tests, test_name, fn);
+	test = append_test(&group->tests, test_name, fn);
+	if (strlen(test->name) > group->longest_test_name)
+		group->longest_test_name = strlen(test->name);
+
 	++group->count;
 }
 
@@ -164,13 +170,29 @@ test_free(void)
 
 #define BAR_WIDTH 40
 
+void
+print_group_progress(group_node *group, size_t ran, size_t failures)
+{
+	size_t i;
+
+	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, ((int) longest_group_name) - ((int) strlen(group->name)) + 1, ":", ran, failures);
+	printf("[\x1b[32m\x1b[7m");
+	for (i = 0; i < ((ran - failures) / (float) group->count) * BAR_WIDTH; ++i)
+		printf("-");
+	printf("\x1b[31m");
+	for (; i < BAR_WIDTH; ++i)
+		printf("-");
+	printf("\x1b[27m\x1b[0m]\n");
+}
+
 size_t
 run_test_group(group_node *group)
 {
 	test_node *current_test;
-	size_t total = 0, failures = 0, message_newlines = 0, i;
+	size_t ran = 0, failures = 0;
 
-	printf("Test group %s:\n", group->name);
+	print_group_progress(group, ran, failures);
+
 	for (current_test = group->tests; current_test; current_test = current_test->next)
 	{
 		if (current_test->is_preparation)
@@ -184,35 +206,14 @@ run_test_group(group_node *group)
 			continue;
 		}
 
-		printf("  => %s (%zu/%zu)", current_test->name, total + 1, group->count);
+		printf("  => %-*s (%2zu/%2zu)", (int) group->longest_test_name, current_test->name, ran + 1, group->count);
 		fflush(stdout);
-		++total;
 		current_test->res = current_test->fn();
-		printf("\r\x1b[K");
-
-		if (!current_test->res.failed) continue;
-		++failures;
-		for (i = 0; current_test->res.message[i]; ++i)
-		{
-			if (current_test->res.message[i] == '\n')
-				++message_newlines;
-		}
-
-		printf("  => %s:%zu [%s] failed:\n    => %s\n", current_test->name, current_test->res.line, current_test->name, current_test->res.message);
+		++ran;
+		if (current_test->res.failed) ++failures;
+		printf("\r\x1b[K\x1b[A");
+		print_group_progress(group, ran, failures);
 	}
-
-	for (i = 0; i < (2 * failures) + 1 + message_newlines; ++i)
-		printf("\x1b[K\x1b[A");
-
-	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, ((int) biggest_group_name) - ((int) strlen(group->name)) + 1, ":", total, failures);
-
-	printf("[\x1b[32m\x1b[7m");
-	for (i = 0; i < ((total - failures) / (float) total) * BAR_WIDTH; ++i)
-		printf("-");
-	printf("\x1b[31m");
-	for (; i < BAR_WIDTH; ++i)
-		printf("-");
-	printf("\x1b[27m\x1b[0m]\n");
 
 	return failures;
 }
