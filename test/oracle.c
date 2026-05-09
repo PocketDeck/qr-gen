@@ -138,12 +138,9 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 static qr_code *
 qr_create_oracle(const char *text, qr_ec_level level)
 {
-	char *bits;
 	size_t len, side;
 	unsigned version;
-	qr_code *qr;
-
-	bits = fetch_oracle_bits(text, level);
+	char *bits = fetch_oracle_bits(text, level);
 	if (!bits) return NULL;
 
 	len = strlen(bits);
@@ -152,7 +149,7 @@ qr_create_oracle(const char *text, qr_ec_level level)
 	if (side * side != len) return NULL;
 
 	version = ((side - 21) / 4) + 1;
-	qr = qr_create(version, QR_MODE_BYTE, level);
+	qr_code *qr = qr_create(version, QR_MODE_BYTE, level);
 	if (!qr) return NULL;
 
 	init_qr_from_bits(qr, bits);
@@ -192,7 +189,6 @@ compare_with_oracle(const char *text, qr_ec_level level)
 	/* Prepare failure message */
 	memcpy(msg, "QR Code comparison failed: \n", 28);
 	qr_side_by_side_to_str(our_qr, oracle_qr, msg + 28);
-	msg[27] = '\0';
 
 	/* Compare matrices */
 	for (i = 0; i < our_qr->side_length; ++i)
