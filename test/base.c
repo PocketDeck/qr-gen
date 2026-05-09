@@ -176,7 +176,11 @@ run_test_group(group_node *group)
 		if (current_test->is_preparation)
 		{
 			current_test->res = current_test->fn();
-			if (current_test->res.failed) break;
+			if (current_test->res.failed)
+			{
+				group->count = 0;
+				break;
+			}
 			continue;
 		}
 
@@ -221,9 +225,10 @@ main(void)
 	size_t total_failures = 0, total_tests = 0;
 
 	for (current_group = group_head; current_group; current_group = current_group->next)
-		total_tests += current_group->count;
-	for (current_group = group_head; current_group; current_group = current_group->next)
+	{
 		total_failures += run_test_group(current_group);
+		total_tests += current_group->count;
+	}
 
 	printf("\nSummary: %zu test(s) ran; %zu failed.\n", total_tests, total_failures);
 	for (current_group = group_head; current_group; current_group = current_group->next)
