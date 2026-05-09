@@ -80,7 +80,7 @@ TEST(mask_selection_optimality)
 		// Verify all patterns have score >= best score
 		for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
 		{
-			test_expect_ge(pattern_scores[pattern], best_score,
+			test_ge(pattern_scores[pattern], best_score,
 				"Non-optimal mask pattern selected");
 		}
 
@@ -109,13 +109,13 @@ TEST(mask_feature_1)
 	// Test 5 consecutive dark modules: penalty = 3 + (5-5) = 3
 	for (i = 0; i < 5; ++i) qr_module_set(qr, 10, i, QR_MODULE_DARK);
 	score = feature_1_evaluation(qr);
-	test_expect_eq(score, 3, "Feature 1 penalty incorrect");
+	test_eq(score, 3, "Feature 1 penalty incorrect");
 
 	// Test 7 consecutive dark modules: penalty = 3 + (7-5) = 5
 	qr_module_set(qr, 10, 5, QR_MODULE_DARK);
 	qr_module_set(qr, 10, 6, QR_MODULE_DARK);
 	score = feature_1_evaluation(qr);
-	test_expect_eq(score, 5, "Feature 1 penalty incorrect");
+	test_eq(score, 5, "Feature 1 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
@@ -143,13 +143,13 @@ TEST(mask_feature_2)
 	qr_module_set(qr, 11, 10, QR_MODULE_DARK);
 	qr_module_set(qr, 11, 11, QR_MODULE_DARK);
 	score = feature_2_evaluation(qr);
-	test_expect_eq(score, 3, "Feature 2 penalty incorrect");
+	test_eq(score, 3, "Feature 2 penalty incorrect");
 
 	// Test overlapping 2x2 blocks (2x3 area): penalty = 3 * (2-1)*(3-1) = 6
 	qr_module_set(qr, 10, 12, QR_MODULE_DARK);
 	qr_module_set(qr, 11, 12, QR_MODULE_DARK);
 	score = feature_2_evaluation(qr);
-	test_expect_eq(score, 6, "Feature 2 penalty incorrect");
+	test_eq(score, 6, "Feature 2 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
@@ -184,7 +184,7 @@ TEST(mask_feature_3)
 	// Create finder pattern 1:1:3:1:1 (dark:light:dark:dark:dark:light:dark)
 	for (j = 4; j < 11; ++j) qr_module_set(qr, 10, j, pattern[j - 4] ? QR_MODULE_DARK : QR_MODULE_LIGHT);
 	score = feature_3_evaluation(qr);
-	test_expect_eq(score, 40, "Feature 3 penalty incorrect");
+	test_eq(score, 40, "Feature 3 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
@@ -214,7 +214,7 @@ TEST(mask_feature_4)
 	}
 	// Dark ratio 55.5%: penalty = 10 * floor(|55.5-50|/5) = 10
 	score = feature_4_evaluation(qr);
-	test_expect_eq(score, 10, "Feature 4 penalty incorrect");
+	test_eq(score, 10, "Feature 4 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
@@ -267,7 +267,7 @@ TEST(mask_patterns)
 
 				if (qr_module_is_reserved(qr, i, j))
 				{
-					test_expect_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
+					test_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
 						"Reserved module modified");
 					continue;
 				}
@@ -285,7 +285,7 @@ TEST(mask_patterns)
 				}
 
 				expected = original[i * qr->side_length + j] ^ should_toggle;
-				test_expect_eq(qr_module_get(qr, i, j), expected,
+				test_eq(qr_module_get(qr, i, j), expected,
 					"Mask pattern toggle incorrect");
 			}
 		}
@@ -297,7 +297,7 @@ TEST(mask_patterns)
 		{
 			for (j = 0; j < qr->side_length; ++j)
 			{
-				test_expect_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
+				test_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
 					"Double mask application failed");
 			}
 		}
@@ -485,7 +485,7 @@ TEST(mask_penalty_calculation)
 
 			if (tests[t].expected_scores[pattern] != -1)
 			{
-				test_expect_eq(qr_mask_evaluate(qr), tests[t].expected_scores[pattern],
+				test_eq(qr_mask_evaluate(qr), tests[t].expected_scores[pattern],
 					"Penalty score incorrect");
 			}
 
@@ -523,7 +523,7 @@ TEST(mask_evaluation)
 	}
 
 	score = qr_mask_evaluate(qr);
-	test_expect_gt(score, 0, "Consecutive modules not detected");
+	test_gt(score, 0, "Consecutive modules not detected");
 
 	// Reset to all-white and add 2x2 dark block to test feature 2
 	for (i = 0; i < qr->side_length; ++i)
@@ -540,7 +540,7 @@ TEST(mask_evaluation)
 	qr_module_set(qr, 6, 6, QR_MODULE_DARK);
 
 	score = qr_mask_evaluate(qr);
-	test_expect_gt(score, 0, "2x2 block not detected");
+	test_gt(score, 0, "2x2 block not detected");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
@@ -573,7 +573,7 @@ TEST(mask_pattern_diversity)
 		if (unique_patterns >= min_unique_patterns) break;
 	}
 
-	test_expect_ge(unique_patterns, min_unique_patterns,
+	test_ge(unique_patterns, min_unique_patterns,
 		"Pattern diversity insufficient");
 
 	return TEST_SUCCESS;

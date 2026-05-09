@@ -274,7 +274,7 @@ compare_with_oracle(const char *text, qr_ecl level)
 
 	// Verify both QR codes have same dimensions
 	if (our_qr->side_length != oracle_qr->side_length)
-		test_expect_eq(our_qr->side_length, oracle_qr->side_length, "QR size mismatch");
+		test_eq(our_qr->side_length, oracle_qr->side_length, "QR size mismatch");
 
 	// Prepare failure message with side-by-side comparison
 	memcpy(msg, "QR Code comparison failed: \n", 28);

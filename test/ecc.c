@@ -26,15 +26,15 @@ BEFORE()
  */
 TEST(gf_arithmetic)
 {
-	test_expect_eq(gf_mul(2, 3), 6, "GF multiplication 2*3");
-	test_expect_eq(gf_mul(0, 5), 0, "GF multiplication with zero");
-	test_expect_eq(gf_mul(7, 1), 7, "GF multiplication with one");
+	test_eq(gf_mul(2, 3), 6, "GF multiplication 2*3");
+	test_eq(gf_mul(0, 5), 0, "GF multiplication with zero");
+	test_eq(gf_mul(7, 1), 7, "GF multiplication with one");
 
-	test_expect_eq(gf_add(5, 3), 6, "GF addition 5+3");
-	test_expect_eq(gf_add(0, 4), 4, "GF addition with zero");
+	test_eq(gf_add(5, 3), 6, "GF addition 5+3");
+	test_eq(gf_add(0, 4), 4, "GF addition with zero");
 
-	test_expect_eq(gf_mul(0x03, 0x0E), 18, "GF multiplication 0x03*0x0E");
-	test_expect_eq(gf_mul(0x1A, 0x0B), 254, "GF multiplication 0x1A*0x0B");
+	test_eq(gf_mul(0x03, 0x0E), 18, "GF multiplication 0x03*0x0E");
+	test_eq(gf_mul(0x1A, 0x0B), 254, "GF multiplication 0x1A*0x0B");
 
 	return TEST_SUCCESS;
 }
@@ -55,7 +55,7 @@ TEST(generator_polynomial)
 
 	for (i = 0; i < 5; ++i)
 	{
-		test_expect_eq(poly[i], gf_antilog[expected5_exponents[i]],
+		test_eq(poly[i], gf_antilog[expected5_exponents[i]],
 			"Degree 5 generator polynomial coefficient");
 	}
 
@@ -70,7 +70,7 @@ TEST(generator_polynomial)
 
 	for (i = 0; i < 16; ++i)
 	{
-		test_expect_eq(poly[i], gf_antilog[expected16_exponents[i]],
+		test_eq(poly[i], gf_antilog[expected16_exponents[i]],
 			"Degree 16 generator polynomial coefficient");
 	}
 
@@ -97,7 +97,7 @@ TEST(ecc_generation)
 	word expected_ecc[10] = { 214, 246, 18, 193, 38, 69, 160, 197, 199, 15 };
 	for (i = 0; i < 10; ++i)
 	{
-		test_expect_eq(ecc[i], expected_ecc[i],
+		test_eq(ecc[i], expected_ecc[i],
 			"ECC generation failed");
 	}
 
@@ -121,7 +121,7 @@ TEST(qr_ec_encode_version1_l)
 	for (i = 0; i < data_count; ++i)
 		qr->codewords[i] = (word) ((i * 5 + 7) % 256);
 
-	test_expect_eq(ecc_length, 7, "ECC length incorrect");
+	test_eq(ecc_length, 7, "ECC length incorrect");
 	word expected_ecc[7] = { 79, 91, 164, 37, 5, 243, 57 };
 
 	// Generate ECC and append to data codewords
@@ -129,7 +129,7 @@ TEST(qr_ec_encode_version1_l)
 
 	for (i = 0; i < ecc_length; ++i)
 	{
-		test_expect_eq(qr->codewords[data_count + i], expected_ecc[i],
+		test_eq(qr->codewords[data_count + i], expected_ecc[i],
 			"ECC bytes incorrect");
 	}
 
@@ -154,7 +154,7 @@ TEST(qr_ec_encode_version9_m)
 	for (i = 0; i < data_count; ++i)
 		qr->codewords[i] = (word) ((i * 3 + 11) % 256);
 
-	test_expect_eq(ecc_length, 110, "ECC length incorrect");
+	test_eq(ecc_length, 110, "ECC length incorrect");
 	word expected_ecc[] = {
 		245, 121, 89, 42, 56, 51, 80, 31, 34, 6,
 		243, 58, 171, 209, 46, 130, 106, 40, 112, 46,
@@ -174,7 +174,7 @@ TEST(qr_ec_encode_version9_m)
 
 	for (i = 0; i < ecc_length; ++i)
 	{
-		test_expect_eq(qr->codewords[data_count + i], expected_ecc[i],
+		test_eq(qr->codewords[data_count + i], expected_ecc[i],
 			"ECC bytes incorrect");
 	}
 
@@ -200,7 +200,7 @@ TEST(codeword_interleaving_version1_h)
 
 	for (size_t i = 0; i < qr->codeword_count; ++i)
 	{
-		test_expect_eq((int) qr->codewords[i], (int) (i + 1),
+		test_eq((int) qr->codewords[i], (int) (i + 1),
 			"Single block codeword order incorrect");
 	}
 
@@ -227,27 +227,27 @@ TEST(codeword_interleaving_version8_m)
 	qr_interleave_codewords(qr);
 
 	// Test first few interleaved data codewords
-	test_expect_eq(qr->codewords[0], 1, "Data codeword incorrect");
-	test_expect_eq(qr->codewords[1], 39, "Data codeword incorrect");
-	test_expect_eq(qr->codewords[2], 77, "Data codeword incorrect");
+	test_eq(qr->codewords[0], 1, "Data codeword incorrect");
+	test_eq(qr->codewords[1], 39, "Data codeword incorrect");
+	test_eq(qr->codewords[2], 77, "Data codeword incorrect");
 
-	test_expect_eq(qr->codewords[3], 116, "Data codeword incorrect");
-	test_expect_eq(qr->codewords[4], 2, "Data codeword incorrect");
-	test_expect_eq(qr->codewords[5], 40, "Data codeword incorrect");
+	test_eq(qr->codewords[3], 116, "Data codeword incorrect");
+	test_eq(qr->codewords[4], 2, "Data codeword incorrect");
+	test_eq(qr->codewords[5], 40, "Data codeword incorrect");
 
 	// Test last few interleaved data codewords
-	test_expect_eq(qr->codewords[148], 38, "Data codeword incorrect");
-	test_expect_eq(qr->codewords[149], 76, "Data codeword incorrect");
-	test_expect_eq(qr->codewords[152], 115, "Data codeword incorrect");
-	test_expect_eq(qr->codewords[153], 154, "Data codeword incorrect");
+	test_eq(qr->codewords[148], 38, "Data codeword incorrect");
+	test_eq(qr->codewords[149], 76, "Data codeword incorrect");
+	test_eq(qr->codewords[152], 115, "Data codeword incorrect");
+	test_eq(qr->codewords[153], 154, "Data codeword incorrect");
 
 	// Test first few interleaved ECC codewords
-	test_expect_eq(qr->codewords[154], 155, "ECC codeword incorrect");
-	test_expect_eq(qr->codewords[155], 177, "ECC codeword incorrect");
-	test_expect_eq(qr->codewords[156], 199, "ECC codeword incorrect");
-	test_expect_eq(qr->codewords[157], 221, "ECC codeword incorrect");
-	test_expect_eq(qr->codewords[158], 156, "ECC codeword incorrect");
-	test_expect_eq(qr->codewords[159], 178, "ECC codeword incorrect");
+	test_eq(qr->codewords[154], 155, "ECC codeword incorrect");
+	test_eq(qr->codewords[155], 177, "ECC codeword incorrect");
+	test_eq(qr->codewords[156], 199, "ECC codeword incorrect");
+	test_eq(qr->codewords[157], 221, "ECC codeword incorrect");
+	test_eq(qr->codewords[158], 156, "ECC codeword incorrect");
+	test_eq(qr->codewords[159], 178, "ECC codeword incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
@@ -281,13 +281,13 @@ TEST(ecc_table_consistency)
 				// Empty blocks should have zero counts
 				if (block_count == 0)
 				{
-					test_expect_eq(total_cw, 0, "Empty block has non-zero total");
-					test_expect_eq(data_cw, 0, "Empty block has non-zero data");
+					test_eq(total_cw, 0, "Empty block has non-zero total");
+					test_eq(data_cw, 0, "Empty block has non-zero data");
 					continue;
 				}
 
 				// Total codewords must be >= data codewords
-				test_expect_ge(total_cw, data_cw,
+				test_ge(total_cw, data_cw,
 					"Total < data codewords");
 
 				total_codewords += block_count * total_cw;
@@ -295,10 +295,10 @@ TEST(ecc_table_consistency)
 			}
 
 			// Verify computed totals match precomputed values
-			test_expect_eq(total_data_codewords, TOTAL_DATA_CODEWORD_COUNT[level][version],
+			test_eq(total_data_codewords, TOTAL_DATA_CODEWORD_COUNT[level][version],
 				"Total data codewords mismatch");
 
-			test_expect_eq(total_codewords, CODEWORD_COUNT[version],
+			test_eq(total_codewords, CODEWORD_COUNT[version],
 				"Total codewords mismatch");
 		}
 	}

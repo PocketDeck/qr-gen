@@ -40,28 +40,28 @@ void *test_malloc(size_t size);
 #define TEST_SUCCESS (struct test_result) { 0, NULL, 0 }
 #define TEST_FAILURE(message) (struct test_result) { 1, (message), __LINE__ }
 
-#define test_expect_base(lhs, rhs, message, operator) \
+#define test_base(lhs, rhs, message, operator) \
 	do { \
-		int _test_expect_lhs = (lhs); \
-		int _test_expect_rhs = (rhs); \
-		if (!(_test_expect_lhs operator _test_expect_rhs)) \
+		int _test_lhs = (lhs); \
+		int _test_rhs = (rhs); \
+		if (!(_test_lhs operator _test_rhs)) \
 		{ \
-			size_t _test_expect_length = \
+			size_t _test_length = \
 				strlen(message) + \
 				strlen(":  " #operator " ") + \
 				(2 * INT_MAX_CHARS) + 1; \
-			char *_test_expect_message = test_malloc(_test_expect_length); \
-			if (_test_expect_message == NULL) return TEST_FAILURE("test_expect: test_malloc failed"); \
-			snprintf(_test_expect_message, _test_expect_length, "%s: %d " #operator " %d", message, _test_expect_lhs, _test_expect_rhs); \
-			return TEST_FAILURE(_test_expect_message); \
+			char *_test_message = test_malloc(_test_length); \
+			if (_test_message == NULL) return TEST_FAILURE("test: test_malloc failed"); \
+			snprintf(_test_message, _test_length, "%s: %d " #operator " %d", message, _test_lhs, _test_rhs); \
+			return TEST_FAILURE(_test_message); \
 		} \
 	} while (0)
 
-#define test_expect_eq(lhs, rhs, message) test_expect_base(lhs, rhs, message, ==)
-#define test_expect_ne(lhs, rhs, message) test_expect_base(lhs, rhs, message, !=)
-#define test_expect_lt(lhs, rhs, message) test_expect_base(lhs, rhs, message, <)
-#define test_expect_gt(lhs, rhs, message) test_expect_base(lhs, rhs, message, >)
-#define test_expect_le(lhs, rhs, message) test_expect_base(lhs, rhs, message, <=)
-#define test_expect_ge(lhs, rhs, message) test_expect_base(lhs, rhs, message, >=)
+#define test_eq(lhs, rhs, message) test_base(lhs, rhs, message, ==)
+#define test_ne(lhs, rhs, message) test_base(lhs, rhs, message, !=)
+#define test_lt(lhs, rhs, message) test_base(lhs, rhs, message, <)
+#define test_gt(lhs, rhs, message) test_base(lhs, rhs, message, >)
+#define test_le(lhs, rhs, message) test_base(lhs, rhs, message, <=)
+#define test_ge(lhs, rhs, message) test_base(lhs, rhs, message, >=)
 
 #endif // TEST_BASE_H
