@@ -4,7 +4,63 @@
 #include <stddef.h>
 #include <string.h>
 
-static const size_t CAPACITY_BYTES[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT] =
+static const size_t CAPACITY_NUMERIC[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT] =
+{
+	{ // L
+		  41,   77,  127,  187,  255,  322,  370,  461,  552,  652,
+		 772,  883, 1022, 1101, 1250, 1408, 1548, 1725, 1903, 2061,
+		2232, 2409, 2620, 2812, 3057, 3283, 3517, 3669, 3909, 4158,
+		4417, 4686, 4965, 5253, 5529, 5836, 6153, 6479, 6743, 7089,
+	},
+	{ // M
+		  34,   63,  101,  149,  202,  255,  293,  365,  432,  513,
+		 604,  691,  796,  871,  991, 1082, 1212, 1346, 1500, 1600,
+		1708, 1872, 2059, 2188, 2395, 2544, 2701, 2857, 3035, 3289,
+		3486, 3693, 3909, 4134, 4343, 4588, 4775, 5039, 5313, 5596,
+	},
+	{ // Q
+		  27,   48,   77,  111,  144,  178,  207,  259,  312,  364,
+		 427,  489,  580,  621,  703,  775,  876,  948, 1063, 1159,
+		1224, 1358, 1468, 1588, 1718, 1804, 1933, 2085, 2181, 2358,
+		2473, 2670, 2805, 2949, 3081, 3244, 3417, 3599, 3791, 3993,
+	},
+	{ // H
+		  17,   34,   58,   82,  106,  139,  154,  202,  235,  288,
+		 331,  374,  427,  468,  530,  602,  674,  746,  813,  919,
+		 969, 1056, 1108, 1228, 1286, 1425, 1501, 1581, 1677, 1782,
+		1897, 2022, 2157, 2301, 2361, 2524, 2625, 2735, 2927, 3057,
+	}
+};
+
+static const size_t CAPACITY_ALPHANUMERIC[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT] =
+{
+	{ // L
+		  25,   47,   77,  114,  154,  195,  224,  279,  335,  395,
+		 468,  535,  619,  667,  758,  854,  938, 1046, 1153, 1249,
+		1352, 1460, 1588, 1704, 1853, 1990, 2132, 2223, 2369, 2520,
+		2677, 2840, 3009, 3183, 3351, 3537, 3729, 3927, 4087, 4296,
+	},
+	{ // M
+		  20,   38,   61,   90,  122,  154,  178,  221,  262,  311,
+		 366,  419,  483,  528,  600,  656,  734,  816,  909,  970,
+		1035, 1134, 1248, 1326, 1451, 1542, 1637, 1732, 1839, 1994,
+		2113, 2238, 2369, 2506, 2632, 2780, 2894, 3054, 3220, 3391,
+	},
+	{ // Q
+		  16,   29,   47,   67,   87,  108,  125,  157,  189,  221,
+		 259,  296,  352,  376,  426,  470,  531,  574,  644,  702,
+		 742,  823,  890,  963, 1041, 1094, 1172, 1263, 1322, 1429,
+		1499, 1618, 1700, 1787, 1867, 1966, 2071, 2181, 2298, 2420,
+	},
+	{ // H
+		  10,   20,   35,   50,   64,   84,   93,  122,  143,  174,
+		 200,  227,  259,  283,  321,  365,  408,  452,  493,  557,
+		 587,  640,  672,  744,  779,  864,  910,  958, 1016, 1080,
+		1150, 1226, 1307, 1394, 1431, 1530, 1591, 1658, 1774, 1852,
+	}
+};
+
+static const size_t CAPACITY_BYTE[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT] =
 {
 	{ // L
 		  17,   32,   53,   78,  106,  134,  154,  192,  230,  271,
@@ -33,11 +89,27 @@ static const size_t CAPACITY_BYTES[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT] =
 };
 
 unsigned
-qr_min_version(size_t bytes, qr_ec_level level)
+qr_min_version(qr_encoding_mode mode, qr_ec_level level, size_t bytes)
 {
+	const size_t *capacity;
 	size_t i;
 
-	for (i = 0; i < QR_VERSION_COUNT && bytes > CAPACITY_BYTES[level][i]; ++i);
+	switch (mode)
+	{
+	case QR_MODE_NUMERIC:
+		capacity = CAPACITY_NUMERIC[level];
+		break;
+	case QR_MODE_ALPHANUMERIC:
+		capacity = CAPACITY_ALPHANUMERIC[level];
+		break;
+	case QR_MODE_BYTE:
+		capacity = CAPACITY_BYTE[level];
+		break;
+	default:
+		return 0;
+	}
+
+	for (i = 0; i < QR_VERSION_COUNT && bytes > capacity[i]; ++i);
 
 	return i == QR_VERSION_COUNT ? 0 : (unsigned) (i + 1);
 }
@@ -64,16 +136,120 @@ append_byte(word *buffer, size_t *byte, size_t *bit, word value)
 		append_bit(buffer, byte, bit, (value >> i) & 1);
 }
 
+static unsigned
+numeric_value(char c)
+{
+	if (c >= '0' && c <= '9') return c - '0';
+	assert(false && "Invalid numeric character");
+}
+
+static unsigned
+alphanumeric_value(char c)
+{
+	if (c >= '0' && c <= '9') return c - '0';
+	if (c >= 'A' && c <= 'Z') return c - 'A' + 10;
+	if (c == ' ') return 36;
+	if (c == '$') return 37;
+	if (c == '%') return 38;
+	if (c == '*') return 39;
+	if (c == '+') return 40;
+	if (c == '-') return 41;
+	if (c == '.') return 42;
+	if (c == '/') return 43;
+	if (c == ':') return 44;
+	assert(false && "Invalid alphanumeric character");
+}
+
 void
 qr_encode_data(qr_code *qr, const char *message)
 {
-	size_t i, length, byte = 0, bit = 0;
+	const size_t length = strlen(message);
+	size_t character_count_bits, pad;
+	size_t i, j, byte = 0, bit = 0;
 
 	switch (qr->mode)
 	{
+	case QR_MODE_NUMERIC:
+		assert(length <= CAPACITY_NUMERIC[qr->level][qr->version] && "Message provided is too large");
+
+		// numeric mode indicator
+		append_bit(qr->codewords, &byte, &bit, 0);
+		append_bit(qr->codewords, &byte, &bit, 0);
+		append_bit(qr->codewords, &byte, &bit, 0);
+		append_bit(qr->codewords, &byte, &bit, 1);
+
+		// character count indicator
+		character_count_bits =
+			qr->version + 1 <=  9 ? 10 :
+			qr->version + 1 <= 26 ? 12 : 14;
+		for (i = 0; i < character_count_bits; ++i)
+			append_bit(qr->codewords, &byte, &bit, (length >> (character_count_bits - 1 - i)) & 1);
+
+		// data
+		for (i = 0; i < length / 3; ++i)
+		{
+			unsigned value =
+				100 * numeric_value(message[i * 3 + 0]) +
+				 10 * numeric_value(message[i * 3 + 1]) +
+				  1 * numeric_value(message[i * 3 + 2]);
+			for (j = 0; j < 10; ++j)
+				append_bit(qr->codewords, &byte, &bit, (value >> (9 - j)) & 1);
+		}
+		if (length % 3 == 2)
+		{
+			unsigned value =
+				10 * numeric_value(message[i * 3 + 0]) +
+				 1 * numeric_value(message[i * 3 + 1]);
+			for (j = 0; j < 7; ++j)
+				append_bit(qr->codewords, &byte, &bit, (value >> (6 - j)) & 1);
+		}
+		else if (length % 3 == 1)
+		{
+			unsigned value = numeric_value(message[i * 3]);
+			for (j = 0; j < 4; ++j)
+				append_bit(qr->codewords, &byte, &bit, (value >> (3 - j)) & 1);
+		}
+
+		pad = CAPACITY_NUMERIC[qr->level][qr->version] - length;
+		break;
+
+	case QR_MODE_ALPHANUMERIC:
+		assert(length <= CAPACITY_ALPHANUMERIC[qr->level][qr->version] && "Message provided is too large");
+
+		// alphanumeric mode indicator
+		append_bit(qr->codewords, &byte, &bit, 0);
+		append_bit(qr->codewords, &byte, &bit, 0);
+		append_bit(qr->codewords, &byte, &bit, 1);
+		append_bit(qr->codewords, &byte, &bit, 0);
+
+		// character count indicator
+		character_count_bits =
+			qr->version + 1 <=  9 ? 9 :
+			qr->version + 1 <= 26 ? 11 : 13;
+		for (i = 0; i < character_count_bits; ++i)
+			append_bit(qr->codewords, &byte, &bit, (length >> (character_count_bits - 1 - i)) & 1);
+
+		// data
+		for (i = 0; i < length / 2; ++i)
+		{
+			unsigned value =
+				45 * alphanumeric_value(message[i * 2 + 0]) +
+				 1 * alphanumeric_value(message[i * 2 + 1]);
+			for (j = 0; j < 11; ++j)
+				append_bit(qr->codewords, &byte, &bit, (value >> (10 - j)) & 1);
+		}
+		if (length % 2 == 1)
+		{
+			unsigned value = alphanumeric_value(message[i * 2]);
+			for (j = 0; j < 6; ++j)
+				append_bit(qr->codewords, &byte, &bit, (value >> (5 - j)) & 1);
+		}
+
+		pad = CAPACITY_ALPHANUMERIC[qr->level][qr->version] - length;
+		break;
+
 	case QR_MODE_BYTE:
-		length = strlen(message);
-		assert(length <= CAPACITY_BYTES[qr->level][qr->version] && "Message provided is too large");
+		assert(length <= CAPACITY_BYTE[qr->level][qr->version] && "Message provided is too large");
 
 		// byte mode indicator
 		append_bit(qr->codewords, &byte, &bit, 0);
@@ -82,27 +258,30 @@ qr_encode_data(qr_code *qr, const char *message)
 		append_bit(qr->codewords, &byte, &bit, 0);
 
 		// character count indicator
-		for (i = qr->version + 1 >= 10 ? 15 : 7; i < 16; --i)
-			append_bit(qr->codewords, &byte, &bit, (length >> i) & 1);
+		character_count_bits = qr->version + 1 <= 9 ? 8 : 16;
+		for (i = 0; i < character_count_bits; ++i)
+			append_bit(qr->codewords, &byte, &bit, (length >> (character_count_bits - 1 - i)) & 1);
 
 		// data
 		for (i = 0; i < length; ++i)
 			append_byte(qr->codewords, &byte, &bit, message[i]);
 
-		// terminator
-		append_bit(qr->codewords, &byte, &bit, 0);
-		append_bit(qr->codewords, &byte, &bit, 0);
-		append_bit(qr->codewords, &byte, &bit, 0);
-		append_bit(qr->codewords, &byte, &bit, 0);
-
-		// padding
-		while (bit % 8)
-			append_bit(qr->codewords, &byte, &bit, 0);
-		for (i = 0; i < CAPACITY_BYTES[qr->level][qr->version] - length; ++i)
-			append_byte(qr->codewords, &byte, &bit, i % 2 == 0 ? 0xEC : 0x11);
+		pad = CAPACITY_BYTE[qr->level][qr->version] - length;
 		break;
 
 	default:
-		assert(0 && "Specified encoding mode is not implemented");
+		assert(false && "Specified encoding mode is not implemented");
 	}
+
+	// terminator
+	append_bit(qr->codewords, &byte, &bit, 0);
+	append_bit(qr->codewords, &byte, &bit, 0);
+	append_bit(qr->codewords, &byte, &bit, 0);
+	append_bit(qr->codewords, &byte, &bit, 0);
+
+	// padding
+	while (bit % 8)
+		append_bit(qr->codewords, &byte, &bit, 0);
+	for (i = 0; i < pad; ++i)
+		append_byte(qr->codewords, &byte, &bit, i % 2 == 0 ? 0xEC : 0x11);
 }

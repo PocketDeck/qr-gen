@@ -17,6 +17,8 @@ typedef enum
 
 typedef enum
 {
+	QR_MODE_NUMERIC,
+	QR_MODE_ALPHANUMERIC,
 	QR_MODE_BYTE,
 } qr_encoding_mode;
 
