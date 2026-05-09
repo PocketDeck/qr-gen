@@ -1,6 +1,6 @@
 /**
  * @file oracle.c
- * @brief Integration tests comparing QR generation with an oracle (ZXing)
+ * @brief Oracle integration tests
  */
 
 #include <qr/enc.h>
@@ -16,18 +16,16 @@
 BEFORE()
 {
 	if (system("which curl >/dev/null 2>&1"))
-		return TEST_FAILURE("Could not find curl, skipping suite...");
+		return TEST_FAILURE("curl not found");
 
 	if (system("which magick >/dev/null 2>&1"))
-		return TEST_FAILURE("Could not find magick, skipping suite...");
+		return TEST_FAILURE("magick not found");
 
 	return TEST_SUCCESS;
 }
 
 /**
  * @brief Fetch oracle QR matrix from ZXing API
- *
- * Uses curl to download and ImageMagick to process into a bit string.
  */
 static char *
 fetch_oracle_bits(const char *text, qr_ec_level level)
@@ -35,17 +33,20 @@ fetch_oracle_bits(const char *text, qr_ec_level level)
 	char cmd[4096];
 	char ecc = (char []) { 'L', 'M', 'Q', 'H' }[level];
 
-	/* Command to fetch oracle matrix and convert to bits */
-	/* Uses ZXing API with curl's URL encoding to handle spaces and special characters */
+		// Build command to fetch QR code from ZXing API and convert to bit string
 	snprintf(cmd, sizeof(cmd),
 		"curl -s -G \"https://zxing.org/w/chart\" "
-		"--data-urlencode \"chl=%s\" "
-		"--data \"chld=%c\" "
-		"--data \"chs=1x1\" "
-		"--data \"cht=qr\" "
-		"--data \"choe=ISO-8859-1\" 2>/dev/null "
-		"| magick - -threshold 50%% pbm:- 2>/dev/null | pnmtoplainpnm 2>/dev/null | sed '1,2d' "
-		"| tail -n +5 | head -n -4 | cut -c 5- | rev | cut -c 5- | rev | tr -d ' \\n'",
+		"--data-urlencode \"chl=%s\" "                   // URL encode text content
+		"--data \"chld=%c\" "                            // Error correction level
+		"--data \"chs=1x1\" "                            // 1x1 pixel size (just data)
+		"--data \"cht=qr\" "                             // QR code type
+		"--data \"choe=ISO-8859-1\" 2>/dev/null "        // Character encoding
+		"| magick - -threshold 50%% pbm:- 2>/dev/null "  // Convert to PBM with threshold
+		"| pnmtoplainpnm 2>/dev/null "                   // Convert to plain PNM
+		"| sed '1,2d' "                                  // Remove PNM header
+		"| tail -n +5 | head -n -4 "                     // Remove quiet zone
+		"| cut -c 5- | rev | cut -c 5- | rev "           // Extract matrix data
+		"| tr -d ' \\n'",                                // Remove newlines
 		text, ecc);
 
 	FILE *fp = popen(cmd, "r");
@@ -70,13 +71,14 @@ fetch_oracle_bits(const char *text, qr_ec_level level)
 }
 
 /**
- * @brief Initialize a QR code structure from a bit string
+ * @brief Initialize QR code from bit string
  */
 static void
 init_qr_from_bits(qr_code *qr, const char *bits)
 {
 	size_t i, j;
 
+	// Convert bit string to QR matrix modules
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
@@ -87,7 +89,7 @@ init_qr_from_bits(qr_code *qr, const char *bits)
 }
 
 /**
- * @brief Generate a string containing two QR codes side-by-side with a 2-black-space gap
+ * @brief Generate side-by-side QR code string
  */
 static void
 qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
@@ -95,7 +97,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 	size_t i, j;
 	char *p = buf;
 
-	/* Top quiet zone */
+	// Create top quiet zone (4 rows)
 	for (i = 0; i < 4; ++i)
 	{
 		for (j = 0; j < qr1->side_length + 8; ++j) p += sprintf(p, "\x1b[7m  \x1b[27m");
@@ -104,6 +106,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 		p += sprintf(p, "\n");
 	}
 
+	// Create side-by-side QR codes with ANSI colors
 	for (i = 0; i < qr1->side_length; ++i)
 	{
 		/* qr1: left quiet zone */
@@ -123,6 +126,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 		p += sprintf(p, "\n");
 	}
 
+	// Create bottom quiet zone (4 rows)
 	/* Bottom quiet zone */
 	for (i = 0; i < 4; ++i)
 	{
@@ -134,7 +138,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 }
 
 /**
- * @brief Create an oracle QR code object from text and EC level
+ * @brief Create oracle QR code
  */
 static qr_code *
 qr_create_oracle(const char *text, qr_ec_level level)
@@ -144,21 +148,23 @@ qr_create_oracle(const char *text, qr_ec_level level)
 	char *bits = fetch_oracle_bits(text, level);
 	if (!bits) return NULL;
 
+	// Calculate QR version from matrix size
 	len = strlen(bits);
-	side = 0;
-	while (side * side < len) ++side;
+	for (side = 0; side * side < len; ++side);
 	if (side * side != len) return NULL;
 
+	// Calculate QR version from matrix size
 	version = ((side - 21) / 4) + 1;
 	qr_code *qr = qr_create(version, QR_MODE_BYTE, level);
 	if (!qr) return NULL;
 
+	// Initialize QR matrix from fetched bit pattern
 	init_qr_from_bits(qr, bits);
 	return qr;
 }
 
 /**
- * @brief Compare our QR generation with oracle
+ * @brief Compare QR generation with oracle
  */
 static struct test_result
 compare_with_oracle(const char *text, qr_ec_level level)
@@ -168,30 +174,31 @@ compare_with_oracle(const char *text, qr_ec_level level)
 	size_t i, j;
 
 	char *msg = test_malloc(1024 * 1024); /* 1MB */
-	if (!msg) return TEST_FAILURE("Failed to allocate memory for error message");
+	if (!msg) return TEST_FAILURE("Memory allocation failed");
 
-	/* Create our QR code */
+	// Determine minimum QR version for input text
 	version = qr_min_version(strlen(text), level);
 	if (!version) return TEST_FAILURE("Input too large");
 
+	// Create our QR code and encode message
 	our_qr = qr_create(version, QR_MODE_BYTE, level);
 	if (!our_qr) return TEST_FAILURE("Failed to create QR code");
 
 	qr_encode_message(our_qr, text);
 
-	/* Create oracle QR code object */
+	// Create oracle QR code from ZXing API
 	oracle_qr = qr_create_oracle(text, level);
-	if (!oracle_qr) return TEST_FAILURE("Failed to fetch/create oracle QR object");
+	if (!oracle_qr) return TEST_FAILURE("Failed to create oracle QR");
 
-	/* Compare side length */
+	// Verify both QR codes have same dimensions
 	if (our_qr->side_length != oracle_qr->side_length)
-		test_expect_eq(our_qr->side_length, oracle_qr->side_length, "Size mismatch between our QR and oracle");
+		test_expect_eq(our_qr->side_length, oracle_qr->side_length, "QR size mismatch");
 
-	/* Prepare failure message */
+	// Prepare failure message with side-by-side comparison
 	memcpy(msg, "QR Code comparison failed: \n", 28);
 	qr_side_by_side_to_str(our_qr, oracle_qr, msg + 28);
 
-	/* Compare matrices */
+	// Compare each module between our and oracle QR codes
 	for (i = 0; i < our_qr->side_length; ++i)
 	{
 		for (j = 0; j < our_qr->side_length; ++j)

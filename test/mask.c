@@ -1,6 +1,6 @@
 /**
  * @file mask.c
- * @brief Test cases for QR code masking functionality
+ * @brief QR code masking tests
  */
 
 #include <qr/mask.h>
@@ -13,11 +13,10 @@
 #include <string.h>
 #include <test/base.h>
 
-// Include the source file directly to test static/internal functions
 #include <qr/mask.c>
 
 /**
- * @brief Initializes a QR code matrix with random values
+ * @brief Initialize QR matrix with random values
  */
 static void
 qr_init_random(qr_code *qr, unsigned int seed)
@@ -26,6 +25,7 @@ qr_init_random(qr_code *qr, unsigned int seed)
 
 	srand(seed);
 
+	// Fill non-reserved modules with random values
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
@@ -37,6 +37,7 @@ qr_init_random(qr_code *qr, unsigned int seed)
 		}
 	}
 
+	// Apply all QR code structure patterns
 	qr_finder_patterns_apply(qr);
 	qr_separators_apply(qr);
 	qr_alignment_patterns_apply(qr);
@@ -46,37 +47,40 @@ qr_init_random(qr_code *qr, unsigned int seed)
 }
 
 /**
- * @brief Test mask pattern selection with random matrices
+ * @brief Test optimal mask pattern selection
  */
 TEST(mask_selection_optimality)
 {
 	const int num_tests = 5;
 	int test_case, pattern;
 
+	// Test multiple random matrices to ensure optimal mask selection
 	for (test_case = 0; test_case < num_tests; ++test_case)
 	{
 		int best_score = INT_MAX, score;
 		int pattern_scores[QR_MASK_PATTERN_COUNT] = { 0 };
 
 		qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
-		if (!qr) return TEST_FAILURE("Failed to create test QR code");
+		if (!qr) return TEST_FAILURE("Failed to create QR code");
 
 		qr_init_random(qr, (unsigned int) test_case);
 
+		// Evaluate penalty score for each mask pattern
 		for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
 		{
 			qr_mask_apply_pattern(qr, pattern);
 			score = qr_mask_evaluate(qr);
 			pattern_scores[pattern] = score;
-			qr_mask_apply_pattern(qr, pattern);
+			qr_mask_apply_pattern(qr, pattern);  // Remove mask
 
 			if (score < best_score) best_score = score;
 		}
 
+		// Verify all patterns have score >= best score
 		for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
 		{
 			test_expect_ge(pattern_scores[pattern], best_score,
-				"Selected pattern should have the lowest penalty score");
+				"Non-optimal mask pattern selected");
 		}
 	}
 
@@ -84,7 +88,7 @@ TEST(mask_selection_optimality)
 }
 
 /**
- * @brief Test Feature 1: 5+ consecutive modules (Penalty = 3 + (N-5))
+ * @brief Test mask penalty feature 1 (consecutive modules)
  */
 TEST(mask_feature_1)
 {
@@ -94,28 +98,28 @@ TEST(mask_feature_1)
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
 	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
-	// Set matrix to checkerboard
+	// Create checkerboard pattern as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
 			qr_module_set(qr, i, j, (i + j) % 2 ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 
-	// Row 10: 5 dark modules -> score 3
+	// Test 5 consecutive dark modules: penalty = 3 + (5-5) = 3
 	for (i = 0; i < 5; ++i) qr_module_set(qr, 10, i, QR_MODULE_DARK);
 	score = feature_1_evaluation(qr);
-	test_expect_eq(score, 3, "Feature 1: 5 consecutive dark modules should score 3");
+	test_expect_eq(score, 3, "Feature 1 penalty incorrect");
 
-	// Row 10: 7 dark modules -> score 5
+	// Test 7 consecutive dark modules: penalty = 3 + (7-5) = 5
 	qr_module_set(qr, 10, 5, QR_MODULE_DARK);
 	qr_module_set(qr, 10, 6, QR_MODULE_DARK);
 	score = feature_1_evaluation(qr);
-	test_expect_eq(score, 5, "Feature 1: 7 consecutive dark modules should score 5");
+	test_expect_eq(score, 5, "Feature 1 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
 }
 
 /**
- * @brief Test Feature 2: 2x2 blocks (Penalty = 3 * (M-1)*(N-1))
+ * @brief Test mask penalty feature 2 (2x2 blocks)
  */
 TEST(mask_feature_2)
 {
@@ -125,31 +129,31 @@ TEST(mask_feature_2)
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
 	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
-	// Set matrix to checkerboard
+	// Create checkerboard pattern as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
 			qr_module_set(qr, i, j, (i + j) % 2 ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 
-	// One 2x2 block at (10,10) -> score 3
+	// Test single 2x2 block: penalty = 3 * (2-1)*(2-1) = 3
 	qr_module_set(qr, 10, 10, QR_MODULE_DARK);
 	qr_module_set(qr, 10, 11, QR_MODULE_DARK);
 	qr_module_set(qr, 11, 10, QR_MODULE_DARK);
 	qr_module_set(qr, 11, 11, QR_MODULE_DARK);
 	score = feature_2_evaluation(qr);
-	test_expect_eq(score, 3, "Feature 2: One 2x2 block should score 3");
+	test_expect_eq(score, 3, "Feature 2 penalty incorrect");
 
-	// Overlapping 2x2 blocks: 2x3 block -> two 2x2 blocks -> score 6
+	// Test overlapping 2x2 blocks (2x3 area): penalty = 3 * (2-1)*(3-1) = 6
 	qr_module_set(qr, 10, 12, QR_MODULE_DARK);
 	qr_module_set(qr, 11, 12, QR_MODULE_DARK);
 	score = feature_2_evaluation(qr);
-	test_expect_eq(score, 6, "Feature 2: Two overlapping 2x2 blocks (2x3) should score 6");
+	test_expect_eq(score, 6, "Feature 2 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
 }
 
 /**
- * @brief Test Feature 3: Pattern 1011101 + 4 modules of quiet zone (Penalty = 40)
+ * @brief Test mask penalty feature 3 (finder pattern)
  */
 TEST(mask_feature_3)
 {
@@ -167,25 +171,24 @@ TEST(mask_feature_3)
 	};
 
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
-	if (!qr) return TEST_FAILURE("Failed to create test QR code");
+	if (!qr) return TEST_FAILURE("Failed to create QR code");
 
-	// Set matrix all white
+	// Create all-white matrix as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
 			qr_module_set(qr, i, j, QR_MODULE_LIGHT);
 
-	// Dark-Light-Dark-Dark-Dark-Light-Dark (1011101)
-	// ZXing/Standard: Pattern 1:1:3:1:1 plus 4 modules of LIGHT on either side
+	// Create finder pattern 1:1:3:1:1 (dark:light:dark:dark:dark:light:dark)
 	for (j = 4; j < 11; ++j) qr_module_set(qr, 10, j, pattern[j - 4] ? QR_MODULE_DARK : QR_MODULE_LIGHT);
 	score = feature_3_evaluation(qr);
-	test_expect_eq(score, 40, "Feature 3: Pattern 00001011101 should score 40");
+	test_expect_eq(score, 40, "Feature 3 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
 }
 
 /**
- * @brief Test Feature 4: Dark module ratio (Penalty = 10 * floor(abs(dark_pct - 50)/5))
+ * @brief Test mask penalty feature 4 (dark ratio)
  */
 TEST(mask_feature_4)
 {
@@ -195,9 +198,7 @@ TEST(mask_feature_4)
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
 	if (!qr) return TEST_FAILURE("Failed to create test QR code");
 
-	// Total modules in V1 = 21*21 = 441
-	// 50% = 220.5 modules. 
-	// Set 245 modules to DARK (approx 55.5%) -> abs(55.5-50) = 5.5 -> score 10
+	// Version 1 has 21x21=441 modules. Set 245 dark (55.5%) to test penalty
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
@@ -208,15 +209,16 @@ TEST(mask_feature_4)
 				qr_module_set(qr, i, j, QR_MODULE_LIGHT);
 		}
 	}
+	// Dark ratio 55.5%: penalty = 10 * floor(|55.5-50|/5) = 10
 	score = feature_4_evaluation(qr);
-	test_expect_eq(score, 10, "Feature 4: 55% dark modules should score 10 penalty points");
+	test_expect_eq(score, 10, "Feature 4 penalty incorrect");
 
 	qr_destroy(qr);
 	return TEST_SUCCESS;
 }
 
 /**
- * @brief Tests mask pattern application and toggling behavior
+ * @brief Test mask pattern application
  */
 TEST(mask_patterns)
 {
@@ -224,8 +226,9 @@ TEST(mask_patterns)
 	int pattern;
 
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
-	if (!qr) return TEST_FAILURE("Failed to create test QR code");
+	if (!qr) return TEST_FAILURE("Failed to create QR code");
 
+	// Create test pattern for non-reserved modules
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
@@ -241,14 +244,17 @@ TEST(mask_patterns)
 		}
 	}
 
+	// Save original matrix state for verification
 	qr_module_state *original = test_malloc(qr->side_length * qr->side_length * sizeof(qr_module_state));
-	if (!original) return TEST_FAILURE("Original matrix allocation failed");
+	if (!original) return TEST_FAILURE("Matrix allocation failed");
 	memcpy(original, qr->matrix, qr->side_length * qr->side_length * sizeof(qr_module_state));
 
+	// Test each mask pattern's toggle behavior
 	for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
 	{
 		qr_mask_apply_pattern(qr, pattern);
 
+		// Verify mask toggles non-reserved modules correctly
 		for (i = 0; i < qr->side_length; ++i)
 		{
 			for (j = 0; j < qr->side_length; ++j)
@@ -259,7 +265,7 @@ TEST(mask_patterns)
 				if (qr_module_is_reserved(qr, i, j))
 				{
 					test_expect_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
-						"Reserved module was modified by mask pattern");
+						"Reserved module modified");
 					continue;
 				}
 
@@ -277,10 +283,11 @@ TEST(mask_patterns)
 
 				expected = original[i * qr->side_length + j] ^ should_toggle;
 				test_expect_eq(qr_module_get(qr, i, j), expected,
-					"Mask pattern should toggle modules according to formula");
+					"Mask pattern toggle incorrect");
 			}
 		}
 
+		// Apply same mask again to verify it returns to original
 		qr_mask_apply_pattern(qr, pattern);
 
 		for (i = 0; i < qr->side_length; ++i)
@@ -288,7 +295,7 @@ TEST(mask_patterns)
 			for (j = 0; j < qr->side_length; ++j)
 			{
 				test_expect_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
-					"Double mask application didn't return to original");
+					"Double mask application failed");
 			}
 		}
 	}
@@ -307,7 +314,7 @@ typedef struct {
 } mask_penalty_test_case;
 
 /**
- * @brief Helper function to initialize a QR code from a pattern string
+ * @brief Initialize QR code from pattern string
  */
 static void
 qr_init_from_pattern(qr_code *qr, const mask_penalty_test_case *test)
@@ -328,7 +335,7 @@ qr_init_from_pattern(qr_code *qr, const mask_penalty_test_case *test)
 }
 
 /**
- * @brief Test mask penalty calculation for specific patterns
+ * @brief Test mask penalty calculation
  */
 TEST(mask_penalty_calculation)
 {
@@ -462,11 +469,12 @@ TEST(mask_penalty_calculation)
 	for (t = 0; t < num_tests; ++t)
 	{
 		qr_code *qr = qr_create(tests[t].version, QR_MODE_BYTE, tests[t].level);
-		if (!qr) return TEST_FAILURE("Failed to create test QR code");
+		if (!qr) return TEST_FAILURE("Failed to create QR code");
 
 		qr_init_from_pattern(qr, &tests[t]);
 		qr_version_info_apply(qr);
 
+		// Test penalty calculation for each mask pattern
 		for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
 		{
 			qr_mask_apply_pattern(qr, pattern);
@@ -476,7 +484,7 @@ TEST(mask_penalty_calculation)
 			if (tests[t].expected_scores[pattern] != -1)
 			{
 				test_expect_eq(qr_mask_evaluate(qr), tests[t].expected_scores[pattern],
-					"Penalty score mismatch");
+					"Penalty score incorrect");
 			}
 
 			qr_mask_apply_pattern(qr, pattern);
@@ -489,7 +497,7 @@ TEST(mask_penalty_calculation)
 }
 
 /**
- * @brief Test mask evaluation features
+ * @brief Test mask evaluation
  */
 TEST(mask_evaluation)
 {
@@ -497,24 +505,25 @@ TEST(mask_evaluation)
 	int score;
 
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
-	if (!qr) return TEST_FAILURE("Failed to create test QR code");
+	if (!qr) return TEST_FAILURE("Failed to create QR code");
 
+	// Create all-white matrix as baseline
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
-		{
 			qr_module_set(qr, i, j, QR_MODULE_LIGHT);
-		}
 	}
 
+	// Add 6 consecutive dark modules to test feature 1
 	for (i = 0; i < 6; ++i)
 	{
 		qr_module_set(qr, 5, 5 + i, QR_MODULE_DARK);
 	}
 
 	score = qr_mask_evaluate(qr);
-	test_expect_gt(score, 0, "Should detect consecutive modules in row/column");
+	test_expect_gt(score, 0, "Consecutive modules not detected");
 
+	// Reset to all-white and add 2x2 dark block to test feature 2
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
@@ -529,13 +538,13 @@ TEST(mask_evaluation)
 	qr_module_set(qr, 6, 6, QR_MODULE_DARK);
 
 	score = qr_mask_evaluate(qr);
-	test_expect_gt(score, 0, "Should detect 2x2 block of same modules");
+	test_expect_gt(score, 0, "2x2 block not detected");
 
 	return TEST_SUCCESS;
 }
 
 /**
- * @brief Test that different mask patterns are selected for different inputs
+ * @brief Test mask pattern diversity
  */
 TEST(mask_pattern_diversity)
 {
@@ -544,10 +553,11 @@ TEST(mask_pattern_diversity)
 	unsigned pattern_counts[QR_MASK_PATTERN_COUNT] = { 0 }, unique_patterns = 0;
 	size_t test_case;
 
+	// Test that different inputs produce diverse mask patterns
 	for (test_case = 0; test_case < num_tests; ++test_case)
 	{
 		qr_code *qr = qr_create(6, QR_MODE_BYTE, QR_EC_LEVEL_L);
-		if (!qr) return TEST_FAILURE("Failed to create test QR code");
+		if (!qr) return TEST_FAILURE("Failed to create QR code");
 
 		qr_init_random(qr, (unsigned int) test_case + 1234);
 		qr_mask_apply(qr);
@@ -562,7 +572,7 @@ TEST(mask_pattern_diversity)
 	}
 
 	test_expect_ge(unique_patterns, min_unique_patterns,
-		"Insufficient pattern diversity");
+		"Pattern diversity insufficient");
 
 	return TEST_SUCCESS;
 }
