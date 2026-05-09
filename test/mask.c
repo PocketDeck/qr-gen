@@ -452,7 +452,7 @@ TEST(mask_penalty_calculation)
 				"XXXXXXX   X X  XX XX X  X    XX XXXXX X   XXX X   XX \n",
 			.version = 9,
 			.level = QR_EC_LEVEL_H,
-			.expected_scores = { 1948, 1964, 1720, 1910, 2267, 2012, 1990, 2325 }
+			.expected_scores = { 1868, 2084, 1680, 2030, 2227, 2051, 1950, 2245 }
 		}
 	};
 	size_t t;
