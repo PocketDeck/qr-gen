@@ -83,6 +83,8 @@ TEST(mask_selection_optimality)
 			test_expect_ge(pattern_scores[pattern], best_score,
 				"Non-optimal mask pattern selected");
 		}
+
+		qr_destroy(qr);
 	}
 
 	return TEST_SUCCESS;
@@ -302,7 +304,6 @@ TEST(mask_patterns)
 	}
 
 	qr_destroy(qr);
-
 	return TEST_SUCCESS;
 }
 
@@ -541,6 +542,7 @@ TEST(mask_evaluation)
 	score = qr_mask_evaluate(qr);
 	test_expect_gt(score, 0, "2x2 block not detected");
 
+	qr_destroy(qr);
 	return TEST_SUCCESS;
 }
 
@@ -568,7 +570,6 @@ TEST(mask_pattern_diversity)
 		pattern_counts[qr->mask]++;
 
 		qr_destroy(qr);
-
 		if (unique_patterns >= min_unique_patterns) break;
 	}
 
