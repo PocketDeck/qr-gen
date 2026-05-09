@@ -146,7 +146,10 @@ feature_3_evaluation(const qr_code *qr)
 				qr_module_get(qr, j + 9, i) == QR_MODULE_LIGHT &&
 				qr_module_get(qr, j + 10, i) == QR_MODULE_LIGHT;
 
-			if ((pattern_row && (preceded_row || followed_row)) || (pattern_column && (preceded_column || followed_column)))
+			if ((pattern_row && (preceded_row || followed_row)))
+				points += N[2];
+
+			if (pattern_column && (preceded_column || followed_column))
 				points += N[2];
 		}
 	}
