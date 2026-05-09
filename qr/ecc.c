@@ -260,7 +260,7 @@ qr_interleave_codewords(qr_code *qr)
 	const size_t *data_codeword_count = DATA_CODEWORD_COUNT[qr->level][qr->version];
 	const size_t *block_count = BLOCK_COUNT[qr->level][qr->version];
 	size_t i, ecc_codeword_count[BLOCK_TYPES_PER_VERSION];
-	word final_message[qr->codeword_count], *word_ptr = final_message;
+	word final_codewords[qr->codeword_count], *word_ptr = final_codewords;
 
 	for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
 		ecc_codeword_count[i] = TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - data_codeword_count[i];
@@ -268,8 +268,9 @@ qr_interleave_codewords(qr_code *qr)
 	word_ptr = interleave_words(data_codeword_count, block_count, qr->codewords, word_ptr);
 	word_ptr = interleave_words(ecc_codeword_count, block_count, qr->codewords + TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version], word_ptr);
 
-	assert(word_ptr == final_message + qr->codeword_count && "Length of interleaved message does not match length of original message");
+	assert(word_ptr == final_codewords + qr->codeword_count &&
+		"Length of interleaved codewords does not match length of original codewords");
 
 	for (i = 0; i < qr->codeword_count; ++i)
-		qr->codewords[i] = final_message[i];
+		qr->codewords[i] = final_codewords[i];
 }

@@ -249,24 +249,24 @@ qr_create_oracle(const char *text, qr_ecl level, qr_mode mode)
  * @brief Compare QR generation with oracle
  */
 static struct test_result
-compare_with_oracle(const char *text, qr_ecl level, qr_mode mode)
+compare_with_oracle(const char *text, qr_ecl level)
 {
-	unsigned version;
 	qr_code *our_qr, *oracle_qr;
 	size_t i, j;
 
 	char *msg = test_malloc(1024 * 1024); /* 1MB */
 	if (!msg) return TEST_FAILURE("Memory allocation failed");
 
-	// Determine minimum QR version for input text
-	version = qr_min_version(mode, level, strlen(text));
+	// Determine mode and minimum QR version for input text
+	qr_mode mode = qr_detect_mode(text);
+	unsigned version = qr_min_version(mode, level, strlen(text));
 	if (!version) return TEST_FAILURE("Input too large");
 
-	// Create our QR code and encode message
+	// Create our QR code and encode text
 	our_qr = qr_create(version, mode, level);
 	if (!our_qr) return TEST_FAILURE("Failed to create QR code");
 
-	qr_encode_message(our_qr, text);
+	qr_encode_text(our_qr, text);
 
 	// Create oracle QR code from ZXing API
 	oracle_qr = qr_create_oracle(text, level, mode);
@@ -297,32 +297,32 @@ compare_with_oracle(const char *text, qr_ecl level, qr_mode mode)
 
 TEST(oracle_simple_L)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_L, QR_MODE_ALPHANUMERIC);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_L);
 }
 
 TEST(oracle_simple_M)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_M, QR_MODE_ALPHANUMERIC);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_M);
 }
 
 TEST(oracle_simple_Q)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_Q, QR_MODE_ALPHANUMERIC);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_Q);
 }
 
 TEST(oracle_simple_H)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_H, QR_MODE_ALPHANUMERIC);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_H);
 }
 
 TEST(oracle_url_M)
 {
-	return compare_with_oracle("https://example.com", QR_EC_LEVEL_M, QR_MODE_BYTE);
+	return compare_with_oracle("https://example.com", QR_EC_LEVEL_M);
 }
 
 TEST(oracle_long_M)
 {
-	return compare_with_oracle("The quick brown fox jumps over the lazy dog", QR_EC_LEVEL_M, QR_MODE_BYTE);
+	return compare_with_oracle("The quick brown fox jumps over the lazy dog", QR_EC_LEVEL_M);
 }
 
 TEST(oracle_very_long_L)
@@ -333,8 +333,7 @@ TEST(oracle_very_long_L)
 		"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
 		"nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
 		"reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-		QR_EC_LEVEL_L,
-		QR_MODE_BYTE
+		QR_EC_LEVEL_L
 	);
 }
 
@@ -346,7 +345,6 @@ TEST(oracle_very_long_H)
 		"1994 for the automotive industry in Japan. A barcode is a "
 		"machine-readable optical label that contains information about the "
 		"item to which it is attached.",
-		QR_EC_LEVEL_H,
-		QR_MODE_BYTE
+		QR_EC_LEVEL_H
 	);
 }

@@ -56,8 +56,9 @@ main(int argc, char **argv)
 
 	const char *input = argv[1];
 	qr_ecl ec_level = (argc > 2) ? parse_ec_level(argv[2]) : QR_EC_LEVEL_M;
+	qr_mode mode = qr_detect_mode(input);
 
-	unsigned version = qr_min_version(QR_MODE_BYTE, ec_level, strlen(input));
+	unsigned version = qr_min_version(mode, ec_level, strlen(input));
 	if (!version)
 	{
 		log_("Error: Input too large for QR code\n");
@@ -66,17 +67,18 @@ main(int argc, char **argv)
 
 	log_("QR Code Generation:\n");
 	log_("  Input: %s\n", input);
+	log_("  Mode: %s\n", (const char *[]) { "Numeric", "Alphanumeric", "Byte" }[mode]);
 	log_("  Error Correction: %s\n", (const char *[]) { "L (7%)", "M (15%)", "Q (25%)", "H (30%)" }[ec_level]);
 	log_("  Version: %u\n", version);
 	log_("\n");
 
-	qr_code *qr = qr_create(version, QR_MODE_BYTE, ec_level);
+	qr_code *qr = qr_create(version, mode, ec_level);
 	if (!qr) {
 		log_("Error: Memory allocation for QR code failed\n");
 		return EXIT_FAILURE;
 	}
 
-	qr_encode_message(qr, input);
+	qr_encode_text(qr, input);
 	log_("\n");
 	#ifndef NDEBUG
 	qr_matrix_print(qr, stderr);

@@ -58,11 +58,11 @@ qr_destroy(qr_code *qr)
 }
 
 void
-qr_encode_message(qr_code *qr, const char *message)
+qr_encode_text(qr_code *qr, const char *text)
 {
 	// 1. enc
-	log_("Encoding message............");
-	qr_encode_data(qr, message);
+	log_("Encoding text...............");
+	qr_encode_data(qr, text);
 	log_("OK\n");
 
 	// 2. ecc
