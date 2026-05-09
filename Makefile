@@ -15,7 +15,7 @@ CFLAGS += -DNDEBUG
 endif
 TESTFLAGS := -Wl,--allow-multiple-definition
 
-all: $(TARGET_RELEASE)
+all: $(TARGET_RELEASE) $(TARGET_TEST)
 
 $(TARGET_RELEASE): $(OBJS) | $(RELEASE_DIR)
 	$(CC) $(CFLAGS) -o $@ $^
@@ -38,7 +38,7 @@ clean:
 	rm -rf $(BUILD_DIR) $(RELEASE_DIR) $(TEST_DIR)
 
 run: $(TARGET_RELEASE)
-	./$(TARGET_RELEASE) $(ARGS)
+	./$(TARGET_RELEASE) $(TEXT) $(ECL)
 
 test: $(TARGET_TEST)
-	./$(TARGET_TEST) $(ARGS)
+	./$(TARGET_TEST)
