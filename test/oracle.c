@@ -21,8 +21,91 @@ BEFORE()
 	if (system("which magick >/dev/null 2>&1"))
 		return TEST_FAILURE("magick not found");
 
+	if (system("which awk >/dev/null 2>&1"))
+		return TEST_FAILURE("awk not found");
+
 	return TEST_SUCCESS;
 }
+
+#define AWK_PBM_NEWLINES "awk '                 \
+NR==1 { next }                                  \
+NR==2                                           \
+{                                               \
+    w = $1;                                     \
+    h = $2;                                     \
+    next;                                       \
+}                                               \
+{                                               \
+    gsub(/[[:space:]]/, \"\");                  \
+    bits = bits $0;                             \
+}                                               \
+END                                             \
+{                                               \
+    for (i = 1; i <= h; ++i)                    \
+        print substr(bits, (i - 1) * w + 1, w); \
+}'"
+
+#define AWK_QUIET_ZONE_REMOVE "awk '    \
+{                                       \
+    rows[NR] = $0;                      \
+    if ($0 ~ /1/)                       \
+        used_row[NR] = 1;               \
+                                        \
+    n = split($0, row, \"\");           \
+                                        \
+    for (i = 1; i <= n; ++i)            \
+    {                                   \
+        vals[NR,i] = row[i];            \
+        if (row[i] != 0)                \
+            used_col[i] = 1;            \
+    }                                   \
+}                                       \
+END                                     \
+{                                       \
+    for (r = 1; r <= NR; ++r)           \
+    {                                   \
+        if (used_row[r])                \
+        {                               \
+            top = r;                    \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (r = NR; r >= 1; --r)           \
+    {                                   \
+        if (used_row[r])                \
+        {                               \
+            bottom = r;                 \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (c = 1; c <= n; ++c)            \
+    {                                   \
+        if (used_col[c])                \
+        {                               \
+            left = c;                   \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (c = n; c >= 1; --c)            \
+    {                                   \
+        if (used_col[c])                \
+        {                               \
+            right = c;                  \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (r = top; r <= bottom; ++r)     \
+    {                                   \
+        for (c = left; c <= right; ++c) \
+        {                               \
+            printf(\"%%s\", vals[r,c]); \
+        }                               \
+    }                                   \
+}'"
 
 /**
  * @brief Fetch oracle QR matrix from ZXing API
@@ -42,10 +125,9 @@ fetch_oracle_bits(const char *text, qr_ec_level level)
 		"--data \"cht=qr\" "                             // QR code type
 		"--data \"choe=ISO-8859-1\" 2>/dev/null "        // Character encoding
 		"| magick - -threshold 50%% pbm:- 2>/dev/null "  // Convert to PBM with threshold
-		"| pnmtoplainpnm 2>/dev/null "                   // Convert to plain PNM
-		"| sed '1,2d' "                                  // Remove PNM header
-		"| tail -n +5 | head -n -4 "                     // Remove quiet zone
-		"| cut -c 5- | rev | cut -c 5- | rev "           // Extract matrix data
+		"| pnmtopnm -plain 2>/dev/null "                 // Convert to plain PNM
+		"| " AWK_PBM_NEWLINES " "                        // Place line breaks
+		"| " AWK_QUIET_ZONE_REMOVE " "                   // Remove quiet zone
 		"| tr -d ' \\n'",                                // Remove newlines
 		text, ecc);
 
@@ -141,7 +223,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
  * @brief Create oracle QR code
  */
 static qr_code *
-qr_create_oracle(const char *text, qr_ec_level level)
+qr_create_oracle(const char *text, qr_ec_level level, qr_encoding_mode mode)
 {
 	size_t len, side;
 	unsigned version;
@@ -155,7 +237,7 @@ qr_create_oracle(const char *text, qr_ec_level level)
 
 	// Calculate QR version from matrix size
 	version = ((side - 21) / 4) + 1;
-	qr_code *qr = qr_create(version, QR_MODE_BYTE, level);
+	qr_code *qr = qr_create(version, mode, level);
 	if (!qr) return NULL;
 
 	// Initialize QR matrix from fetched bit pattern
@@ -167,7 +249,7 @@ qr_create_oracle(const char *text, qr_ec_level level)
  * @brief Compare QR generation with oracle
  */
 static struct test_result
-compare_with_oracle(const char *text, qr_ec_level level)
+compare_with_oracle(const char *text, qr_ec_level level, qr_encoding_mode mode)
 {
 	unsigned version;
 	qr_code *our_qr, *oracle_qr;
@@ -177,17 +259,17 @@ compare_with_oracle(const char *text, qr_ec_level level)
 	if (!msg) return TEST_FAILURE("Memory allocation failed");
 
 	// Determine minimum QR version for input text
-	version = qr_min_version(strlen(text), level);
+	version = qr_min_version(mode, level, strlen(text));
 	if (!version) return TEST_FAILURE("Input too large");
 
 	// Create our QR code and encode message
-	our_qr = qr_create(version, QR_MODE_BYTE, level);
+	our_qr = qr_create(version, mode, level);
 	if (!our_qr) return TEST_FAILURE("Failed to create QR code");
 
 	qr_encode_message(our_qr, text);
 
 	// Create oracle QR code from ZXing API
-	oracle_qr = qr_create_oracle(text, level);
+	oracle_qr = qr_create_oracle(text, level, mode);
 	if (!oracle_qr) return TEST_FAILURE("Failed to create oracle QR");
 
 	// Verify both QR codes have same dimensions
@@ -215,32 +297,32 @@ compare_with_oracle(const char *text, qr_ec_level level)
 
 TEST(oracle_simple_L)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_L);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_L, QR_MODE_ALPHANUMERIC);
 }
 
 TEST(oracle_simple_M)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_M);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_M, QR_MODE_ALPHANUMERIC);
 }
 
 TEST(oracle_simple_Q)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_Q);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_Q, QR_MODE_ALPHANUMERIC);
 }
 
 TEST(oracle_simple_H)
 {
-	return compare_with_oracle("HELLO", QR_EC_LEVEL_H);
+	return compare_with_oracle("HELLO", QR_EC_LEVEL_H, QR_MODE_ALPHANUMERIC);
 }
 
 TEST(oracle_url_M)
 {
-	return compare_with_oracle("https://example.com", QR_EC_LEVEL_M);
+	return compare_with_oracle("https://example.com", QR_EC_LEVEL_M, QR_MODE_BYTE);
 }
 
 TEST(oracle_long_M)
 {
-	return compare_with_oracle("The quick brown fox jumps over the lazy dog", QR_EC_LEVEL_M);
+	return compare_with_oracle("The quick brown fox jumps over the lazy dog", QR_EC_LEVEL_M, QR_MODE_BYTE);
 }
 
 TEST(oracle_very_long_L)
@@ -251,7 +333,8 @@ TEST(oracle_very_long_L)
 		"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
 		"nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
 		"reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-		QR_EC_LEVEL_L
+		QR_EC_LEVEL_L,
+		QR_MODE_BYTE
 	);
 }
 
@@ -263,6 +346,7 @@ TEST(oracle_very_long_H)
 		"1994 for the automotive industry in Japan. A barcode is a "
 		"machine-readable optical label that contains information about the "
 		"item to which it is attached.",
-		QR_EC_LEVEL_H
+		QR_EC_LEVEL_H,
+		QR_MODE_BYTE
 	);
 }
