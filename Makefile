@@ -39,7 +39,7 @@ clean:
 	rm -rf $(BUILD_DIR) $(RELEASE_DIR) $(TEST_DIR)
 
 run: $(TARGET_RELEASE)
-	./$(TARGET_RELEASE) $(TEXT) $(ECL)
+	./$(TARGET_RELEASE) "$(TEXT)" "$(ECL)"
 
 test: $(TARGET_TEST)
 	./$(TARGET_TEST)
