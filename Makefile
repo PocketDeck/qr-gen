@@ -8,8 +8,9 @@ SRCS  := $(wildcard qr/*.c)
 OBJS  := $(patsubst qr/%.c, $(RELEASE_DIR)/%.o, $(SRCS))
 TESTS := $(wildcard test/*.c)
 TOBJS := $(patsubst test/%.c, $(TEST_DIR)/%.o, $(TESTS))
+DEPS  := $(OBJS:.o=.d) $(TOBJS:.o=.d)
 
-CFLAGS := -Wall -Wextra -Wpedantic -Werror -I.
+CFLAGS := -Wall -Wextra -Wpedantic -Werror -I. -MMD -MP
 ifdef NDEBUG
 CFLAGS += -DNDEBUG
 endif
@@ -42,3 +43,5 @@ run: $(TARGET_RELEASE)
 
 test: $(TARGET_TEST)
 	./$(TARGET_TEST)
+
+-include $(DEPS)
