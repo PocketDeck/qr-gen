@@ -126,8 +126,8 @@ fetch_oracle_bits(const char *text, qr_ecl level)
 		"--data \"choe=ISO-8859-1\" 2>/dev/null "        // Character encoding
 		"| magick - -threshold 50%% pbm:- 2>/dev/null "  // Convert to PBM with threshold
 		"| pnmtopnm -plain 2>/dev/null "                 // Convert to plain PNM
-		"| " AWK_PBM_NEWLINES " "                        // Place line breaks
-		"| " AWK_QUIET_ZONE_REMOVE " "                   // Remove quiet zone
+		"| " AWK_PBM_NEWLINES                            // Place line breaks
+		"| " AWK_QUIET_ZONE_REMOVE                       // Remove quiet zone
 		"| tr -d ' \\n'",                                // Remove newlines
 		text, ecc);
 
