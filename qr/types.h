@@ -13,8 +13,6 @@ typedef enum
 	QR_EC_LEVEL_COUNT
 } qr_ecl;
 
-#define QR_VERSION_COUNT 40
-
 typedef enum
 {
 	QR_MODE_NUMERIC = 0,
@@ -23,7 +21,7 @@ typedef enum
 	QR_MODE_COUNT
 } qr_mode;
 
-typedef uint8_t word;
+#define QR_VERSION_COUNT 40
 
 typedef enum
 {
@@ -31,6 +29,7 @@ typedef enum
 	QR_MODULE_DARK  = 1,
 } qr_module;
 
+typedef uint8_t word;
 
 typedef struct
 {
