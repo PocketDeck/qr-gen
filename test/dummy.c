@@ -1,3 +1,8 @@
+/**
+ * @file dummy.c
+ * @brief Testing framework sanity test
+ */
+
 #include <test/base.h>
 
 /**
