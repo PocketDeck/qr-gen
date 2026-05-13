@@ -26,13 +26,13 @@ A lightweight, C-based QR code generator that creates QR codes from text input w
 
 2. Build the project:
    ```bash
-   make
+   make build/release/qr-gen
    ```
    This will create the `qr-gen` executable in the `build/release` directory.
 
    For a release build without debug output:
    ```bash
-   make NDEBUG=1
+   make build/release/qr-gen NDEBUG=1
    ```
 
 ## Usage
@@ -70,7 +70,11 @@ Generate a QR code with high error correction:
 
 ## Running Tests
 
-The project includes unit tests to verify the functionality of core components. To run the tests:
+The project includes unit tests to verify the functionality of core components. Testing requires a POSIX-complient system and the following tools:
+- `curl`
+- `imagemagick`
+- `awk`
+To run the tests:
 
 ```bash
 make -s test
