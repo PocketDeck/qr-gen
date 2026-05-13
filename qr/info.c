@@ -1,5 +1,4 @@
 #include <qr/info.h>
-#include <qr/mask.h>
 #include <qr/matrix.h>
 #include <qr/types.h>
 #include <stddef.h>

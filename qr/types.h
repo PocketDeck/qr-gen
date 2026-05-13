@@ -29,6 +29,8 @@ typedef enum
 	QR_MODULE_DARK  = 1,
 } qr_module;
 
+#define QR_MASK_PATTERN_COUNT 8
+
 typedef uint8_t word;
 
 typedef struct
