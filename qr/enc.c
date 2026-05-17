@@ -125,17 +125,17 @@ alphanumeric_value(char c)
 qr_mode
 qr_detect_mode(const char *text)
 {
-	size_t i;
 	qr_mode best = QR_MODE_NUMERIC;
 
-	for (i = 0; text[i]; ++i)
+	for (; *text; ++text)
 	{
-		if (numeric_value(text[i]) == INVALID_VALUE)
+		if (numeric_value(*text) == INVALID_VALUE)
 			best = QR_MODE_ALPHANUMERIC;
 
-		if (alphanumeric_value(text[i]) == INVALID_VALUE)
+		if (alphanumeric_value(*text) == INVALID_VALUE)
 			return QR_MODE_BYTE;
 	}
+
 	return best;
 }
 
