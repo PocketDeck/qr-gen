@@ -202,6 +202,7 @@ qr_ec_encode(qr_code *qr)
 	gf_init_log_antilog();
 
 	size_t i, j, data_length, ecc_length;
+	word generator[68];  // maximal size of ecc
 	word *data = qr->codewords;
 	word *ecc = qr->codewords + TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version];
 
@@ -212,7 +213,6 @@ qr_ec_encode(qr_code *qr)
 
 		if (ecc_length == 0) continue;
 
-		word generator[ecc_length];
 		generator_polynomial(generator, ecc_length);
 
 		for (j = 0; j < BLOCK_COUNT[qr->level][qr->version][i]; ++j)
@@ -223,8 +223,10 @@ qr_ec_encode(qr_code *qr)
 		}
 	}
 
-	assert(data - qr->codewords == (ptrdiff_t) TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version] && "Sum of data codewords in blocks do not match expected number of data codewords");
-	assert(ecc - qr->codewords == (ptrdiff_t) qr->codeword_count && "Number of generated ec codewords do not match the expected number of codewords");
+	assert(data - qr->codewords == (ptrdiff_t) TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version] &&
+		"Sum of data codewords in blocks do not match expected number of data codewords");
+	assert(ecc - qr->codewords == (ptrdiff_t) qr->codeword_count &&
+		"Number of generated ec codewords do not match the expected number of codewords");
 }
 
 static word *
