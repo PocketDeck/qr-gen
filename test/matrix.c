@@ -199,7 +199,9 @@ TEST(codeword_placement_reserved)
 		if (!qr) return TEST_FAILURE("Failed to create QR code");
 
 		// Clear matrix and set all codewords to 1 (dark)
-		memset(qr->matrix, 0, qr->side_length * qr->side_length * sizeof(qr_module));
+		for (i = 0; i < qr->side_length; ++i)
+			for (j = 0; j < qr->side_length; ++j)
+				qr_module_set(qr, i, j, QR_MODULE_LIGHT);
 		memset(qr->codewords, 0xFF, qr->codeword_count * sizeof(word));
 		qr_place_codewords(qr);
 

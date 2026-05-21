@@ -10,7 +10,6 @@
 #include <qr/types.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 #include <test/base.h>
 
 #include <qr/mask.c>
@@ -250,7 +249,9 @@ TEST(mask_patterns)
 	// Save original matrix state for verification
 	qr_module *original = test_malloc(qr->side_length * qr->side_length * sizeof(qr_module));
 	if (!original) return TEST_FAILURE("Matrix allocation failed");
-	memcpy(original, qr->matrix, qr->side_length * qr->side_length * sizeof(qr_module));
+	for (i = 0; i < qr->side_length; ++i)
+		for (j = 0; j < qr->side_length; ++j)
+			original[i * qr->side_length + j] = qr_module_get(qr, i, j);
 
 	// Test each mask pattern's toggle behavior
 	for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
