@@ -24,6 +24,9 @@ BEFORE()
 	if (system("which awk >/dev/null 2>&1"))
 		return TEST_FAILURE("awk not found");
 
+	if (system("which pnmtopnm >/dev/null 2>&1"))
+		return TEST_FAILURE("pnmtopnm not found");
+
 	return TEST_SUCCESS;
 }
 

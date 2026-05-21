@@ -74,6 +74,7 @@ The project includes unit tests to verify the functionality of core components. 
 - `curl`
 - `imagemagick`
 - `awk`
+- `netpbm`
 
 To run the tests:
 
