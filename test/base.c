@@ -177,7 +177,7 @@ print_group_progress(group_node *group, size_t ran, size_t failures)
 
 	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, ((int) longest_group_name) - ((int) strlen(group->name)) + 1, ":", ran, failures);
 	printf("[\x1b[32m\x1b[7m");
-	for (i = 0; i < ((ran - failures) / (float) group->count) * BAR_WIDTH; ++i)
+	for (i = 0; i < (unsigned) (((ran - failures) / (float) group->count) * BAR_WIDTH); ++i)
 		printf("-");
 	printf("\x1b[31m");
 	for (; i < BAR_WIDTH; ++i)
