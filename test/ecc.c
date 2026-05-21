@@ -5,12 +5,12 @@
 
 #include <qr/ecc.h>
 #include <qr/qr.h>
+#include <qr/tables.h>
 #include <qr/types.h>
 #include <stddef.h>
 #include <test/base.h>
 
 #include <qr/ecc.c>
-#include <qr/qr.c>
 
 /**
  * @brief Initialize GF log/antilog tables

@@ -1,5 +1,6 @@
 #include <qr/matrix.h>
 #include <qr/patterns.h>
+#include <qr/tables.h>
 #include <qr/types.h>
 #include <stddef.h>
 
@@ -77,52 +78,6 @@ add_alignment_pattern_at(qr_code *qr, size_t i, size_t j)
 
 	qr_module_set(qr, i + 2, j + 2, QR_MODULE_DARK);
 }
-
-#define MAX_ALIGNMENT_ENTRIES 7
-#define E 2
-static size_t ALIGNMENT_CENTER_MODULE[QR_VERSION_COUNT][MAX_ALIGNMENT_ENTRIES] =
-{
-	{   E,   E,   E,   E,   E,   E,   E },
-	{   6,  18,   E,   E,   E,   E,   E },
-	{   6,  22,   E,   E,   E,   E,   E },
-	{   6,  26,   E,   E,   E,   E,   E },
-	{   6,  30,   E,   E,   E,   E,   E },
-	{   6,  34,   E,   E,   E,   E,   E },
-	{   6,  22,  38,   E,   E,   E,   E },
-	{   6,  24,  42,   E,   E,   E,   E },
-	{   6,  26,  46,   E,   E,   E,   E },
-	{   6,  28,  50,   E,   E,   E,   E },
-	{   6,  30,  54,   E,   E,   E,   E },
-	{   6,  32,  58,   E,   E,   E,   E },
-	{   6,  34,  62,   E,   E,   E,   E },
-	{   6,  26,  46,  66,   E,   E,   E },
-	{   6,  26,  48,  70,   E,   E,   E },
-	{   6,  26,  50,  74,   E,   E,   E },
-	{   6,  30,  54,  78,   E,   E,   E },
-	{   6,  30,  56,  82,   E,   E,   E },
-	{   6,  30,  58,  86,   E,   E,   E },
-	{   6,  34,  62,  90,   E,   E,   E },
-	{   6,  28,  50,  72,  94,   E,   E },
-	{   6,  26,  50,  74,  98,   E,   E },
-	{   6,  30,  54,  78, 102,   E,   E },
-	{   6,  28,  54,  80, 106,   E,   E },
-	{   6,  32,  58,  84, 110,   E,   E },
-	{   6,  30,  58,  86, 114,   E,   E },
-	{   6,  34,  62,  90, 118,   E,   E },
-	{   6,  26,  50,  74,  98, 122,   E },
-	{   6,  30,  54,  78, 102, 126,   E },
-	{   6,  26,  52,  78, 104, 130,   E },
-	{   6,  30,  56,  82, 108, 134,   E },
-	{   6,  34,  60,  86, 112, 138,   E },
-	{   6,  30,  58,  86, 114, 142,   E },
-	{   6,  34,  62,  90, 118, 146,   E },
-	{   6,  30,  54,  78, 102, 126, 150 },
-	{   6,  24,  50,  76, 102, 128, 154 },
-	{   6,  28,  54,  80, 106, 132, 158 },
-	{   6,  32,  58,  84, 110, 136, 162 },
-	{   6,  26,  54,  82, 110, 138, 166 },
-	{   6,  30,  58,  86, 114, 142, 170 },
-};
 
 void
 qr_alignment_patterns_apply(qr_code *qr)

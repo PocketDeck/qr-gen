@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <qr/matrix.h>
 #include <qr/patterns.h>
+#include <qr/tables.h>
 #include <qr/types.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -114,14 +115,6 @@ place_bit(qr_code *qr, size_t *i, size_t *j, bool *left, bool *up, qr_module val
 		if (*j == 6) --*j;
 	}
 }
-
-static const size_t REMAINDER_BITS[QR_VERSION_COUNT] =
-{
-	0, 7, 7, 7, 7, 7, 0, 0, 0, 0,
-	0, 0, 0, 3, 3, 3, 3, 3, 3, 3,
-	4, 4, 4, 4, 4, 4, 4, 3, 3, 3,
-	3, 3, 3, 3, 0, 0, 0, 0, 0, 0,
-};
 
 void
 qr_place_codewords(qr_code *qr)

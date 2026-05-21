@@ -315,6 +315,11 @@ TEST(oracle_simple_H)
 	return compare_with_oracle("HELLO", QR_EC_LEVEL_H);
 }
 
+TEST(oracle_full_capacity_L)
+{
+	return compare_with_oracle("ABCDEFGHIJKLMNOPQRSTUVWXY", QR_EC_LEVEL_L);
+}
+
 TEST(oracle_url_M)
 {
 	return compare_with_oracle("https://example.com", QR_EC_LEVEL_M);
