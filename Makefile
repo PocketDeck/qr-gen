@@ -10,7 +10,7 @@ TESTS := $(wildcard test/*.c)
 TOBJS := $(patsubst test/%.c, $(TEST_DIR)/%.o, $(TESTS))
 DEPS  := $(OBJS:.o=.d) $(TOBJS:.o=.d)
 
-CFLAGS := -Wall -Wextra -Wpedantic -Werror -I. -MMD -MP -pg
+CFLAGS := -Wall -Wextra -Wpedantic -Werror -I. -MMD -MP
 ifdef NDEBUG
 CFLAGS += -DNDEBUG
 endif

@@ -82,15 +82,15 @@ add_alignment_pattern_at(qr_code *qr, size_t i, size_t j)
 void
 qr_alignment_patterns_apply(qr_code *qr)
 {
-	size_t entry_a, entry_b, i, j;
+	size_t entry_i, entry_j, i, j;
 	bool in_finder_upper_left, in_finder_upper_right, in_finder_lower_left;
 
-	for (entry_a = 0; entry_a < MAX_ALIGNMENT_ENTRIES; ++entry_a)
+	for (entry_i = 0; entry_i < MAX_ALIGNMENT_ENTRIES; ++entry_i)
 	{
-		for (entry_b = 0; entry_b < MAX_ALIGNMENT_ENTRIES; ++entry_b)
+		for (entry_j = 0; entry_j < MAX_ALIGNMENT_ENTRIES; ++entry_j)
 		{
-			i = ALIGNMENT_CENTER_MODULE[qr->version][entry_a] - 2;
-			j = ALIGNMENT_CENTER_MODULE[qr->version][entry_b] - 2;
+			i = ALIGNMENT_CENTER_MODULE[qr->version][entry_i] - 2;
+			j = ALIGNMENT_CENTER_MODULE[qr->version][entry_j] - 2;
 
 			in_finder_upper_left = i < 8 && j < 8;
 			in_finder_upper_right = i < 8 && j >= qr->side_length - 12;
@@ -105,29 +105,46 @@ qr_alignment_patterns_apply(qr_code *qr)
 }
 
 bool
-qr_is_in_alignment_patterns(const qr_code *qr, size_t i_, size_t j_)
+qr_is_in_alignment_patterns(const qr_code *qr, size_t i, size_t j)
 {
-	size_t entry_a, entry_b, i, j;
+	size_t entry_i, entry_j, center_i, center_j;
 	bool in_finder_upper_left, in_finder_upper_right, in_finder_lower_left;
 
-	for (entry_a = 0; entry_a < MAX_ALIGNMENT_ENTRIES; ++entry_a)
+	// find closest entry on each axis
+	for (entry_i = 0; entry_i < MAX_ALIGNMENT_ENTRIES - 1; ++entry_i)
 	{
-		for (entry_b = 0; entry_b < MAX_ALIGNMENT_ENTRIES; ++entry_b)
+		if (ALIGNMENT_CENTER_MODULE[qr->version][entry_i + 1] == E) break;
+
+		if (ALIGNMENT_CENTER_MODULE[qr->version][entry_i + 1] >= i)
 		{
-			i = ALIGNMENT_CENTER_MODULE[qr->version][entry_a] - 2;
-			j = ALIGNMENT_CENTER_MODULE[qr->version][entry_b] - 2;
-
-			in_finder_upper_left = i < 8 && j < 8;
-			in_finder_upper_right = i < 8 && j >= qr->side_length - 12;
-			in_finder_lower_left = i >= qr->side_length - 12 && j < 8;
-
-			if (!i || !j || in_finder_upper_left || in_finder_upper_right || in_finder_lower_left)
-				continue;
-
-			if (i_ >= i && i_ <= i + 4 && j_ >= j && j_ <= j + 4)
-				return true;
+			if (ALIGNMENT_CENTER_MODULE[qr->version][entry_i] >= i) break;
+			if (ALIGNMENT_CENTER_MODULE[qr->version][entry_i + 1] - i < i - ALIGNMENT_CENTER_MODULE[qr->version][entry_i])
+				++entry_i;
+			break;
 		}
 	}
 
-	return false;
+	for (entry_j = 0; entry_j < MAX_ALIGNMENT_ENTRIES - 1; ++entry_j)
+	{
+		if (ALIGNMENT_CENTER_MODULE[qr->version][entry_j + 1] == E) break;
+
+		if (ALIGNMENT_CENTER_MODULE[qr->version][entry_j + 1] >= j)
+		{
+			if (ALIGNMENT_CENTER_MODULE[qr->version][entry_j] >= j) break;
+			if (ALIGNMENT_CENTER_MODULE[qr->version][entry_j + 1] - j < j - ALIGNMENT_CENTER_MODULE[qr->version][entry_j])
+				++entry_j;
+			break;
+		}
+	}
+
+	center_i = ALIGNMENT_CENTER_MODULE[qr->version][entry_i];
+	center_j = ALIGNMENT_CENTER_MODULE[qr->version][entry_j];
+
+	in_finder_upper_left = center_i == 6 && center_j == 6;
+	in_finder_upper_right = center_i == 6 && center_j == qr->side_length - 7;
+	in_finder_lower_left = center_i == qr->side_length - 7 && center_j == 6;
+
+	if (in_finder_upper_left || in_finder_upper_right || in_finder_lower_left) return false;
+
+	return i >= center_i - 2 && i <= center_i + 2 && j >= center_j - 2 && j <= center_j + 2;
 }
