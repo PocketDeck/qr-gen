@@ -7,7 +7,7 @@
 #define E 2
 static const size_t ALIGNMENT_CENTER_MODULE[QR_VERSION_COUNT][MAX_ALIGNMENT_ENTRIES] =
 {
-	{   E,   E,   E,   E,   E,   E,   E },
+	{   6,   E,   E,   E,   E,   E,   E },
 	{   6,  18,   E,   E,   E,   E,   E },
 	{   6,  22,   E,   E,   E,   E,   E },
 	{   6,  26,   E,   E,   E,   E,   E },
