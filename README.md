@@ -91,5 +91,6 @@ make -s test
   - `patterns.[ch]` - QR code patterns and alignment
   - `qr.[ch]` - Main QR code functionality
   - `types.h` - Common type definitions
+  - `tables.h` - Lookup table definitions
   - `main.c` - Command-line interface
 - `test/` - Unit tests
