@@ -76,8 +76,8 @@ TEST(reserved_module_detection_version1)
 		for (j = 0; j < 8; ++j)
 		{
 			test_eq(qr_module_is_reserved(qr, i, j), 1, "Finder pattern reserved");
-			test_eq(qr_module_is_reserved(qr, i, qr->side_length - j + 1), 1, "Finder pattern reserved");
-			test_eq(qr_module_is_reserved(qr, qr->side_length - i + 1, j), 1, "Finder pattern reserved");
+			test_eq(qr_module_is_reserved(qr, i, qr->side_length - j - 1), 1, "Finder pattern reserved");
+			test_eq(qr_module_is_reserved(qr, qr->side_length - i - 1, j), 1, "Finder pattern reserved");
 		}
 	}
 
@@ -93,8 +93,8 @@ TEST(reserved_module_detection_version1)
 	{
 		test_eq(qr_module_is_reserved(qr, 8, i), 1, "Format info reserved");
 		test_eq(qr_module_is_reserved(qr, i, 8), 1, "Format info reserved");
-		test_eq(qr_module_is_reserved(qr, 8, qr->side_length - i + 1), 1, "Format info reserved");
-		test_eq(qr_module_is_reserved(qr, qr->side_length - i + 1, 8), 1, "Format info reserved");
+		test_eq(qr_module_is_reserved(qr, 8, qr->side_length - i - 1), 1, "Format info reserved");
+		test_eq(qr_module_is_reserved(qr, qr->side_length - i - 1, 8), 1, "Format info reserved");
 	}
 
 	// Version 1 should not have version info reserved
@@ -128,8 +128,8 @@ TEST(reserved_module_detection_version7)
 		for (j = 0; j < 8; ++j)
 		{
 			test_eq(qr_module_is_reserved(qr, i, j), 1, "Finder pattern reserved");
-			test_eq(qr_module_is_reserved(qr, i, qr->side_length - j + 1), 1, "Finder pattern reserved");
-			test_eq(qr_module_is_reserved(qr, qr->side_length - i + 1, j), 1, "Finder pattern reserved");
+			test_eq(qr_module_is_reserved(qr, i, qr->side_length - j - 1), 1, "Finder pattern reserved");
+			test_eq(qr_module_is_reserved(qr, qr->side_length - i - 1, j), 1, "Finder pattern reserved");
 		}
 	}
 
@@ -143,8 +143,8 @@ TEST(reserved_module_detection_version7)
 	{
 		test_eq(qr_module_is_reserved(qr, 8, i), 1, "Format info reserved");
 		test_eq(qr_module_is_reserved(qr, i, 8), 1, "Format info reserved");
-		test_eq(qr_module_is_reserved(qr, 8, qr->side_length - i + 1), 1, "Format info reserved");
-		test_eq(qr_module_is_reserved(qr, qr->side_length - i + 1, 8), 1, "Format info reserved");
+		test_eq(qr_module_is_reserved(qr, 8, qr->side_length - i - 1), 1, "Format info reserved");
+		test_eq(qr_module_is_reserved(qr, qr->side_length - i - 1, 8), 1, "Format info reserved");
 	}
 
 	for (i = 0; i < 3; ++i)
