@@ -66,14 +66,14 @@ qr_module_is_reserved(const qr_code *qr, size_t i, size_t j)
 	bool in_timing = i == 6 || j == 6;
 	bool in_alignment = qr_is_in_alignment_patterns(qr, i, j);
 
-	bool in_version_lower_left = i < 6 && j >= qr->side_length - 11;
-	bool in_version_upper_right = i >= qr->side_length - 11 && j < 6;
-	bool in_version = qr->version + 1 >= 7 && (in_version_lower_left || in_version_upper_right);
-
 	bool in_format_upper_left = i < 9 && j < 9;
 	bool in_format_upper_right = i < 9 && j >= qr->side_length - 8;
 	bool in_format_lower_left = i >= qr->side_length - 8 && j < 9;
 	bool in_format = in_format_upper_left || in_format_upper_right || in_format_lower_left;
+
+	bool in_version_lower_left = i < 6 && j >= qr->side_length - 11;
+	bool in_version_upper_right = i >= qr->side_length - 11 && j < 6;
+	bool in_version = qr->version + 1 >= 7 && (in_version_lower_left || in_version_upper_right);
 
 	return in_finder || in_timing || in_alignment || in_version || in_format;
 }
