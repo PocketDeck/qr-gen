@@ -86,8 +86,8 @@ TEST(ecc_generation)
 
 	// Test data for Version 1-L QR code (7 data codewords, 10 ECC codewords)
 	word data[7] = { 40, 88, 12, 6, 46, 77, 36 };
-	word ecc[10] = { 0 };
-	word g[10] = { 0 };
+	word ecc[10] = {};
+	word g[10] = {};
 
 	// Generate Reed-Solomon error correction codewords
 	generator_polynomial(g, 10);
@@ -200,7 +200,7 @@ TEST(codeword_interleaving_version1_h)
 
 	for (size_t i = 0; i < qr->codeword_count; ++i)
 	{
-		test_eq((int) qr->codewords[i], (int) (i + 1),
+		test_eq(qr->codewords[i], i + 1,
 			"Single block codeword order incorrect");
 	}
 

@@ -7,7 +7,7 @@
 typedef struct test_node
 {
 	const char *name;
-	int is_preparation;
+	bool is_preparation;
 	struct test_result (*fn)(void);
 	struct test_result res;
 	struct test_node *next;
@@ -32,7 +32,7 @@ append_test(test_node **head, const char *name, struct test_result (*fn)(void))
 
 	new_test = test_malloc(sizeof(test_node));
 	new_test->name = name;
-	new_test->is_preparation = 0;
+	new_test->is_preparation = false;
 	new_test->fn = fn;
 	new_test->res = TEST_SUCCESS;
 	new_test->next = nullptr;
@@ -57,7 +57,7 @@ prepend_preparation(test_node **head, const char *name, struct test_result (*fn)
 
 	new_test = test_malloc(sizeof(test_node));
 	new_test->name = name;
-	new_test->is_preparation = 1;
+	new_test->is_preparation = true;
 	new_test->fn = fn;
 	new_test->res = TEST_SUCCESS;
 	new_test->next = *head;
@@ -175,7 +175,7 @@ print_group_progress(group_node *group, size_t ran, size_t failures)
 {
 	size_t i;
 
-	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, ((int) longest_group_name) - ((int) strlen(group->name)) + 1, ":", ran, failures);
+	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, (int) (longest_group_name - strlen(group->name) + 1), ":", ran, failures);
 	printf("[\x1b[32m\x1b[7m");
 	for (i = 0; i < (unsigned) (((ran - failures) / (float) group->count) * BAR_WIDTH); ++i)
 		printf("-");

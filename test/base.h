@@ -7,7 +7,7 @@
 
 struct test_result
 {
-	int failed;
+	bool failed;
 	const char *message;
 	size_t line;
 };
@@ -37,8 +37,8 @@ void *test_malloc(size_t size);
 
 #define INT_MAX_CHARS 11
 
-#define TEST_SUCCESS (struct test_result) { 0, nullptr, 0 }
-#define TEST_FAILURE(message) (struct test_result) { 1, (message), __LINE__ }
+#define TEST_SUCCESS (struct test_result) { false, nullptr, __LINE__ }
+#define TEST_FAILURE(message) (struct test_result) { true, (message), __LINE__ }
 
 #define test_base(lhs, rhs, message, operator) \
 	do { \

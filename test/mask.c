@@ -18,7 +18,7 @@
  * @brief Initialize QR matrix with random values
  */
 static void
-qr_init_random(qr_code *qr, unsigned int seed)
+qr_init_random(qr_code *qr, unsigned seed)
 {
 	size_t i, j;
 
@@ -51,19 +51,19 @@ qr_init_random(qr_code *qr, unsigned int seed)
  */
 TEST(mask_selection_optimality)
 {
-	const int num_tests = 5;
-	int test_case, pattern;
+	const size_t num_tests = 5;
+	size_t test_case, pattern;
 
 	// Test multiple random matrices to ensure optimal mask selection
 	for (test_case = 0; test_case < num_tests; ++test_case)
 	{
 		int best_score = INT_MAX, score;
-		int pattern_scores[QR_MASK_PATTERN_COUNT] = { 0 };
+		int pattern_scores[QR_MASK_PATTERN_COUNT] = {};
 
 		qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
 		if (!qr) return TEST_FAILURE("Failed to create QR code");
 
-		qr_init_random(qr, (unsigned int) test_case);
+		qr_init_random(qr, (unsigned) test_case);
 
 		// Evaluate penalty score for each mask pattern
 		for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
@@ -225,7 +225,7 @@ TEST(mask_feature_4)
 TEST(mask_patterns)
 {
 	size_t i, j;
-	int pattern;
+	size_t pattern;
 
 	qr_code *qr = qr_create(1, QR_MODE_BYTE, QR_EC_LEVEL_L);
 	if (!qr) return TEST_FAILURE("Failed to create QR code");
@@ -263,7 +263,7 @@ TEST(mask_patterns)
 		{
 			for (j = 0; j < qr->side_length; ++j)
 			{
-				int should_toggle = 0;
+				bool should_toggle = 0;
 				qr_module expected;
 
 				if (qr_module_is_reserved(qr, i, j))
@@ -554,7 +554,7 @@ TEST(mask_pattern_diversity)
 {
 	const size_t num_tests = 15;
 	const unsigned min_unique_patterns = 3;
-	unsigned pattern_counts[QR_MASK_PATTERN_COUNT] = { 0 }, unique_patterns = 0;
+	unsigned pattern_counts[QR_MASK_PATTERN_COUNT] = {}, unique_patterns = 0;
 	size_t test_case;
 
 	// Test that different inputs produce diverse mask patterns
@@ -563,7 +563,7 @@ TEST(mask_pattern_diversity)
 		qr_code *qr = qr_create(6, QR_MODE_BYTE, QR_EC_LEVEL_L);
 		if (!qr) return TEST_FAILURE("Failed to create QR code");
 
-		qr_init_random(qr, (unsigned int) test_case + 1234);
+		qr_init_random(qr, (unsigned) test_case + 1234);
 		qr_mask_apply(qr);
 
 		if (pattern_counts[qr->mask] == 0)
