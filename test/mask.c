@@ -247,7 +247,7 @@ TEST(mask_patterns)
 	}
 
 	// Save original matrix state for verification
-	qr_module *original = test_malloc(qr->side_length * qr->side_length * sizeof(qr_module));
+	qr_module *original = test_malloc(sizeof(qr_module[qr->side_length * qr->side_length]));
 	if (!original) return TEST_FAILURE("Matrix allocation failed");
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
