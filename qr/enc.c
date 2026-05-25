@@ -15,7 +15,7 @@ qr_min_version(qr_mode mode, qr_ecl level, size_t bytes)
 	return i == QR_VERSION_COUNT ? 0 : (unsigned) (i + 1);
 }
 
-const unsigned INVALID_VALUE = 0x100;
+constexpr unsigned INVALID_VALUE = 0x100;
 
 static unsigned
 numeric_value(char c)

@@ -7,7 +7,7 @@
 #include <string.h>
 
 constexpr size_t GF_SIZE = 256;
-const unsigned PRIMITIVE = 0x11D;
+constexpr unsigned PRIMITIVE = 0x11D;
 
 static word gf_log[GF_SIZE];
 static word gf_antilog[(GF_SIZE * 2) - 2];
