@@ -30,7 +30,7 @@ BEFORE()
 	return TEST_SUCCESS;
 }
 
-constexpr char AWK_PBM_NEWLINES[] = "awk '      \
+#define AWK_PBM_NEWLINES "awk '                 \
 NR==1 { next }                                  \
 NR==2                                           \
 {                                               \
@@ -46,69 +46,69 @@ END                                             \
 {                                               \
     for (i = 1; i <= h; ++i)                    \
         print substr(bits, (i - 1) * w + 1, w); \
-}'";
+}'"
 
-constexpr char AWK_QUIET_ZONE_REMOVE[] = "awk ' \
-{                                               \
-    rows[NR] = $0;                              \
-    if ($0 ~ /1/)                               \
-        used_row[NR] = 1;                       \
-                                                \
-    n = split($0, row, \"\");                   \
-                                                \
-    for (i = 1; i <= n; ++i)                    \
-    {                                           \
-        vals[NR,i] = row[i];                    \
-        if (row[i] != 0)                        \
-            used_col[i] = 1;                    \
-    }                                           \
-}                                               \
-END                                             \
-{                                               \
-    for (r = 1; r <= NR; ++r)                   \
-    {                                           \
-        if (used_row[r])                        \
-        {                                       \
-            top = r;                            \
-            break;                              \
-        }                                       \
-    }                                           \
-                                                \
-    for (r = NR; r >= 1; --r)                   \
-    {                                           \
-        if (used_row[r])                        \
-        {                                       \
-            bottom = r;                         \
-            break;                              \
-        }                                       \
-    }                                           \
-                                                \
-    for (c = 1; c <= n; ++c)                    \
-    {                                           \
-        if (used_col[c])                        \
-        {                                       \
-            left = c;                           \
-            break;                              \
-        }                                       \
-    }                                           \
-                                                \
-    for (c = n; c >= 1; --c)                    \
-    {                                           \
-        if (used_col[c])                        \
-        {                                       \
-            right = c;                          \
-            break;                              \
-        }                                       \
-    }                                           \
-                                                \
-    for (r = top; r <= bottom; ++r)             \
-    {                                           \
-        for (c = left; c <= right; ++c)         \
-        {                                       \
-            printf(\"%%s\", vals[r,c]);         \
-        }                                       \
-    }                                           \
-}'";
+#define AWK_QUIET_ZONE_REMOVE "awk '    \
+{                                       \
+    rows[NR] = $0;                      \
+    if ($0 ~ /1/)                       \
+        used_row[NR] = 1;               \
+                                        \
+    n = split($0, row, \"\");           \
+                                        \
+    for (i = 1; i <= n; ++i)            \
+    {                                   \
+        vals[NR,i] = row[i];            \
+        if (row[i] != 0)                \
+            used_col[i] = 1;            \
+    }                                   \
+}                                       \
+END                                     \
+{                                       \
+    for (r = 1; r <= NR; ++r)           \
+    {                                   \
+        if (used_row[r])                \
+        {                               \
+            top = r;                    \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (r = NR; r >= 1; --r)           \
+    {                                   \
+        if (used_row[r])                \
+        {                               \
+            bottom = r;                 \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (c = 1; c <= n; ++c)            \
+    {                                   \
+        if (used_col[c])                \
+        {                               \
+            left = c;                   \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (c = n; c >= 1; --c)            \
+    {                                   \
+        if (used_col[c])                \
+        {                               \
+            right = c;                  \
+            break;                      \
+        }                               \
+    }                                   \
+                                        \
+    for (r = top; r <= bottom; ++r)     \
+    {                                   \
+        for (c = left; c <= right; ++c) \
+        {                               \
+            printf(\"%%s\", vals[r,c]); \
+        }                               \
+    }                                   \
+}'"
 
 /**
  * @brief Fetch oracle QR matrix from ZXing API
