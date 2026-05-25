@@ -22,7 +22,7 @@ typedef struct group_node
 	struct group_node *next;
 } group_node;
 
-static group_node *group_head = NULL;
+static group_node *group_head = nullptr;
 static size_t longest_group_name = 0;
 
 test_node *
@@ -35,7 +35,7 @@ append_test(test_node **head, const char *name, struct test_result (*fn)(void))
 	new_test->is_preparation = 0;
 	new_test->fn = fn;
 	new_test->res = TEST_SUCCESS;
-	new_test->next = NULL;
+	new_test->next = nullptr;
 
 	if (!*head)
 	{
@@ -74,10 +74,10 @@ append_group(group_node **head, const char *name)
 
 	group_node *new_group = test_malloc(sizeof(group_node));
 	new_group->name = name;
-	new_group->tests = NULL;
+	new_group->tests = nullptr;
 	new_group->count = 0;
 	new_group->longest_test_name = 0;
-	new_group->next = NULL;
+	new_group->next = nullptr;
 
 	if (!*head)
 	{
@@ -104,7 +104,7 @@ group_exists(group_node **head, const char *name)
 		if (!strcmp(current->name, name))
 			return current;
 
-	return NULL;
+	return nullptr;
 }
 
 void
@@ -140,7 +140,7 @@ typedef struct memory_node
 	struct memory_node *next;
 } memory_node;
 
-memory_node *memory_head = NULL;
+memory_node *memory_head = nullptr;
 
 void *
 test_malloc(size_t size)
@@ -165,7 +165,7 @@ test_free(void)
 		free(current);
 	}
 
-	memory_head = NULL;
+	memory_head = nullptr;
 }
 
 #define BAR_WIDTH 40

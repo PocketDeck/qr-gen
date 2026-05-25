@@ -16,10 +16,10 @@ extern void log_(const char *fmt, ...);
 qr_code *
 qr_create(unsigned version, qr_mode mode, qr_ecl level)
 {
-	if (--version >= QR_VERSION_COUNT) return NULL;
+	if (--version >= QR_VERSION_COUNT) return nullptr;
 
 	qr_code *qr = malloc(sizeof(qr_code));
-	if (!qr) return NULL;
+	if (!qr) return nullptr;
 
 	qr->version = version;
 	qr->mode = mode;
@@ -29,7 +29,7 @@ qr_create(unsigned version, qr_mode mode, qr_ecl level)
 	if (!qr->matrix)
 	{
 		free(qr);
-		return NULL;
+		return nullptr;
 	}
 
 	qr->codeword_count = CODEWORD_COUNT[qr->version];
@@ -38,7 +38,7 @@ qr_create(unsigned version, qr_mode mode, qr_ecl level)
 	{
 		free(qr->matrix);
 		free(qr);
-		return NULL;
+		return nullptr;
 	}
 
 	return qr;

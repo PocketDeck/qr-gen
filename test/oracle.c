@@ -135,19 +135,19 @@ fetch_oracle_bits(const char *text, qr_ecl level)
 		text, ecc);
 
 	FILE *fp = popen(cmd, "r");
-	if (!fp) return NULL;
+	if (!fp) return nullptr;
 
 	char *bits = test_malloc(32768); /* Large enough for version 40 */
 	if (!bits)
 	{
 		pclose(fp);
-		return NULL;
+		return nullptr;
 	}
 
-	if (fgets(bits, 32768, fp) == NULL)
+	if (fgets(bits, 32768, fp) == nullptr)
 	{
 		pclose(fp);
-		return NULL;
+		return nullptr;
 	}
 
 	pclose(fp);
@@ -231,17 +231,17 @@ qr_create_oracle(const char *text, qr_ecl level, qr_mode mode)
 	size_t len, side;
 	unsigned version;
 	char *bits = fetch_oracle_bits(text, level);
-	if (!bits) return NULL;
+	if (!bits) return nullptr;
 
 	// Calculate QR version from matrix size
 	len = strlen(bits);
 	for (side = 0; side * side < len; ++side);
-	if (side * side != len) return NULL;
+	if (side * side != len) return nullptr;
 
 	// Calculate QR version from matrix size
 	version = ((side - 21) / 4) + 1;
 	qr_code *qr = qr_create(version, mode, level);
-	if (!qr) return NULL;
+	if (!qr) return nullptr;
 
 	// Initialize QR matrix from fetched bit pattern
 	init_qr_from_bits(qr, bits);
