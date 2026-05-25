@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define QR_VERSION_COUNT 40
+constexpr size_t QR_VERSION_COUNT = 40;
 
 typedef enum
 {
@@ -29,7 +29,7 @@ typedef enum
 	QR_MODULE_DARK  = 1,
 } qr_module;
 
-#define QR_MASK_PATTERN_COUNT 8
+constexpr size_t QR_MASK_PATTERN_COUNT = 8;
 
 typedef uint8_t word;
 

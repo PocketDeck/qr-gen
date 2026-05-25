@@ -3,8 +3,8 @@
 
 #include <qr/types.h>
 
-#define MAX_ALIGNMENT_ENTRIES 7
-#define E 2
+constexpr size_t MAX_ALIGNMENT_ENTRIES = 7;
+constexpr size_t E = 2;
 static const size_t ALIGNMENT_CENTER_MODULE[QR_VERSION_COUNT][MAX_ALIGNMENT_ENTRIES] =
 {
 	{   6,   E,   E,   E,   E,   E,   E },
@@ -49,7 +49,7 @@ static const size_t ALIGNMENT_CENTER_MODULE[QR_VERSION_COUNT][MAX_ALIGNMENT_ENTR
 	{   6,  30,  58,  86, 114, 142, 170 },
 };
 
-#define BLOCK_TYPES_PER_VERSION 2
+constexpr size_t BLOCK_TYPES_PER_VERSION = 2;
 static const size_t BLOCK_COUNT[QR_EC_LEVEL_COUNT][QR_VERSION_COUNT][BLOCK_TYPES_PER_VERSION] =
 {
 	{ // L

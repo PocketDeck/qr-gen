@@ -168,7 +168,7 @@ test_free(void)
 	memory_head = nullptr;
 }
 
-#define BAR_WIDTH 40
+constexpr size_t BAR_WIDTH = 40;
 
 void
 print_group_progress(group_node *group, size_t ran, size_t failures)

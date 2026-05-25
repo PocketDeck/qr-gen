@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GF_SIZE 256
-#define PRIMITIVE 0x11D
+constexpr size_t GF_SIZE = 256;
+constexpr unsigned PRIMITIVE = 0x11D;
 
 static word gf_log[GF_SIZE];
 static word gf_antilog[(GF_SIZE * 2) - 2];
