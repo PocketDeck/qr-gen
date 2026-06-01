@@ -5,7 +5,7 @@ A lightweight QR code generator for text input.
 ## Features
 
 - Generate QR codes from text input
-- Numeric, Alphanumer, Byte mode encoding
+- Numeric, Alphanumeric, Byte mode encoding
 - Support for multiple error correction levels (L, M, Q, H)
 - Supported output formats:
     - PBM
