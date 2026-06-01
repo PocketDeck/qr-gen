@@ -51,7 +51,7 @@ A lightweight QR code generator for text input.
 
 - `PBM` - Portable Bitmap
 - `SVG` - Scalable Vector Graphics
-- `TERM` - ANSI Codes for terminal output
+- `TERM` - ANSI Codes for terminal output - **Default**
 
 The program produces the QR code in the specified format to standard output (stdout). You can redirect the output to a file:
 
