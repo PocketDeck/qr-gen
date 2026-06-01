@@ -1,1 +1,1 @@
-void log_(const char *fmt, ...) { (void) fmt; }
+void LOG(const char *fmt, ...) { (void) fmt; }

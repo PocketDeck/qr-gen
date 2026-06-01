@@ -35,27 +35,27 @@ static struct test_result EXPAND_AND_PASTE(test_before_, __LINE__)(void)
 
 void *test_malloc(size_t size);
 
-#define INT_MAX_CHARS 11
+#define INT_MAX_CHARS ((3 * sizeof(int)) + 1)
 
 #define TEST_SUCCESS ((struct test_result) { false, nullptr, __LINE__ })
 #define TEST_FAILURE(message) ((struct test_result) { true, (message), __LINE__ })
 
-#define test_base(lhs, rhs, message, operator) \
-	do { \
-		int _test_lhs = (lhs); \
-		int _test_rhs = (rhs); \
-		if (!(_test_lhs operator _test_rhs)) \
-		{ \
-			size_t _test_length = \
-				strlen(message) + \
-				strlen(":  " #operator " ") + \
-				(2 * INT_MAX_CHARS) + 1; \
-			char *_test_message = test_malloc(_test_length); \
-			if (_test_message == nullptr) return TEST_FAILURE("test: test_malloc failed"); \
-			snprintf(_test_message, _test_length, "%s: %d " #operator " %d", message, _test_lhs, _test_rhs); \
-			return TEST_FAILURE(_test_message); \
-		} \
-	} while (0)
+#define test_base(lhs, rhs, message, operator) do \
+{ \
+	int _test_lhs = (lhs); \
+	int _test_rhs = (rhs); \
+	if (!(_test_lhs operator _test_rhs)) \
+	{ \
+		size_t _test_length = \
+			strlen(message) + \
+			strlen(":  " #operator " ") + \
+			(2 * INT_MAX_CHARS) + 1; \
+		char *_test_message = test_malloc(_test_length); \
+		if (_test_message == nullptr) return TEST_FAILURE("test: test_malloc failed"); \
+		snprintf(_test_message, _test_length, "%s: %d " #operator " %d", message, _test_lhs, _test_rhs); \
+		return TEST_FAILURE(_test_message); \
+	} \
+} while (false)
 
 #define test_eq(lhs, rhs, message) test_base(lhs, rhs, message, ==)
 #define test_ne(lhs, rhs, message) test_base(lhs, rhs, message, !=)

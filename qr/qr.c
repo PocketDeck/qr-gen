@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern void log_(const char *fmt, ...);
+extern void LOG(const char *fmt, ...);
 
 qr_code *
 qr_create(unsigned version, qr_mode mode, qr_ecl level)
@@ -56,39 +56,39 @@ void
 qr_encode_text(qr_code *qr, const char *text)
 {
 	// 1. enc
-	log_("Encoding text...............");
+	LOG("Encoding text...............");
 	qr_encode_data(qr, text);
-	log_("OK\n");
+	LOG("OK\n");
 
 	// 2. ecc
-	log_("Encoding error correction...");
+	LOG("Encoding error correction...");
 	qr_ec_encode(qr);
-	log_("OK\n");
+	LOG("OK\n");
 
 	// 3. block
-	log_("Interleaving codewords......");
+	LOG("Interleaving codewords......");
 	qr_interleave_codewords(qr);
-	log_("OK\n");
+	LOG("OK\n");
 
 	// 4. matrix
-	log_("Generating matrix...........");
+	LOG("Generating matrix...........");
 	qr_place_codewords(qr);
 	qr_finder_patterns_apply(qr);
 	qr_separators_apply(qr);
 	qr_timing_patterns_apply(qr);
 	qr_alignment_patterns_apply(qr);
-	log_("OK\n");
+	LOG("OK\n");
 
 	// 5. masking
-	log_("Masking.....................");
+	LOG("Masking.....................");
 	qr_mask_apply(qr);
-	log_("OK\n");
+	LOG("OK\n");
 
 	// 6. info
-	log_("Applying meta information...");
+	LOG("Applying meta information...");
 	qr_format_info_apply(qr);
 	qr_version_info_apply(qr);
-	log_("OK\n");
+	LOG("OK\n");
 }
 
 void
