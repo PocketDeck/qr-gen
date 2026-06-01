@@ -26,7 +26,7 @@ TEST(module_get_set)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			expected = (i + j) % 2 ? QR_MODULE_DARK : QR_MODULE_LIGHT;
+			expected = ((i + j) % 2) ? QR_MODULE_DARK : QR_MODULE_LIGHT;
 			qr_module_set(qr, i, j, expected);
 			actual = qr_module_get(qr, i, j);
 

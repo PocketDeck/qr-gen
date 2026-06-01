@@ -12,7 +12,7 @@ qr_min_version(qr_mode mode, qr_ecl level, size_t bytes)
 
 	for (i = 0; i < QR_VERSION_COUNT && bytes > CAPACITY[mode][level][i]; ++i);
 
-	return i == QR_VERSION_COUNT ? 0 : (unsigned) (i + 1);
+	return (i == QR_VERSION_COUNT) ? 0 : (unsigned) (i + 1);
 }
 
 constexpr unsigned INVALID_VALUE = 0x100;
@@ -104,8 +104,8 @@ qr_encode_data(qr_code *qr, const char *text)
 
 		// character count indicator
 		character_count_bits =
-			qr->version + 1 <=  9 ? 10 :
-			qr->version + 1 <= 26 ? 12 : 14;
+			(qr->version + 1) <=  9 ? 10 :
+			(qr->version + 1) <= 26 ? 12 : 14;
 		for (i = 0; i < character_count_bits; ++i)
 			append_bit(qr->codewords, &byte, &bit, (length >> (character_count_bits - 1 - i)) & 1);
 
@@ -144,8 +144,8 @@ qr_encode_data(qr_code *qr, const char *text)
 
 		// character count indicator
 		character_count_bits =
-			qr->version + 1 <=  9 ? 9 :
-			qr->version + 1 <= 26 ? 11 : 13;
+			(qr->version + 1) <=  9 ? 9 :
+			(qr->version + 1) <= 26 ? 11 : 13;
 		for (i = 0; i < character_count_bits; ++i)
 			append_bit(qr->codewords, &byte, &bit, (length >> (character_count_bits - 1 - i)) & 1);
 
@@ -174,7 +174,7 @@ qr_encode_data(qr_code *qr, const char *text)
 		append_bit(qr->codewords, &byte, &bit, 0);
 
 		// character count indicator
-		character_count_bits = qr->version + 1 <= 9 ? 8 : 16;
+		character_count_bits = (qr->version + 1 <= 9) ? 8 : 16;
 		for (i = 0; i < character_count_bits; ++i)
 			append_bit(qr->codewords, &byte, &bit, (length >> (character_count_bits - 1 - i)) & 1);
 
@@ -198,5 +198,5 @@ qr_encode_data(qr_code *qr, const char *text)
 	while (bit % 8)
 		append_bit(qr->codewords, &byte, &bit, 0);
 	for (i = 0; byte < TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version]; ++i)
-		append_byte(qr->codewords, &byte, &bit, i % 2 == 0 ? 0xEC : 0x11);
+		append_byte(qr->codewords, &byte, &bit, (i % 2 == 0) ? 0xEC : 0x11);
 }

@@ -103,7 +103,7 @@ TEST(mask_feature_1)
 	// Create checkerboard pattern as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
-			qr_module_set(qr, i, j, (i + j) % 2 ? QR_MODULE_LIGHT : QR_MODULE_DARK);
+			qr_module_set(qr, i, j, ((i + j) % 2) ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 
 	// Test 5 consecutive dark modules: penalty = 3 + (5-5) = 3
 	for (i = 0; i < 5; ++i) qr_module_set(qr, 10, i, QR_MODULE_DARK);
@@ -134,7 +134,7 @@ TEST(mask_feature_2)
 	// Create checkerboard pattern as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
-			qr_module_set(qr, i, j, (i + j) % 2 ? QR_MODULE_LIGHT : QR_MODULE_DARK);
+			qr_module_set(qr, i, j, ((i + j) % 2) ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 
 	// Test single 2x2 block: penalty = 3 * (2-1)*(2-1) = 3
 	qr_module_set(qr, 10, 10, QR_MODULE_DARK);
@@ -237,7 +237,7 @@ TEST(mask_patterns)
 		{
 			if (!qr_module_is_reserved(qr, i, j))
 			{
-				qr_module_set(qr, i, j, ((i * 3 + j * 5) % 7) < 4 ? QR_MODULE_DARK : QR_MODULE_LIGHT);
+				qr_module_set(qr, i, j, (((i * 3 + j * 5) % 7) < 4) ? QR_MODULE_DARK : QR_MODULE_LIGHT);
 			}
 			else
 			{
@@ -329,7 +329,7 @@ qr_init_from_pattern(qr_code *qr, const mask_penalty_test_case *test)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			qr_module_set(qr, i, j, *p == ' ' ? QR_MODULE_LIGHT : QR_MODULE_DARK);
+			qr_module_set(qr, i, j, (*p == ' ') ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 			++p;
 		}
 
