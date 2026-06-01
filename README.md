@@ -87,6 +87,7 @@ make -s test
 - `qr/` - Main source code
   - `ecc.[ch]` - Error correction coding
   - `enc.[ch]` - Data encoding
+  - `info.[ch]` - Format and version info
   - `mask.[ch]` - Mask pattern generation
   - `matrix.[ch]` - QR code matrix operations
   - `patterns.[ch]` - QR code patterns and alignment
