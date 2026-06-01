@@ -7,6 +7,7 @@
 qr_code *qr_create(unsigned version, qr_mode mode, qr_ecl level);
 void qr_destroy(qr_code *qr);
 void qr_encode_text(qr_code *qr, const char *text);
+void qr_pbm_print(qr_code *qr, FILE *stream);
 void qr_svg_print(qr_code *qr, FILE *stream);
 
 #endif // QR_QR_H

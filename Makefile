@@ -11,9 +11,6 @@ TOBJS := $(patsubst test/%.c, $(TEST_DIR)/%.o, $(TESTS))
 DEPS  := $(OBJS:.o=.d) $(TOBJS:.o=.d)
 
 CFLAGS := -Wall -Wextra -Wpedantic -Werror -I. -MMD -MP -O3 -flto=auto
-ifdef NDEBUG
-CFLAGS += -DNDEBUG
-endif
 TESTFLAGS := -Wl,--allow-multiple-definition
 
 all: $(TARGET_RELEASE) $(TARGET_TEST)
@@ -39,7 +36,7 @@ clean:
 	rm -rf $(BUILD_DIR) $(RELEASE_DIR) $(TEST_DIR)
 
 run: $(TARGET_RELEASE)
-	./$(TARGET_RELEASE) "$(TEXT)" "$(ECL)"
+	./$(TARGET_RELEASE) "$(TEXT)" "$(ECL)" "$(OUTFMT)"
 
 test: $(TARGET_TEST)
 	./$(TARGET_TEST)

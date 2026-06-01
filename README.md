@@ -10,6 +10,10 @@ A lightweight, C-based QR code generator that creates QR codes from text input w
 - Pure C implementation with no external dependencies
 - Simple command-line interface
 - Supports standard QR code versions only (no Micro QR support)
+- Supported output formats:
+    - PBM
+    - SVG
+    - terminal output
 
 ## Prerequisites
 
@@ -30,15 +34,10 @@ A lightweight, C-based QR code generator that creates QR codes from text input w
    ```
    This will create the `qr-gen` executable in the `build/release` directory.
 
-   For a release build without debug output:
-   ```bash
-   make build/release/qr-gen NDEBUG=1
-   ```
-
 ## Usage
 
 ```bash
-./build/release/qr-gen "Your text here" [error_correction]
+./build/release/qr-gen "Your text here" [error_correction [out_format]]
 ```
 
 ### Error Correction Levels
@@ -50,10 +49,14 @@ A lightweight, C-based QR code generator that creates QR codes from text input w
 
 ### Output Format
 
-The program outputs the QR code in SVG (Scalable Vector Graphics) format to standard output (stdout). You can redirect the output to a file:
+- `PBM` - Portable Bitmap
+- `SVG` - Scalable Vector Graphics
+- `TERM` - ANSI Codes for terminal output
+
+The program produces the QR code in the specified format to standard output (stdout). You can redirect the output to a file:
 
 ```bash
-./build/release/qr-gen "Your text here" > qrcode.svg
+./build/release/qr-gen "Your text here" M SVG > qrcode.svg
 ```
 
 ### Examples
@@ -70,7 +73,7 @@ Generate a QR code with high error correction:
 
 ## Running Tests
 
-The project includes unit tests to verify the functionality of core components. Testing requires a POSIX-complient system and the following tools:
+The project includes unit tests to verify the functionality of core components. Oracle testing requires a POSIX-complient system and the following tools:
 - `curl`
 - `imagemagick`
 - `awk`

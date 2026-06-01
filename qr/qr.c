@@ -92,17 +92,55 @@ qr_encode_text(qr_code *qr, const char *text)
 }
 
 void
+qr_pbm_print(qr_code *qr, FILE *stream)
+{
+	size_t i, j;
+	char *fmt_header = "P1\n%zu %zu\n";
+	size_t total_side_length = qr->side_length + 8;  // added quiet zone padding
+
+	fprintf(stream, fmt_header, total_side_length, total_side_length);
+
+	// quiet zone
+	for (i = 0; i < 4; ++i)
+	{
+		for (j = 0; j < total_side_length - 1; ++j)
+			fprintf(stream, "0 ");
+		fprintf(stream, "0\n");
+	}
+
+	for (i = 0; i < qr->side_length; ++i)
+	{
+		// quiet zone
+		fprintf(stream, "0 0 0 0 ");
+
+		for (j = 0; j < qr->side_length; ++j)
+			fprintf(stream, "%u ", (unsigned) qr_module_get(qr, i, j));
+
+		// quiet zone
+		fprintf(stream, "0 0 0 0\n");
+	}
+
+	// quiet zone
+	for (i = 0; i < 4; ++i)
+	{
+		for (j = 0; j < total_side_length - 1; ++j)
+			fprintf(stream, "0 ");
+		fprintf(stream, "0\n");
+	}
+}
+
+void
 qr_svg_print(qr_code *qr, FILE *stream)
 {
 	size_t i, j;
 	char *color;
-	char *fmt_str =
+	char *fmt_header =
 		"<svg xmlns=\"http://www.w3.org/2000/svg\" "
 		"width=\"%zu\" height=\"%zu\" viewBox=\"0 0 %zu %zu\" "
 		"shape-rendering=\"crispEdges\">\n";
 	size_t total_side_length = qr->side_length + 8;  // added quiet zone padding
 
-	fprintf(stream, fmt_str, total_side_length, total_side_length, total_side_length, total_side_length);
+	fprintf(stream, fmt_header, total_side_length, total_side_length, total_side_length, total_side_length);
 	fprintf(stream, "<rect width=\"%zu\" height=\"%zu\" fill=\"white\"/>\n", total_side_length, total_side_length);
 
 	for (i = 0; i < qr->side_length; ++i)
