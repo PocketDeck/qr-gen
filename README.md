@@ -1,26 +1,26 @@
 # QR Code Generator
 
-A lightweight, C-based QR code generator that creates QR codes from text input with support for different error correction levels.
+A lightweight QR code generator for text input.
 
 ## Features
 
 - Generate QR codes from text input
 - Numeric, Alphanumer, Byte mode encoding
 - Support for multiple error correction levels (L, M, Q, H)
-- Pure C implementation with no external dependencies
-- Simple command-line interface
-- Supports standard QR code versions only (no Micro QR support)
 - Supported output formats:
     - PBM
     - SVG
     - terminal output
+- Simple command-line interface
+- Pure C implementation with no external dependencies
+- Supports standard QR code versions only (no Micro QR support)
 
 ## Prerequisites
 
 - C compiler (GCC or Clang)
 - Make
 
-## Building the Project
+## Quickstart
 
 1. Clone the repository:
    ```bash
@@ -28,7 +28,7 @@ A lightweight, C-based QR code generator that creates QR codes from text input w
    cd qr-gen
    ```
 
-2. Build the project:
+2. Build the executable:
    ```bash
    make build/release/qr-gen
    ```
@@ -66,9 +66,9 @@ Generate a QR code with default error correction (M):
 ./build/release/qr-gen "Hello, World!"
 ```
 
-Generate a QR code with high error correction:
+Generate a QR code with high error correction (using the `run` rule):
 ```bash
-./build/release/qr-gen "Important Data" H
+make run TEXT="Important Data" ECL=H OUTFMT=PBM
 ```
 
 ## Running Tests
@@ -87,15 +87,18 @@ make -s test
 
 ## Project Structure
 
-- `qr/` - Main source code
-  - `ecc.[ch]` - Error correction coding
-  - `enc.[ch]` - Data encoding
-  - `info.[ch]` - Format and version info
-  - `mask.[ch]` - Mask pattern generation
-  - `matrix.[ch]` - QR code matrix operations
-  - `patterns.[ch]` - QR code patterns and alignment
-  - `qr.[ch]` - Main QR code functionality
-  - `types.h` - Common type definitions
-  - `tables.h` - Lookup table definitions
-  - `main.c` - Command-line interface
-- `test/` - Unit tests
+```
+qr/              - Main source code
+├─ ecc.[ch]      - Error correction coding
+├─ enc.[ch]      - Data encoding
+├─ info.[ch]     - Format and version info
+├─ mask.[ch]     - Mask pattern generation
+├─ matrix.[ch]   - QR code matrix operations
+├─ patterns.[ch] - QR code patterns and alignment
+├─ qr.[ch]       - Main QR code functionality
+├─ types.h       - Common type definitions
+├─ tables.h      - Lookup table definitions
+└─ main.c        - Command-line interface
+
+test/            - Unit tests
+```
