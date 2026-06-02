@@ -29,9 +29,9 @@ qr_init_random(qr_code *qr, unsigned seed)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			if (!qr_module_is_reserved(qr, i, j))
+			if (!qr_matrix_is_reserved(qr, i, j))
 			{
-				qr_module_set(qr, i, j, rand() & 1);
+				qr_matrix_set(qr, i, j, rand() & 1);
 			}
 		}
 	}
@@ -103,16 +103,16 @@ TEST(mask_feature_1)
 	// Create checkerboard pattern as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
-			qr_module_set(qr, i, j, ((i + j) % 2) ? QR_MODULE_LIGHT : QR_MODULE_DARK);
+			qr_matrix_set(qr, i, j, ((i + j) % 2) ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 
 	// Test 5 consecutive dark modules: penalty = 3 + (5-5) = 3
-	for (i = 0; i < 5; ++i) qr_module_set(qr, 10, i, QR_MODULE_DARK);
+	for (i = 0; i < 5; ++i) qr_matrix_set(qr, 10, i, QR_MODULE_DARK);
 	score = feature_1_evaluation(qr);
 	test_eq(score, 3, "Feature 1 penalty incorrect");
 
 	// Test 7 consecutive dark modules: penalty = 3 + (7-5) = 5
-	qr_module_set(qr, 10, 5, QR_MODULE_DARK);
-	qr_module_set(qr, 10, 6, QR_MODULE_DARK);
+	qr_matrix_set(qr, 10, 5, QR_MODULE_DARK);
+	qr_matrix_set(qr, 10, 6, QR_MODULE_DARK);
 	score = feature_1_evaluation(qr);
 	test_eq(score, 5, "Feature 1 penalty incorrect");
 
@@ -134,19 +134,19 @@ TEST(mask_feature_2)
 	// Create checkerboard pattern as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
-			qr_module_set(qr, i, j, ((i + j) % 2) ? QR_MODULE_LIGHT : QR_MODULE_DARK);
+			qr_matrix_set(qr, i, j, ((i + j) % 2) ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 
 	// Test single 2x2 block: penalty = 3 * (2-1)*(2-1) = 3
-	qr_module_set(qr, 10, 10, QR_MODULE_DARK);
-	qr_module_set(qr, 10, 11, QR_MODULE_DARK);
-	qr_module_set(qr, 11, 10, QR_MODULE_DARK);
-	qr_module_set(qr, 11, 11, QR_MODULE_DARK);
+	qr_matrix_set(qr, 10, 10, QR_MODULE_DARK);
+	qr_matrix_set(qr, 10, 11, QR_MODULE_DARK);
+	qr_matrix_set(qr, 11, 10, QR_MODULE_DARK);
+	qr_matrix_set(qr, 11, 11, QR_MODULE_DARK);
 	score = feature_2_evaluation(qr);
 	test_eq(score, 3, "Feature 2 penalty incorrect");
 
 	// Test overlapping 2x2 blocks (2x3 area): penalty = 3 * (2-1)*(3-1) = 6
-	qr_module_set(qr, 10, 12, QR_MODULE_DARK);
-	qr_module_set(qr, 11, 12, QR_MODULE_DARK);
+	qr_matrix_set(qr, 10, 12, QR_MODULE_DARK);
+	qr_matrix_set(qr, 11, 12, QR_MODULE_DARK);
 	score = feature_2_evaluation(qr);
 	test_eq(score, 6, "Feature 2 penalty incorrect");
 
@@ -178,10 +178,10 @@ TEST(mask_feature_3)
 	// Create all-white matrix as baseline
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
-			qr_module_set(qr, i, j, QR_MODULE_LIGHT);
+			qr_matrix_set(qr, i, j, QR_MODULE_LIGHT);
 
 	// Create finder pattern 1:1:3:1:1 (dark:light:dark:dark:dark:light:dark)
-	for (j = 4; j < 11; ++j) qr_module_set(qr, 10, j, pattern[j - 4] ? QR_MODULE_DARK : QR_MODULE_LIGHT);
+	for (j = 4; j < 11; ++j) qr_matrix_set(qr, 10, j, pattern[j - 4] ? QR_MODULE_DARK : QR_MODULE_LIGHT);
 	score = feature_3_evaluation(qr);
 	test_eq(score, 40, "Feature 3 penalty incorrect");
 
@@ -206,9 +206,9 @@ TEST(mask_feature_4)
 		for (j = 0; j < qr->side_length; ++j)
 		{
 			if (i * qr->side_length + j < 245)
-				qr_module_set(qr, i, j, QR_MODULE_DARK);
+				qr_matrix_set(qr, i, j, QR_MODULE_DARK);
 			else
-				qr_module_set(qr, i, j, QR_MODULE_LIGHT);
+				qr_matrix_set(qr, i, j, QR_MODULE_LIGHT);
 		}
 	}
 	// Dark ratio 55.5%: penalty = 10 * floor(|55.5-50|/5) = 10
@@ -235,13 +235,13 @@ TEST(mask_patterns)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			if (!qr_module_is_reserved(qr, i, j))
+			if (!qr_matrix_is_reserved(qr, i, j))
 			{
-				qr_module_set(qr, i, j, (((i * 3 + j * 5) % 7) < 4) ? QR_MODULE_DARK : QR_MODULE_LIGHT);
+				qr_matrix_set(qr, i, j, (((i * 3 + j * 5) % 7) < 4) ? QR_MODULE_DARK : QR_MODULE_LIGHT);
 			}
 			else
 			{
-				qr_module_set(qr, i, j, QR_MODULE_LIGHT);
+				qr_matrix_set(qr, i, j, QR_MODULE_LIGHT);
 			}
 		}
 	}
@@ -251,7 +251,7 @@ TEST(mask_patterns)
 	if (!original) return TEST_FAILURE("Matrix allocation failed");
 	for (i = 0; i < qr->side_length; ++i)
 		for (j = 0; j < qr->side_length; ++j)
-			original[i * qr->side_length + j] = qr_module_get(qr, i, j);
+			original[i * qr->side_length + j] = qr_matrix_get(qr, i, j);
 
 	// Test each mask pattern's toggle behavior
 	for (pattern = 0; pattern < QR_MASK_PATTERN_COUNT; ++pattern)
@@ -266,9 +266,9 @@ TEST(mask_patterns)
 				bool should_toggle = 0;
 				qr_module expected;
 
-				if (qr_module_is_reserved(qr, i, j))
+				if (qr_matrix_is_reserved(qr, i, j))
 				{
-					test_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
+					test_eq(qr_matrix_get(qr, i, j), original[i * qr->side_length + j],
 						"Reserved module modified");
 					continue;
 				}
@@ -286,7 +286,7 @@ TEST(mask_patterns)
 				}
 
 				expected = original[i * qr->side_length + j] ^ should_toggle;
-				test_eq(qr_module_get(qr, i, j), expected,
+				test_eq(qr_matrix_get(qr, i, j), expected,
 					"Mask pattern toggle incorrect");
 			}
 		}
@@ -298,7 +298,7 @@ TEST(mask_patterns)
 		{
 			for (j = 0; j < qr->side_length; ++j)
 			{
-				test_eq(qr_module_get(qr, i, j), original[i * qr->side_length + j],
+				test_eq(qr_matrix_get(qr, i, j), original[i * qr->side_length + j],
 					"Double mask application failed");
 			}
 		}
@@ -329,7 +329,7 @@ qr_init_from_pattern(qr_code *qr, const mask_penalty_test_case *test)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			qr_module_set(qr, i, j, (*p == ' ') ? QR_MODULE_LIGHT : QR_MODULE_DARK);
+			qr_matrix_set(qr, i, j, (*p == ' ') ? QR_MODULE_LIGHT : QR_MODULE_DARK);
 			++p;
 		}
 
@@ -514,13 +514,13 @@ TEST(mask_evaluation)
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
-			qr_module_set(qr, i, j, QR_MODULE_LIGHT);
+			qr_matrix_set(qr, i, j, QR_MODULE_LIGHT);
 	}
 
 	// Add 6 consecutive dark modules to test feature 1
 	for (i = 0; i < 6; ++i)
 	{
-		qr_module_set(qr, 5, 5 + i, QR_MODULE_DARK);
+		qr_matrix_set(qr, 5, 5 + i, QR_MODULE_DARK);
 	}
 
 	score = qr_mask_evaluate(qr);
@@ -531,14 +531,14 @@ TEST(mask_evaluation)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			qr_module_set(qr, i, j, QR_MODULE_LIGHT);
+			qr_matrix_set(qr, i, j, QR_MODULE_LIGHT);
 		}
 	}
 
-	qr_module_set(qr, 5, 5, QR_MODULE_DARK);
-	qr_module_set(qr, 5, 6, QR_MODULE_DARK);
-	qr_module_set(qr, 6, 5, QR_MODULE_DARK);
-	qr_module_set(qr, 6, 6, QR_MODULE_DARK);
+	qr_matrix_set(qr, 5, 5, QR_MODULE_DARK);
+	qr_matrix_set(qr, 5, 6, QR_MODULE_DARK);
+	qr_matrix_set(qr, 6, 5, QR_MODULE_DARK);
+	qr_matrix_set(qr, 6, 6, QR_MODULE_DARK);
 
 	score = qr_mask_evaluate(qr);
 	test_gt(score, 0, "2x2 block not detected");

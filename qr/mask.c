@@ -36,16 +36,16 @@ feature_1_evaluation(const qr_code *qr)
 		run_row = run_column = 0;
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			if (qr_module_get(qr, i, j) != color_row)
+			if (qr_matrix_get(qr, i, j) != color_row)
 			{
-				color_row = qr_module_get(qr, i, j);
+				color_row = qr_matrix_get(qr, i, j);
 				if (run_row >= 5)
 					points += N[0] + run_row - 5;
 				run_row = 0;
 			}
-			if (qr_module_get(qr, j, i) != color_column)
+			if (qr_matrix_get(qr, j, i) != color_column)
 			{
-				color_column = qr_module_get(qr, j, i);
+				color_column = qr_matrix_get(qr, j, i);
 				if (run_column >= 5)
 					points += N[0] + run_column - 5;
 				run_column = 0;
@@ -76,10 +76,10 @@ feature_2_evaluation(const qr_code *qr)
 	{
 		for (j = 0; j < qr->side_length - 1; ++j)
 		{
-			m[0] = qr_module_get(qr, i, j);
-			m[1] = qr_module_get(qr, i, j + 1);
-			m[2] = qr_module_get(qr, i + 1, j);
-			m[3] = qr_module_get(qr, i + 1, j + 1);
+			m[0] = qr_matrix_get(qr, i, j);
+			m[1] = qr_matrix_get(qr, i, j + 1);
+			m[2] = qr_matrix_get(qr, i + 1, j);
+			m[3] = qr_matrix_get(qr, i + 1, j + 1);
 
 			if (m[0] == m[1] && m[1] == m[2] && m[2] == m[3])
 				points += N[1];
@@ -104,47 +104,47 @@ feature_3_evaluation(const qr_code *qr)
 		for (j = 0; j < qr->side_length - 6; ++j)
 		{
 			pattern_row =
-				qr_module_get(qr, i, j + 0) == QR_MODULE_DARK &&
-				qr_module_get(qr, i, j + 1) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j + 2) == QR_MODULE_DARK &&
-				qr_module_get(qr, i, j + 3) == QR_MODULE_DARK &&
-				qr_module_get(qr, i, j + 4) == QR_MODULE_DARK &&
-				qr_module_get(qr, i, j + 5) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j + 6) == QR_MODULE_DARK;
+				qr_matrix_get(qr, i, j + 0) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, i, j + 1) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j + 2) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, i, j + 3) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, i, j + 4) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, i, j + 5) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j + 6) == QR_MODULE_DARK;
 
 			preceded_row = j >= 4 &&
-				qr_module_get(qr, i, j - 1) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j - 2) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j - 3) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j - 4) == QR_MODULE_LIGHT;
+				qr_matrix_get(qr, i, j - 1) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j - 2) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j - 3) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j - 4) == QR_MODULE_LIGHT;
 
 			followed_row = j < qr->side_length - 10 &&
-				qr_module_get(qr, i, j + 7) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j + 8) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j + 9) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, i, j + 10) == QR_MODULE_LIGHT;
+				qr_matrix_get(qr, i, j + 7) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j + 8) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j + 9) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, i, j + 10) == QR_MODULE_LIGHT;
 
 
 			pattern_column =
-				qr_module_get(qr, j + 0, i) == QR_MODULE_DARK &&
-				qr_module_get(qr, j + 1, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j + 2, i) == QR_MODULE_DARK &&
-				qr_module_get(qr, j + 3, i) == QR_MODULE_DARK &&
-				qr_module_get(qr, j + 4, i) == QR_MODULE_DARK &&
-				qr_module_get(qr, j + 5, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j + 6, i) == QR_MODULE_DARK;
+				qr_matrix_get(qr, j + 0, i) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, j + 1, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j + 2, i) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, j + 3, i) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, j + 4, i) == QR_MODULE_DARK &&
+				qr_matrix_get(qr, j + 5, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j + 6, i) == QR_MODULE_DARK;
 
 			preceded_column = j >= 4 &&
-				qr_module_get(qr, j - 1, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j - 2, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j - 3, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j - 4, i) == QR_MODULE_LIGHT;
+				qr_matrix_get(qr, j - 1, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j - 2, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j - 3, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j - 4, i) == QR_MODULE_LIGHT;
 
 			followed_column = j < qr->side_length - 10 &&
-				qr_module_get(qr, j + 7, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j + 8, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j + 9, i) == QR_MODULE_LIGHT &&
-				qr_module_get(qr, j + 10, i) == QR_MODULE_LIGHT;
+				qr_matrix_get(qr, j + 7, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j + 8, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j + 9, i) == QR_MODULE_LIGHT &&
+				qr_matrix_get(qr, j + 10, i) == QR_MODULE_LIGHT;
 
 			if ((pattern_row && (preceded_row || followed_row)))
 				points += N[2];
@@ -167,7 +167,7 @@ feature_4_evaluation(const qr_code *qr)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			if (qr_module_get(qr, i, j) == QR_MODULE_DARK)
+			if (qr_matrix_get(qr, i, j) == QR_MODULE_DARK)
 				++dark_modules;
 		}
 	}
@@ -199,9 +199,9 @@ qr_mask_apply_pattern(qr_code *qr, unsigned mask_pattern)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			if (qr_module_is_reserved(qr, i, j) || !MASK_PREDICATES[mask_pattern](i, j)) continue;
+			if (qr_matrix_is_reserved(qr, i, j) || !MASK_PREDICATES[mask_pattern](i, j)) continue;
 
-			qr_module_set(qr, i, j, qr_module_get(qr, i, j) ^ 1);
+			qr_matrix_set(qr, i, j, qr_matrix_get(qr, i, j) ^ 1);
 		}
 	}
 }

@@ -11,15 +11,15 @@ add_finder_pattern_at(qr_code *qr, size_t i, size_t j)
 
 	for (di = 0; di < 7; ++di)
 		for (dj = 0; dj < 7; ++dj)
-			qr_module_set(qr, i + di, j + dj, QR_MODULE_DARK);
+			qr_matrix_set(qr, i + di, j + dj, QR_MODULE_DARK);
 
 	for (di = 1; di < 6; ++di)
 		for (dj = 1; dj < 6; ++dj)
-			qr_module_set(qr, i + di, j + dj, QR_MODULE_LIGHT);
+			qr_matrix_set(qr, i + di, j + dj, QR_MODULE_LIGHT);
 
 	for (di = 2; di < 5; ++di)
 		for (dj = 2; dj < 5; ++dj)
-			qr_module_set(qr, i + di, j + dj, QR_MODULE_DARK);
+			qr_matrix_set(qr, i + di, j + dj, QR_MODULE_DARK);
 }
 
 void
@@ -38,16 +38,16 @@ qr_separators_apply(qr_code *qr)
 	for (i = 0; i < 8; ++i)
 	{
 		// upper left
-		qr_module_set(qr, i, 7, QR_MODULE_LIGHT);
-		qr_module_set(qr, 7, i, QR_MODULE_LIGHT);
+		qr_matrix_set(qr, i, 7, QR_MODULE_LIGHT);
+		qr_matrix_set(qr, 7, i, QR_MODULE_LIGHT);
 
 		// upper right
-		qr_module_set(qr, i, qr->side_length - 8, QR_MODULE_LIGHT);
-		qr_module_set(qr, 7, qr->side_length - 8 + i, QR_MODULE_LIGHT);
+		qr_matrix_set(qr, i, qr->side_length - 8, QR_MODULE_LIGHT);
+		qr_matrix_set(qr, 7, qr->side_length - 8 + i, QR_MODULE_LIGHT);
 
 		// lower left
-		qr_module_set(qr, qr->side_length - 8 + i, 7, QR_MODULE_LIGHT);
-		qr_module_set(qr, qr->side_length - 8, i, QR_MODULE_LIGHT);
+		qr_matrix_set(qr, qr->side_length - 8 + i, 7, QR_MODULE_LIGHT);
+		qr_matrix_set(qr, qr->side_length - 8, i, QR_MODULE_LIGHT);
 	}
 }
 
@@ -58,8 +58,8 @@ qr_timing_patterns_apply(qr_code *qr)
 
 	for (i = 8; i < qr->side_length - 8; ++i)
 	{
-		qr_module_set(qr, i, 6, (i % 2) ^ 1);
-		qr_module_set(qr, 6, i, (i % 2) ^ 1);
+		qr_matrix_set(qr, i, 6, (i % 2) ^ 1);
+		qr_matrix_set(qr, 6, i, (i % 2) ^ 1);
 	}
 }
 
@@ -70,13 +70,13 @@ add_alignment_pattern_at(qr_code *qr, size_t i, size_t j)
 
 	for (di = 0; di < 5; ++di)
 		for (dj = 0; dj < 5; ++dj)
-			qr_module_set(qr, i + di, j + dj, QR_MODULE_DARK);
+			qr_matrix_set(qr, i + di, j + dj, QR_MODULE_DARK);
 
 	for (di = 1; di < 4; ++di)
 		for (dj = 1; dj < 4; ++dj)
-			qr_module_set(qr, i + di, j + dj, QR_MODULE_LIGHT);
+			qr_matrix_set(qr, i + di, j + dj, QR_MODULE_LIGHT);
 
-	qr_module_set(qr, i + 2, j + 2, QR_MODULE_DARK);
+	qr_matrix_set(qr, i + 2, j + 2, QR_MODULE_DARK);
 }
 
 void

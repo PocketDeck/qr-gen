@@ -1,5 +1,4 @@
 #include <qr/enc.h>
-#include <qr/matrix.h>
 #include <qr/qr.h>
 #include <qr/types.h>
 #include <stdarg.h>
@@ -96,9 +95,9 @@ main(int argc, char **argv)
 
 	switch (format)
 	{
-	case FMT_PBM:  qr_pbm_print(qr, stdout); break;
-	case FMT_SVG:  qr_svg_print(qr, stdout); break;
-	case FMT_TERM: qr_matrix_print(qr, stdout); break;
+	case FMT_PBM:  qr_print_pbm(qr, stdout); break;
+	case FMT_SVG:  qr_print_svg(qr, stdout); break;
+	case FMT_TERM: qr_print_matrix(qr, stdout); break;
 	}
 
 	qr_destroy(qr);

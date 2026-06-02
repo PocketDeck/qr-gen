@@ -7,55 +7,19 @@
 #include <stdio.h>
 
 qr_module
-qr_module_get(const qr_code *qr, size_t i, size_t j)
+qr_matrix_get(const qr_code *qr, size_t i, size_t j)
 {
 	return qr->matrix[i * qr->side_length + j] ? QR_MODULE_DARK : QR_MODULE_LIGHT;
 }
 
 void
-qr_module_set(qr_code *qr, size_t i, size_t j, qr_module value)
+qr_matrix_set(qr_code *qr, size_t i, size_t j, qr_module value)
 {
 	qr->matrix[i * qr->side_length + j] = value;
 }
 
-void
-qr_matrix_print(const qr_code *qr, FILE *stream)
-{
-	size_t i, j;
-
-	// quiet zone
-	for (i = 0; i < 4; ++i)
-	{
-		for (j = 0; j < qr->side_length + 8; ++j)
-			fprintf(stream, "\x1b[7m  \x1b[27m");
-		fprintf(stream, "\n");
-	}
-
-	for (i = 0; i < qr->side_length; ++i)
-	{
-		// quiet zone
-		fprintf(stream, "\x1b[7m        \x1b[27m");
-
-		for (j = 0; j < qr->side_length; ++j)
-			fprintf(stream, "%s", qr_module_get(qr, i, j) ? "  " : "\x1b[7m  \x1b[27m");
-
-		// quiet zone
-		fprintf(stream, "\x1b[7m        \x1b[27m");
-
-		fprintf(stream, "\n");
-	}
-
-	// quiet zone
-	for (i = 0; i < 4; ++i)
-	{
-		for (j = 0; j < qr->side_length + 8; ++j)
-			fprintf(stream, "\x1b[7m  \x1b[27m");
-		fprintf(stream, "\n");
-	}
-}
-
 bool
-qr_module_is_reserved(const qr_code *qr, size_t i, size_t j)
+qr_matrix_is_reserved(const qr_code *qr, size_t i, size_t j)
 {
 	// finder pattern (7) + separator (1)
 	bool in_finder_upper_left = i < 8 && j < 8;
@@ -85,9 +49,9 @@ place_bit(qr_code *qr, size_t *i, size_t *j, bool *left, bool *up, qr_module val
 
 	while (!exit)
 	{
-		if (!qr_module_is_reserved(qr, *i, *j))
+		if (!qr_matrix_is_reserved(qr, *i, *j))
 		{
-			qr_module_set(qr, *i, *j, value);
+			qr_matrix_set(qr, *i, *j, value);
 			exit = true;
 		}
 
@@ -117,7 +81,7 @@ place_bit(qr_code *qr, size_t *i, size_t *j, bool *left, bool *up, qr_module val
 }
 
 void
-qr_place_codewords(qr_code *qr)
+qr_matrix_place_codewords(qr_code *qr)
 {
 	size_t word, bit;
 	size_t i, j;

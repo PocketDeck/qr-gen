@@ -5,10 +5,9 @@
 #include <stddef.h>
 #include <stdio.h>
 
-qr_module qr_module_get(const qr_code *qr, size_t i, size_t j);
-void qr_module_set(qr_code *qr, size_t i, size_t j, qr_module value);
-bool qr_module_is_reserved(const qr_code *qr, size_t i, size_t j);
-void qr_place_codewords(qr_code *qr);
-void qr_matrix_print(const qr_code *qr, FILE *stream);
+qr_module qr_matrix_get(const qr_code *qr, size_t i, size_t j);
+void qr_matrix_set(qr_code *qr, size_t i, size_t j, qr_module value);
+bool qr_matrix_is_reserved(const qr_code *qr, size_t i, size_t j);
+void qr_matrix_place_codewords(qr_code *qr);
 
 #endif // QR_MATRIX_H

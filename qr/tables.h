@@ -2,6 +2,7 @@
 #define QR_TABLES_H
 
 #include <qr/types.h>
+#include <stddef.h>
 
 constexpr size_t MAX_ALIGNMENT_ENTRIES = 7;
 constexpr size_t E = 2;

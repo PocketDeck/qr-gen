@@ -72,7 +72,7 @@ qr_encode_text(qr_code *qr, const char *text)
 
 	// 4. matrix
 	LOG("Generating matrix...........");
-	qr_place_codewords(qr);
+	qr_matrix_place_codewords(qr);
 	qr_finder_patterns_apply(qr);
 	qr_separators_apply(qr);
 	qr_timing_patterns_apply(qr);
@@ -92,7 +92,41 @@ qr_encode_text(qr_code *qr, const char *text)
 }
 
 void
-qr_pbm_print(qr_code *qr, FILE *stream)
+qr_print_matrix(const qr_code *qr, FILE *stream)
+{
+	size_t i, j;
+
+	// quiet zone
+	for (i = 0; i < 4; ++i)
+	{
+		for (j = 0; j < qr->side_length + 8; ++j)
+			fprintf(stream, "\x1b[7m  \x1b[27m");
+		fprintf(stream, "\n");
+	}
+
+	for (i = 0; i < qr->side_length; ++i)
+	{
+		// quiet zone
+		fprintf(stream, "\x1b[7m        \x1b[27m");
+
+		for (j = 0; j < qr->side_length; ++j)
+			fprintf(stream, "%s", qr_matrix_get(qr, i, j) ? "  " : "\x1b[7m  \x1b[27m");
+
+		// quiet zone
+		fprintf(stream, "\x1b[7m        \x1b[27m\n");
+	}
+
+	// quiet zone
+	for (i = 0; i < 4; ++i)
+	{
+		for (j = 0; j < qr->side_length + 8; ++j)
+			fprintf(stream, "\x1b[7m  \x1b[27m");
+		fprintf(stream, "\n");
+	}
+}
+
+void
+qr_print_pbm(const qr_code *qr, FILE *stream)
 {
 	size_t i, j;
 	char *fmt_header = "P1\n%zu %zu\n";
@@ -114,7 +148,7 @@ qr_pbm_print(qr_code *qr, FILE *stream)
 		fprintf(stream, "0 0 0 0 ");
 
 		for (j = 0; j < qr->side_length; ++j)
-			fprintf(stream, "%u ", (unsigned) qr_module_get(qr, i, j));
+			fprintf(stream, "%u ", (unsigned) qr_matrix_get(qr, i, j));
 
 		// quiet zone
 		fprintf(stream, "0 0 0 0\n");
@@ -130,7 +164,7 @@ qr_pbm_print(qr_code *qr, FILE *stream)
 }
 
 void
-qr_svg_print(qr_code *qr, FILE *stream)
+qr_print_svg(const qr_code *qr, FILE *stream)
 {
 	size_t i, j;
 	char *color;
@@ -147,7 +181,7 @@ qr_svg_print(qr_code *qr, FILE *stream)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-			color = qr_module_get(qr, i, j) ? "black" : "white";
+			color = qr_matrix_get(qr, i, j) ? "black" : "white";
 			fprintf(stream, "<rect x=\"%zu\" y=\"%zu\" width=\"1\" height=\"1\" fill=\"%s\"/>\n", j + 4, i + 4, color);
 		}
 	}

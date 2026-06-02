@@ -170,7 +170,7 @@ init_qr_from_bits(qr_code *qr, const char *bits)
 		for (j = 0; j < qr->side_length; ++j)
 		{
             mod = (bits[i * qr->side_length + j] == '1') ? QR_MODULE_DARK : QR_MODULE_LIGHT;
-			qr_module_set(qr, i, j, mod);
+			qr_matrix_set(qr, i, j, mod);
 		}
 	}
 }
@@ -198,7 +198,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 	{
 		/* qr1: left quiet zone */
 		p += sprintf(p, "\x1b[7m        \x1b[27m");
-		for (j = 0; j < qr1->side_length; ++j) p += sprintf(p, "%s", qr_module_get(qr1, i, j) ? "  " : "\x1b[7m  \x1b[27m");
+		for (j = 0; j < qr1->side_length; ++j) p += sprintf(p, "%s", qr_matrix_get(qr1, i, j) ? "  " : "\x1b[7m  \x1b[27m");
 		/* qr1: right quiet zone */
 		p += sprintf(p, "\x1b[7m        \x1b[27m");
 
@@ -206,7 +206,7 @@ qr_side_by_side_to_str(const qr_code *qr1, const qr_code *qr2, char *buf)
 
 		/* qr2: left quiet zone */
 		p += sprintf(p, "\x1b[7m        \x1b[27m");
-		for (j = 0; j < qr2->side_length; ++j) p += sprintf(p, "%s", qr_module_get(qr2, i, j) ? "  " : "\x1b[7m  \x1b[27m");
+		for (j = 0; j < qr2->side_length; ++j) p += sprintf(p, "%s", qr_matrix_get(qr2, i, j) ? "  " : "\x1b[7m  \x1b[27m");
 		/* qr2: right quiet zone */
 		p += sprintf(p, "\x1b[7m        \x1b[27m");
 
@@ -290,7 +290,7 @@ compare_with_oracle(const char *text, qr_ecl level)
 	{
 		for (j = 0; j < our_qr->side_length; ++j)
 		{
-			if (qr_module_get(our_qr, i, j) != qr_module_get(oracle_qr, i, j))
+			if (qr_matrix_get(our_qr, i, j) != qr_matrix_get(oracle_qr, i, j))
 				return TEST_FAILURE(msg);
 		}
 	}
