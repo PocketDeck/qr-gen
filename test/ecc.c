@@ -107,7 +107,7 @@ TEST(ecc_generation)
 /**
  * @brief Test single block ECC encoding
  */
-TEST(qr_ec_encode_version1_l)
+TEST(qr_ecc_encode_version1_l)
 {
 	size_t i;
 	const size_t data_count = TOTAL_DATA_CODEWORD_COUNT[QR_EC_LEVEL_L][0];
@@ -125,7 +125,7 @@ TEST(qr_ec_encode_version1_l)
 	qr_word expected_ecc[7] = { 79, 91, 164, 37, 5, 243, 57 };
 
 	// Generate ECC and append to data codewords
-	qr_ec_encode(qr);
+	qr_ecc_encode(qr);
 
 	for (i = 0; i < ecc_length; ++i)
 	{
@@ -140,7 +140,7 @@ TEST(qr_ec_encode_version1_l)
 /**
  * @brief Test multi-block ECC encoding
  */
-TEST(qr_ec_encode_version9_m)
+TEST(qr_ecc_encode_version9_m)
 {
 	size_t i;
 	const size_t data_count = TOTAL_DATA_CODEWORD_COUNT[QR_EC_LEVEL_M][8];
@@ -170,7 +170,7 @@ TEST(qr_ec_encode_version9_m)
 	};
 
 	// Generate ECC for multi-block QR code (version 9-M)
-	qr_ec_encode(qr);
+	qr_ecc_encode(qr);
 
 	for (i = 0; i < ecc_length; ++i)
 	{
@@ -196,7 +196,7 @@ TEST(codeword_interleaving_version1_h)
 		qr->codewords[i] = (qr_word) (i + 1);
 
 	// Single block: interleaving should not change order
-	qr_interleave_codewords(qr);
+	qr_ecc_interleave(qr);
 
 	for (size_t i = 0; i < qr->codeword_count; ++i)
 	{
@@ -224,7 +224,7 @@ TEST(codeword_interleaving_version8_m)
 		qr->codewords[i] = (qr_word) (i + 1);
 
 	// Interleave codewords: take first from each block, then second, etc.
-	qr_interleave_codewords(qr);
+	qr_ecc_interleave(qr);
 
 	// Test first few interleaved data codewords
 	test_eq(qr->codewords[0], 1, "Data codeword incorrect");

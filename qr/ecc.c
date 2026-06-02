@@ -85,7 +85,7 @@ ecc_generate(const qr_word *data, size_t data_length, qr_word *ecc, size_t ecc_l
 }
 
 void
-qr_ec_encode(qr_code *qr)
+qr_ecc_encode(qr_code *qr)
 {
 	gf_init_log_antilog();
 
@@ -145,7 +145,7 @@ interleave_words(const size_t codeword_count[BLOCK_TYPES_PER_VERSION], const siz
 }
 
 void
-qr_interleave_codewords(qr_code *qr)
+qr_ecc_interleave(qr_code *qr)
 {
 	const size_t *data_codeword_count = DATA_CODEWORD_COUNT[qr->level][qr->version];
 	const size_t *block_count = BLOCK_COUNT[qr->level][qr->version];

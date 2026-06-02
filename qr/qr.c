@@ -62,12 +62,12 @@ qr_encode_text(qr_code *qr, const char *text)
 
 	// 2. ecc
 	LOG("Encoding error correction...");
-	qr_ec_encode(qr);
+	qr_ecc_encode(qr);
 	LOG("OK\n");
 
 	// 3. block
 	LOG("Interleaving codewords......");
-	qr_interleave_codewords(qr);
+	qr_ecc_interleave(qr);
 	LOG("OK\n");
 
 	// 4. matrix
