@@ -53,7 +53,7 @@ qr_destroy(qr_code *qr)
 }
 
 void
-qr_encode_text(qr_code *qr, const char *text)
+qr_build(qr_code *qr, const char *text)
 {
 	// 1. enc
 	LOG("Encoding text...............");

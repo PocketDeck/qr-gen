@@ -90,7 +90,7 @@ main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	qr_encode_text(qr, input);
+	qr_build(qr, input);
 	LOG("\n");
 
 	switch (format)

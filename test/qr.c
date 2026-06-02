@@ -21,7 +21,7 @@ create_and_encode(unsigned version, qr_ecl level, qr_mode mode)
 	qr_code *qr = qr_create(version, mode, level);
 	if (!qr) return TEST_FAILURE("Failed to create QR code");
 
-	qr_encode_text(qr, test_text);
+	qr_build(qr, test_text);
 	qr_destroy(qr);
 
 	return TEST_SUCCESS;

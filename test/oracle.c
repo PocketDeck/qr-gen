@@ -271,7 +271,7 @@ compare_with_oracle(const char *text, qr_ecl level)
 	our_qr = qr_create(version, mode, level);
 	if (!our_qr) return TEST_FAILURE("Failed to create QR code");
 
-	qr_encode_text(our_qr, text);
+	qr_build(our_qr, text);
 
 	// Create oracle QR code from ZXing API
 	oracle_qr = qr_create_oracle(text, level, mode);
