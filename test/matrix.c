@@ -202,7 +202,7 @@ TEST(codeword_placement_reserved)
 		for (i = 0; i < qr->side_length; ++i)
 			for (j = 0; j < qr->side_length; ++j)
 				qr_module_set(qr, i, j, QR_MODULE_LIGHT);
-		memset(qr->codewords, 0xFF, qr->codeword_count * sizeof(word));
+		memset(qr->codewords, 0xFF, qr->codeword_count * sizeof(qr_word));
 		qr_place_codewords(qr);
 
 		// Verify reserved modules remain light, non-reserved become dark
@@ -241,7 +241,7 @@ TEST(codeword_placement_wrap_version1)
 
 	// Fill codewords with sequential values [0, 1, 2, ...]
 	for (i = 0; i < qr->codeword_count; ++i)
-		qr->codewords[i] = (word) i;
+		qr->codewords[i] = (qr_word) i;
 
 	qr_place_codewords(qr);
 
@@ -288,7 +288,7 @@ TEST(codeword_placement_wrap_version21)
 
 	// Fill codewords with sequential values [0, 1, 2, ...]
 	for (i = 0; i < qr->codeword_count; ++i)
-		qr->codewords[i] = (word) i;
+		qr->codewords[i] = (qr_word) i;
 
 	qr_place_codewords(qr);
 

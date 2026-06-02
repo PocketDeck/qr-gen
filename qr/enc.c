@@ -59,7 +59,7 @@ qr_detect_mode(const char *text)
 }
 
 static void
-append_bit(word *buffer, size_t *byte, size_t *bit, bool value)
+append_bit(qr_word *buffer, size_t *byte, size_t *bit, bool value)
 {
 	if (*bit == 0) buffer[*byte] = 0;
 	buffer[*byte] |= value << (7 - *bit);
@@ -72,7 +72,7 @@ append_bit(word *buffer, size_t *byte, size_t *bit, bool value)
 }
 
 static void
-append_byte(word *buffer, size_t *byte, size_t *bit, word value)
+append_byte(qr_word *buffer, size_t *byte, size_t *bit, qr_word value)
 {
 	size_t i;
 

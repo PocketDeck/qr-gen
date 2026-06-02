@@ -9,8 +9,8 @@
 constexpr size_t GF_SIZE = 256;
 constexpr unsigned PRIMITIVE = 0x11D;
 
-static word gf_log[GF_SIZE];
-static word gf_antilog[(GF_SIZE * 2) - 2];
+static qr_word gf_log[GF_SIZE];
+static qr_word gf_antilog[(GF_SIZE * 2) - 2];
 static bool gf_tables_initialized = false;
 
 static void
@@ -19,39 +19,39 @@ gf_init_log_antilog(void)
 	if (gf_tables_initialized) return;
 
 	size_t i;
-	word x = 1;
+	qr_word x = 1;
 
 	for (i = 0; i < GF_SIZE - 1; ++i)
 	{
 		gf_antilog[i] = x;
 		gf_antilog[i + (GF_SIZE - 1)] = x;
-		gf_log[x] = (word) i;
-		x = (word) ((x << 1) ^ ((x & 0x80) ? PRIMITIVE : 0));
+		gf_log[x] = (qr_word) i;
+		x = (qr_word) ((x << 1) ^ ((x & 0x80) ? PRIMITIVE : 0));
 	}
 
 	gf_tables_initialized = true;
 }
 
-static inline word
-gf_mul(word a, word b)
+static inline qr_word
+gf_mul(qr_word a, qr_word b)
 {
 	if (a == 0 || b == 0) return 0;
 	return gf_antilog[gf_log[a] + gf_log[b]];
 }
 
-static inline word
-gf_add(word a, word b)
+static inline qr_word
+gf_add(qr_word a, qr_word b)
 {
 	return a ^ b;
 }
 
 static void
-generator_polynomial(word *poly, size_t degree)
+generator_polynomial(qr_word *poly, size_t degree)
 {
 	if (degree == 0) return;
 
 	size_t i, j;
-	word coef;
+	qr_word coef;
 
 	for (i = 0; i < degree - 1; ++i)
 		poly[i] = 0;
@@ -67,10 +67,10 @@ generator_polynomial(word *poly, size_t degree)
 }
 
 static void
-ecc_generate(const word *data, size_t data_length, word *ecc, size_t ecc_length, word g[ecc_length])
+ecc_generate(const qr_word *data, size_t data_length, qr_word *ecc, size_t ecc_length, qr_word g[ecc_length])
 {
 	size_t i, j;
-	word feedback;
+	qr_word feedback;
 
 	for (i = 0; i < ecc_length; ++i)
 		ecc[i] = 0;
@@ -90,9 +90,9 @@ qr_ec_encode(qr_code *qr)
 	gf_init_log_antilog();
 
 	size_t i, j, data_length, ecc_length;
-	word generator[68];  // maximal size of ecc
-	word *data = qr->codewords;
-	word *ecc = qr->codewords + TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version];
+	qr_word generator[68];  // maximal size of ecc
+	qr_word *data = qr->codewords;
+	qr_word *ecc = qr->codewords + TOTAL_DATA_CODEWORD_COUNT[qr->level][qr->version];
 
 	for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
 	{
@@ -117,8 +117,8 @@ qr_ec_encode(qr_code *qr)
 		"Number of generated ec codewords do not match the expected number of codewords");
 }
 
-static word *
-interleave_words(const size_t codeword_count[BLOCK_TYPES_PER_VERSION], const size_t block_count[BLOCK_TYPES_PER_VERSION], word *in, word *out)
+static qr_word *
+interleave_words(const size_t codeword_count[BLOCK_TYPES_PER_VERSION], const size_t block_count[BLOCK_TYPES_PER_VERSION], qr_word *in, qr_word *out)
 {
 	size_t i, block, codeword;
 	size_t block_offset[BLOCK_TYPES_PER_VERSION], max_codeword_count = 0;
@@ -150,7 +150,7 @@ qr_interleave_codewords(qr_code *qr)
 	const size_t *data_codeword_count = DATA_CODEWORD_COUNT[qr->level][qr->version];
 	const size_t *block_count = BLOCK_COUNT[qr->level][qr->version];
 	size_t i, ecc_codeword_count[BLOCK_TYPES_PER_VERSION];
-	word final_codewords[qr->codeword_count], *word_ptr = final_codewords;
+	qr_word final_codewords[qr->codeword_count], *word_ptr = final_codewords;
 
 	for (i = 0; i < BLOCK_TYPES_PER_VERSION; ++i)
 		ecc_codeword_count[i] = TOTAL_CODEWORD_COUNT[qr->level][qr->version][i] - data_codeword_count[i];

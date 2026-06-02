@@ -31,7 +31,7 @@ typedef enum
 
 constexpr size_t QR_MASK_PATTERN_COUNT = 8;
 
-typedef uint8_t word;
+typedef uint8_t qr_word;
 
 typedef struct
 {
@@ -44,7 +44,7 @@ typedef struct
 
 	unsigned mask;
 
-	word *codewords;
+	qr_word *codewords;
 	size_t codeword_count;
 } qr_code;
 

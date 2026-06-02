@@ -45,13 +45,13 @@ TEST(gf_arithmetic)
 TEST(generator_polynomial)
 {
 	size_t i;
-	word poly[30];
+	qr_word poly[30];
 
 	// Test degree 5 generator polynomial: g(x) = (x-a^0)(x-a^1)(x-a^2)(x-a^3)(x-a^4)
 	generator_polynomial(poly, 5);
 
 	// Expected coefficients correspond to antilog table values
-	word expected5_exponents[5] = { 113, 164, 166, 119, 10 };
+	qr_word expected5_exponents[5] = { 113, 164, 166, 119, 10 };
 
 	for (i = 0; i < 5; ++i)
 	{
@@ -62,7 +62,7 @@ TEST(generator_polynomial)
 	// Test degree 16 generator polynomial (used in version 1-M QR codes)
 	generator_polynomial(poly, 16);
 
-	word expected16_exponents[16] =
+	qr_word expected16_exponents[16] =
 	{
 		120, 104, 107, 109, 102, 161, 76, 3, 91,
 		191, 147, 169, 182, 194, 225, 120
@@ -85,16 +85,16 @@ TEST(ecc_generation)
 	size_t i;
 
 	// Test data for Version 1-L QR code (7 data codewords, 10 ECC codewords)
-	word data[7] = { 40, 88, 12, 6, 46, 77, 36 };
-	word ecc[10] = {};
-	word g[10] = {};
+	qr_word data[7] = { 40, 88, 12, 6, 46, 77, 36 };
+	qr_word ecc[10] = {};
+	qr_word g[10] = {};
 
 	// Generate Reed-Solomon error correction codewords
 	generator_polynomial(g, 10);
 	ecc_generate(data, 7, ecc, 10, g);
 
 	// Expected ECC values computed from standard Reed-Solomon algorithm
-	word expected_ecc[10] = { 214, 246, 18, 193, 38, 69, 160, 197, 199, 15 };
+	qr_word expected_ecc[10] = { 214, 246, 18, 193, 38, 69, 160, 197, 199, 15 };
 	for (i = 0; i < 10; ++i)
 	{
 		test_eq(ecc[i], expected_ecc[i],
@@ -119,10 +119,10 @@ TEST(qr_ec_encode_version1_l)
 
 	// Fill data codewords with test pattern
 	for (i = 0; i < data_count; ++i)
-		qr->codewords[i] = (word) ((i * 5 + 7) % 256);
+		qr->codewords[i] = (qr_word) ((i * 5 + 7) % 256);
 
 	test_eq(ecc_length, 7, "ECC length incorrect");
-	word expected_ecc[7] = { 79, 91, 164, 37, 5, 243, 57 };
+	qr_word expected_ecc[7] = { 79, 91, 164, 37, 5, 243, 57 };
 
 	// Generate ECC and append to data codewords
 	qr_ec_encode(qr);
@@ -152,10 +152,10 @@ TEST(qr_ec_encode_version9_m)
 
 	// Fill data codewords with test pattern for multi-block scenario
 	for (i = 0; i < data_count; ++i)
-		qr->codewords[i] = (word) ((i * 3 + 11) % 256);
+		qr->codewords[i] = (qr_word) ((i * 3 + 11) % 256);
 
 	test_eq(ecc_length, 110, "ECC length incorrect");
-	word expected_ecc[] = {
+	qr_word expected_ecc[] = {
 		245, 121, 89, 42, 56, 51, 80, 31, 34, 6,
 		243, 58, 171, 209, 46, 130, 106, 40, 112, 46,
 		180, 40, 74, 135, 42, 23, 111, 54, 210, 161,
@@ -193,7 +193,7 @@ TEST(codeword_interleaving_version1_h)
 
 	// Fill codewords with sequential values [1, 2, 3, ...]
 	for (i = 0; i < qr->codeword_count; ++i)
-		qr->codewords[i] = (word) (i + 1);
+		qr->codewords[i] = (qr_word) (i + 1);
 
 	// Single block: interleaving should not change order
 	qr_interleave_codewords(qr);
@@ -221,7 +221,7 @@ TEST(codeword_interleaving_version8_m)
 	// Version 8-M has 4 blocks: 2x(38 data + 22 ECC) + 2x(39 data + 22 ECC)
 	// Fill with sequential values to test interleaving across blocks
 	for (i = 0; i < 242; ++i)
-		qr->codewords[i] = (word) (i + 1);
+		qr->codewords[i] = (qr_word) (i + 1);
 
 	// Interleave codewords: take first from each block, then second, etc.
 	qr_interleave_codewords(qr);
