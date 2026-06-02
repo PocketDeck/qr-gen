@@ -35,8 +35,6 @@ static struct test_result EXPAND_AND_PASTE(test_before_, __LINE__)(void)
 
 void *test_malloc(size_t size);
 
-#define INT_MAX_CHARS ((3 * sizeof(int)) + 1)
-
 #define TEST_SUCCESS ((struct test_result) { false, nullptr, __LINE__ })
 #define TEST_FAILURE(message) ((struct test_result) { true, (message), __LINE__ })
 
@@ -49,7 +47,7 @@ void *test_malloc(size_t size);
 		size_t _test_length = \
 			strlen(message) + \
 			strlen(":  " #operator " ") + \
-			(2 * INT_MAX_CHARS) + 1; \
+			(6 * sizeof(int)) + 3; \
 		char *_test_message = test_malloc(_test_length); \
 		if (_test_message == nullptr) return TEST_FAILURE("test: test_malloc failed"); \
 		snprintf(_test_message, _test_length, "%s: %d " #operator " %d", message, _test_lhs, _test_rhs); \
