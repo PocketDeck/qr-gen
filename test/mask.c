@@ -181,7 +181,8 @@ TEST(mask_feature_3)
 			qr_matrix_set(qr, i, j, QR_MODULE_LIGHT);
 
 	// Create finder pattern 1:1:3:1:1 (dark:light:dark:dark:dark:light:dark)
-	for (j = 4; j < 11; ++j) qr_matrix_set(qr, 10, j, pattern[j - 4] ? QR_MODULE_DARK : QR_MODULE_LIGHT);
+	for (j = 4; j < 11; ++j)
+		qr_matrix_set(qr, 10, j, pattern[j - 4] ? QR_MODULE_DARK : QR_MODULE_LIGHT);
 	score = feature_3_evaluation(qr);
 	test_eq(score, 40, "Feature 3 penalty incorrect");
 
