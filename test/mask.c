@@ -264,7 +264,7 @@ TEST(mask_patterns)
 		{
 			for (j = 0; j < qr->side_length; ++j)
 			{
-				bool should_toggle = 0;
+				bool should_toggle = false;
 				qr_module expected;
 
 				if (qr_matrix_is_reserved(qr, i, j))

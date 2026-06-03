@@ -162,14 +162,14 @@ static void
 init_qr_from_bits(qr_code *qr, const char *bits)
 {
 	size_t i, j;
-    qr_module mod;
+	qr_module mod;
 
 	// Convert bit string to QR matrix modules
 	for (i = 0; i < qr->side_length; ++i)
 	{
 		for (j = 0; j < qr->side_length; ++j)
 		{
-            mod = (bits[i * qr->side_length + j] == '1') ? QR_MODULE_DARK : QR_MODULE_LIGHT;
+			mod = (bits[i * qr->side_length + j] == '1') ? QR_MODULE_DARK : QR_MODULE_LIGHT;
 			qr_matrix_set(qr, i, j, mod);
 		}
 	}
