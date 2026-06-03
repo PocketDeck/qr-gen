@@ -4,7 +4,6 @@
 #include <qr/types.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 
 constexpr size_t GF_SIZE = 256;
 constexpr unsigned PRIMITIVE = 0x11D;
