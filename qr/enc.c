@@ -6,7 +6,7 @@
 #include <string.h>
 
 unsigned
-qr_min_version(qr_mode mode, qr_ecl level, size_t bytes)
+qr_detect_version(qr_mode mode, qr_ecl level, size_t bytes)
 {
 	size_t i;
 

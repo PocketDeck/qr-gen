@@ -264,7 +264,7 @@ compare_with_oracle(const char *text, qr_ecl level)
 
 	// Determine mode and minimum QR version for input text
 	qr_mode mode = qr_detect_mode(text);
-	unsigned version = qr_min_version(mode, level, strlen(text));
+	unsigned version = qr_detect_version(mode, level, strlen(text));
 	if (!version) return TEST_FAILURE("Input too large");
 
 	// Create our QR code and encode text

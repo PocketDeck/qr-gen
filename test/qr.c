@@ -522,7 +522,7 @@ TEST(create_and_encode_39_H_B) { return create_and_encode(39, QR_EC_LEVEL_H, QR_
 TEST(create_and_encode_40_H_B) { return create_and_encode(40, QR_EC_LEVEL_H, QR_MODE_BYTE); }
 
 /**
- * @brief Test qr_min_version returns 0 for too large messages
+ * @brief Test qr_detect_version returns 0 for too large messages
  */
 TEST(too_large_message)
 {
@@ -591,7 +591,7 @@ TEST(too_large_message)
 	// Test for each error correction level
 	for (level = 0; level < QR_EC_LEVEL_COUNT; ++level)
 	{
-		version = qr_min_version(QR_MODE_BYTE, level, strlen(large_message));
+		version = qr_detect_version(QR_MODE_BYTE, level, strlen(large_message));
 		test_eq(version, 0, "Too large message should return 0");
 	}
 

@@ -69,7 +69,7 @@ main(int argc, char **argv)
 	qr_ecl ec_level = (argc > 2) ? parse_ec_level(argv[2]) : QR_EC_LEVEL_M;
 	enum out_format format = (argc > 3) ? parse_out_format(argv[3]) : FMT_TERM;
 	qr_mode mode = qr_detect_mode(input);
-	unsigned version = qr_min_version(mode, ec_level, strlen(input));
+	unsigned version = qr_detect_version(mode, ec_level, strlen(input));
 	if (!version)
 	{
 		LOG("Error: Input too large for QR code\n");
