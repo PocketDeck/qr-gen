@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern void LOG(const char *fmt, ...);
-
 qr_code *
 qr_create(unsigned version, qr_mode mode, qr_ecl level)
 {
@@ -56,39 +54,22 @@ void
 qr_build(qr_code *qr, const char *text)
 {
 	// 1. enc
-	LOG("Encoding text...............");
 	qr_encode_data(qr, text);
-	LOG("OK\n");
-
 	// 2. ecc
-	LOG("Encoding error correction...");
 	qr_ecc_encode(qr);
-	LOG("OK\n");
-
 	// 3. block
-	LOG("Interleaving codewords......");
 	qr_ecc_interleave(qr);
-	LOG("OK\n");
-
 	// 4. matrix
-	LOG("Generating matrix...........");
 	qr_matrix_place_codewords(qr);
 	qr_finder_patterns_apply(qr);
 	qr_separators_apply(qr);
 	qr_timing_patterns_apply(qr);
 	qr_alignment_patterns_apply(qr);
-	LOG("OK\n");
-
 	// 5. masking
-	LOG("Masking.....................");
 	qr_mask_apply(qr);
-	LOG("OK\n");
-
 	// 6. info
-	LOG("Applying meta information...");
 	qr_format_info_apply(qr);
 	qr_version_info_apply(qr);
-	LOG("OK\n");
 }
 
 void
