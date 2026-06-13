@@ -91,7 +91,6 @@ main(int argc, char **argv)
 	}
 
 	qr_build(qr, input);
-	LOG("\n");
 
 	switch (format)
 	{
