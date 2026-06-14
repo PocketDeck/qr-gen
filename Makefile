@@ -7,9 +7,9 @@ RELEASE_TARGET    := $(RELEASE_BUILD_DIR)/qr-gen
 TEST_TARGET       := $(TEST_BUILD_DIR)/qr-test
 
 SRCS  := $(wildcard $(SRC_DIR)/*.c)
-OBJS  := $(patsubst $(SRC_DIR)/%.c, $(RELEASE_BUILD_DIR)/%.o, $(SRCS))
+OBJS  := $(patsubst $(SRC_DIR)/%.c,$(RELEASE_BUILD_DIR)/%.o,$(SRCS))
 TESTS := $(wildcard $(TEST_DIR)/*.c)
-TOBJS := $(patsubst $(TEST_DIR)/%.c, $(TEST_BUILD_DIR)/%.o, $(TESTS))
+TOBJS := $(patsubst $(TEST_DIR)/%.c,$(TEST_BUILD_DIR)/%.o,$(TESTS))
 DEPS  := $(OBJS:.o=.d) $(TOBJS:.o=.d)
 
 CFLAGS := -Wall -Wextra -Wpedantic -Werror -I. -MMD -MP -O3 -flto=auto
