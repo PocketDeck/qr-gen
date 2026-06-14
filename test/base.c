@@ -17,12 +17,13 @@ typedef struct group_node
 {
 	const char *name;
 	test_node *tests;
-	size_t count;
+	size_t test_count;
 	size_t longest_test_name;
 	struct group_node *next;
 } group_node;
 
 static group_node *group_head = nullptr;
+static size_t group_count = 0;
 static size_t longest_group_name = 0;
 
 test_node *
@@ -75,7 +76,7 @@ append_group(group_node **head, const char *name)
 	group_node *new_group = test_malloc(sizeof(group_node));
 	new_group->name = name;
 	new_group->tests = nullptr;
-	new_group->count = 0;
+	new_group->test_count = 0;
 	new_group->longest_test_name = 0;
 	new_group->next = nullptr;
 
@@ -91,6 +92,7 @@ append_group(group_node **head, const char *name)
 
 	if (strlen(new_group->name) > longest_group_name)
 		longest_group_name = strlen(new_group->name);
+	++group_count;
 
 	return new_group;
 }
@@ -120,7 +122,7 @@ test_register_case(const char *group_name, const char *test_name, struct test_re
 	if (strlen(test->name) > group->longest_test_name)
 		group->longest_test_name = strlen(test->name);
 
-	++group->count;
+	++group->test_count;
 }
 
 void
@@ -175,9 +177,9 @@ print_group_progress(group_node *group, size_t ran, size_t failures)
 {
 	size_t i;
 
-	printf("Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, (int) (longest_group_name - strlen(group->name) + 1), ":", ran, failures);
+	printf("> Test group %s%-*s %3zu test(s) ran; %3zu failed. ", group->name, (int) (longest_group_name - strlen(group->name) + 1), ":", ran, failures);
 	printf("[\x1b[32m\x1b[7m");
-	for (i = 0; i < (unsigned) (((ran - failures) / (float) group->count) * BAR_WIDTH); ++i)
+	for (i = 0; i < (unsigned) (((ran - failures) / (float) group->test_count) * BAR_WIDTH); ++i)
 		printf("-");
 	printf("\x1b[31m");
 	for (; i < BAR_WIDTH; ++i)
@@ -200,13 +202,13 @@ run_test_group(group_node *group)
 			current_test->res = current_test->fn();
 			if (current_test->res.failed)
 			{
-				group->count = 0;
+				group->test_count = 0;
 				break;
 			}
 			continue;
 		}
 
-		printf("  => %-*s (%2zu/%2zu)", (int) group->longest_test_name, current_test->name, ran + 1, group->count);
+		printf(" => %-*s (%2zu/%2zu)", (int) group->longest_test_name, current_test->name, ran + 1, group->test_count);
 		fflush(stdout);
 		current_test->res = current_test->fn();
 		++ran;
@@ -225,10 +227,12 @@ main(void)
 	test_node *current_test;
 	size_t total_failures = 0, total_tests = 0;
 
+	printf("Running test suite [ %zu test group(s) ]:\n\n", group_count);
+
 	for (current_group = group_head; current_group; current_group = current_group->next)
 	{
 		total_failures += run_test_group(current_group);
-		total_tests += current_group->count;
+		total_tests += current_group->test_count;
 	}
 
 	printf("\nSummary: %zu test(s) ran; %zu failed.\n", total_tests, total_failures);
