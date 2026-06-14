@@ -3,8 +3,8 @@ TEST_DIR          := test
 BUILD_DIR         := build
 RELEASE_BUILD_DIR := $(BUILD_DIR)/release
 TEST_BUILD_DIR    := $(BUILD_DIR)/test
-TARGET_RELEASE    := $(RELEASE_BUILD_DIR)/qr-gen
-TARGET_TEST       := $(TEST_BUILD_DIR)/qr-test
+RELEASE_TARGET    := $(RELEASE_BUILD_DIR)/qr-gen
+TEST_TARGET       := $(TEST_BUILD_DIR)/qr-test
 
 SRCS  := $(wildcard $(SRC_DIR)/*.c)
 OBJS  := $(patsubst $(SRC_DIR)/%.c, $(RELEASE_BUILD_DIR)/%.o, $(SRCS))
@@ -15,12 +15,12 @@ DEPS  := $(OBJS:.o=.d) $(TOBJS:.o=.d)
 CFLAGS := -Wall -Wextra -Wpedantic -Werror -I. -MMD -MP -O3 -flto=auto
 TESTFLAGS := -Wl,--allow-multiple-definition
 
-all: $(TARGET_RELEASE) $(TARGET_TEST)
+all: $(RELEASE_TARGET) $(TEST_TARGET)
 
-$(TARGET_RELEASE): $(OBJS) | $(RELEASE_BUILD_DIR)
+$(RELEASE_TARGET): $(OBJS) | $(RELEASE_BUILD_DIR)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(TARGET_TEST): $(filter-out $(RELEASE_BUILD_DIR)/main.o,$(OBJS)) $(TOBJS) | $(TEST_BUILD_DIR)
+$(TEST_TARGET): $(filter-out $(RELEASE_BUILD_DIR)/main.o,$(OBJS)) $(TOBJS) | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(TESTFLAGS) -o $@ $^
 
 $(RELEASE_BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(RELEASE_BUILD_DIR)
@@ -37,10 +37,10 @@ $(BUILD_DIR) $(RELEASE_BUILD_DIR) $(TEST_BUILD_DIR):
 clean:
 	rm -rf $(BUILD_DIR) $(RELEASE_BUILD_DIR) $(TEST_BUILD_DIR)
 
-run: $(TARGET_RELEASE)
-	./$(TARGET_RELEASE) "$(TEXT)" "$(ECL)" "$(OUTFMT)"
+run: $(RELEASE_TARGET)
+	./$(RELEASE_TARGET) "$(TEXT)" "$(ECL)" "$(OUTFMT)"
 
-test: $(TARGET_TEST)
-	./$(TARGET_TEST)
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
 
 -include $(DEPS)
